@@ -13,27 +13,56 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Voice Interaction
-    const toggleRecording = () => {
+    const toggleRecording = async () => {
         if (isRecording) {
-            // Stop logic would go here if we had a continuous listener handle
             setIsRecording(false);
-            // window.speechSynthesis.cancel();
+            (window as any).recognitionInstance?.stop();
             return;
         }
 
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (SpeechRecognition) {
+            // Explicitly request mic permission first (modern browsers prefer this)
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+            } catch (err) {
+                console.error("Microphone permission denied:", err);
+                alert("Please allow microphone access to use this feature.");
+                return;
+            }
+
             const recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
+            (window as any).recognitionInstance = recognition; // Store instance to stop it later
+
+            recognition.continuous = true; // KEEP RECORDING until stopped
+            recognition.interimResults = true;
             recognition.lang = 'en-US';
 
             recognition.onstart = () => setIsRecording(true);
             recognition.onend = () => setIsRecording(false);
+
             recognition.onresult = (event: any) => {
-                const transcript = event.results[0][0].transcript;
-                setInput(prev => prev + (prev ? ' ' : '') + transcript);
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    }
+                }
+                if (finalTranscript) {
+                    setInput(prev => prev + (prev ? ' ' : '') + finalTranscript);
+                }
             };
+
+            recognition.onerror = (event: any) => {
+                console.error("Speech recognition error", event.error);
+                if (event.error === 'audio-capture') {
+                    // Mute alert if it's just a transient connection issue, but show for persistent
+                    console.warn("No mic detected.");
+                }
+                // Don't separate logic here, let it just stop.
+                // setIsRecording(false) handles the UI reset.
+            };
+
             recognition.start();
         } else {
             alert("Speech recognition not supported in this browser.");

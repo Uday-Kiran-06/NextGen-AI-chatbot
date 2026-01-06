@@ -1,56 +1,80 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { model } from '@/lib/gemini';
+import { runAgentWorkflow, executeToolCall } from '@/lib/agent/workflow-engine';
+import { Cache } from '@/lib/cache';
 
 export async function POST(req: NextRequest) {
     try {
         const { history, message, layers } = await req.json();
 
-        // history: Array of { role: 'user' | 'model', parts: string | array }
-        // message: string (current message)
-        // layers: Array of base64 images { mimeType, data }
+        // High-Performance Optimization: Check Cache for identical queries
+        // (Simplified key generation for demo - in prod use hash)
+        const cacheKey = `query:${message}`;
+        // Skip cache if there are images, as context differs
+        const cachedResponse = (!layers || layers.length === 0) ? Cache.get(cacheKey) : null;
 
-        const chat = model.startChat({
-            history: history.map((h: any) => ({
-                role: h.role,
-                parts: [{ text: h.content }]
-            }))
-        });
-
-        let result;
-        if (layers && layers.length > 0) {
-            // Multimodal request (no chat history for vision in basic setup usually, but Flash supports it)
-            // For simplicity, we'll just send the current prompt + images if images exist, 
-            // or effectively use chat if no images.
-            // Actually, startChat doesn't easily support images in history *yet* in all node sdk versions easily.
-            // So if images, we use generateContent on the model directly with previous context if needed.
-
-            const prompt = [message, ...layers.map((l: any) => ({
-                inlineData: {
-                    data: l.data,
-                    mimeType: l.mimeType
+        if (cachedResponse) {
+            // Speed! Return cached response immediately.
+            return new NextResponse(new ReadableStream({
+                start(controller) {
+                    controller.enqueue(new TextEncoder().encode(cachedResponse));
+                    controller.close();
                 }
-            }))];
-
-            result = await model.generateContentStream(prompt);
-        } else {
-            result = await chat.sendMessageStream(message);
+            }));
         }
 
+        // Agent Execution Loop
+        // 1. Initial Plan/Thought
+        let response = await runAgentWorkflow(history, message, layers);
+
+        // 2. Loop if tool calls are needed
+        // (Limit depth to 3 for safety in this demo)
+        let depth = 0;
+        let finalContent = "";
+
+        while (response.type === 'tool_call' && depth < 3) {
+            const { toolName, toolArgs } = response;
+
+            // Execute Tool
+            const toolResult = await executeToolCall(toolName!, toolArgs);
+
+            // Add tool result to history conceptually
+            // In Gemini API, we'd send a "function_response" part.
+            // For this simpler "chat" abstraction, we feed it back as system info.
+            history.push({ role: 'model', content: `Requesting tool: ${toolName}` });
+            history.push({ role: 'user', content: `Tool Result for ${toolName}: ${JSON.stringify(toolResult)}` });
+
+            // Re-run Agent with new context
+            response = await runAgentWorkflow(history, "Continue based on the tool result.");
+            depth++;
+        }
+
+        if (response.type === 'text') {
+            finalContent = response.content || "";
+            // Cache the final result for short duration
+            Cache.set(cacheKey, finalContent, 60);
+        }
+
+        // Stream the result back
         const stream = new ReadableStream({
-            async start(controller) {
-                for await (const chunk of result.stream) {
-                    const chunkText = chunk.text();
-                    controller.enqueue(new TextEncoder().encode(chunkText));
+            start(controller) {
+                if (depth > 0) {
+                    // If we did work, maybe add a preamble?
+                    // For now just raw content.
                 }
+                controller.enqueue(new TextEncoder().encode(finalContent));
                 controller.close();
             }
         });
 
         return new NextResponse(stream);
 
-    } catch (error) {
-        console.error('Error processing chat:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    } catch (error: any) {
+        // Improved logging to catch Error objects which stringify to {}
+        console.error('Error processing chat:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+        return NextResponse.json(
+            { error: error.message || String(error) || 'Internal Server Error' },
+            { status: 500 }
+        );
     }
 }
