@@ -56,6 +56,10 @@
   --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   color: var(--md-sys-color-on-background);
   background: var(--md-sys-color-background);
