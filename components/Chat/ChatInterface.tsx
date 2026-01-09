@@ -3,9 +3,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import MessageBubble from './MessageBubble';
 import InputArea from './InputArea';
-import { Share2, Sparkles, Zap, Image as ImageIcon, Code, PenTool, Menu } from 'lucide-react';
+import { Share2, Zap, Image as ImageIcon, Code, PenTool, Menu, Brain } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { cn, getFriendlyErrorMessage } from '@/lib/utils';
 import { chatStore, Message as DBMessage } from '@/lib/chat-store';
 
 interface Message {
@@ -118,16 +118,14 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             if (!response.ok) {
                 const errorText = await response.text();
                 let errorData;
+
                 try {
                     errorData = JSON.parse(errorText);
                 } catch (e) {
-                    // If parse fails, it's likely an HTML error page (500)
-                    console.error("Non-JSON Server Error:", errorText);
                     throw new Error(`Server Error (${response.status}): ${response.statusText}`);
                 }
 
-                console.error("Server Error:", errorData);
-                throw new Error(errorData.error || 'Network response was not ok');
+                throw new Error(errorData.error || `Server Error: ${response.status}`);
             }
 
             const reader = response.body?.getReader();
@@ -156,9 +154,14 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                 chatStore.addMessage(currentConvoId, 'model', aiMessageContent);
             }
 
-        } catch (error) {
-            console.error('Error generating response:', error);
-            setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: 'Sorry, I encountered an error. Please check your connection or API key.' }]);
+        } catch (error: any) {
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error generating response:', error);
+            }
+            
+            const errorMessage = getFriendlyErrorMessage(error);
+
+            setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: errorMessage }]);
         } finally {
             setIsGenerating(false);
         }
@@ -168,37 +171,46 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
         <div className="flex-1 flex flex-col h-full relative z-0 overflow-hidden">
             {/* Mobile Header */}
             {/* Mobile Header - Sticky, Capsule, Floating */}
-            <div className="md:hidden absolute top-4 left-4 right-4 z-50 flex items-center justify-between px-4 py-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full shadow-lg">
+            <div className="md:hidden absolute top-4 left-4 right-4 z-50 flex items-center justify-between px-4 py-3 bg-surface-container/90 backdrop-blur-md rounded-full shadow-md elevation-1">
                 <button
                     onClick={onOpenSidebar}
-                    className="p-1 text-gray-300 hover:text-white transition-colors"
+                    className="p-1 text-on-surface-variant hover:text-on-surface transition-colors"
                 >
                     <Menu size={20} />
                 </button>
-                <div className="font-bold text-sm text-transparent bg-clip-text bg-gradient-to-r from-accent-primary to-accent-secondary">
-                    NextGen AI
+                <div className={cn("font-bold text-sm text-on-surface transition-opacity duration-300", messages.length === 0 ? "opacity-0" : "opacity-100")}>
+                    QUBIT AI
                 </div>
                 <div className="w-5" /> {/* Placeholder for balance */}
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 scrollbar-hide pt-20 md:pt-4">
-                <div className="max-w-4xl mx-auto space-y-6 h-full flex flex-col">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 md:p-8 scrollbar-hide pt-20 md:pt-4">
+                <div className="max-w-4xl mx-auto space-y-4 md:space-y-6 h-full flex flex-col w-full">
 
                     {/* Welcome View */}
                     {messages.length === 0 && (
-                        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 min-h-[50vh]">
+                        <div className="flex-1 flex flex-col items-center justify-start md:justify-center text-center space-y-4 md:space-y-8 min-h-[50vh] pt-4 md:pt-0 w-full">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, ease: "easeOut" }}
-                                className="relative"
+                                className="relative flex flex-col items-center gap-4 md:gap-6"
                             >
-                                <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-accent-primary to-accent-secondary blur-2xl opacity-20 animate-pulse-slow" />
-                                <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/50 relative z-10">
-                                    NextGen AI
+                                <div className="absolute -inset-20 rounded-full bg-primary/10 blur-3xl opacity-50 pointer-events-none" />
+                                
+                                <div className="relative w-20 h-20 md:w-32 md:h-32 shadow-2xl rounded-3xl overflow-hidden bg-surface-container-high border border-white/5 p-0 elevation-3 flex items-center justify-center">
+                                    <img 
+                                        src="/logo.png" 
+                                        alt="QUBIT AI"
+                                        className="w-full h-full object-contain" 
+                                    />
+                                </div>
+
+                                <h1 className="text-3xl md:text-5xl font-medium text-on-surface relative z-10 tracking-tight">
+                                    QUBIT AI
                                 </h1>
-                                <p className="text-gray-400 mt-4 text-lg max-w-md mx-auto">
+                                <p className="text-on-surface-variant mt-2 md:mt-4 text-sm md:text-lg max-w-md mx-auto px-4">
                                     Your advanced assistant for analysis, creativity, and development.
                                 </p>
                             </motion.div>
@@ -213,12 +225,12 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                     <button
                                         key={i}
                                         onClick={() => handleSendMessage(item.prompt, [])}
-                                        className="flex flex-col items-center gap-3 p-4 rounded-2xl glass-panel border-white/5 hover:border-accent-primary/50 hover:bg-white/5 transition-all group"
+                                        className="flex flex-col items-center gap-3 p-4 rounded-[16px] bg-surface-container-high hover:bg-surface-container-highest transition-all group shadow-sm hover:shadow-md active:scale-95 interactable"
                                     >
-                                        <div className="p-3 rounded-full bg-white/5 group-hover:bg-accent-primary/20 group-hover:text-accent-primary transition-colors">
+                                        <div className="p-3 rounded-full bg-secondary-container text-on-secondary-container group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors">
                                             <item.icon size={20} />
                                         </div>
-                                        <span className="text-sm font-medium text-gray-300 group-hover:text-white">{item.label}</span>
+                                        <span className="text-sm font-medium text-on-surface-variant group-hover:text-on-surface">{item.label}</span>
                                     </button>
                                 ))}
                             </motion.div>
@@ -236,12 +248,18 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     {/* Typing Indicator */}
                     {isGenerating && (
                         <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-2 text-gray-400 ml-12"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="flex items-start gap-4 mb-4"
                         >
-                            <Sparkles size={16} className="animate-spin-slow text-accent-primary" />
-                            <span className="text-xs font-medium animate-pulse">Thinking...</span>
+                            <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center border border-white/5 shadow-sm">
+                                <Brain size={18} className="text-secondary animate-pulse" />
+                            </div>
+                            <div className="bg-surface-container-high/50 backdrop-blur-sm px-4 py-3 rounded-2xl rounded-tl-none border border-white/5 flex items-center gap-1 shadow-sm">
+                                <div className="w-2 h-2 bg-accent-primary opacity-60 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                <div className="w-2 h-2 bg-accent-primary opacity-60 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                <div className="w-2 h-2 bg-accent-primary opacity-60 rounded-full animate-bounce" />
+                            </div>
                         </motion.div>
                     )}
 
@@ -250,14 +268,14 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             </div>
 
             {/* Input Area */}
-            <div className="p-4 md:p-6 bg-gradient-to-t from-background via-background/80 to-transparent z-10">
+            <div className="z-10 w-full mb-2">
                 <div className="max-w-4xl mx-auto">
                     {/* Share Button (moved near input or keep in header? Let's add a small floating action or just keep input) */}
                     {/* Actually, let's add a Share button to the top right of the chat area, or maybe near the input helper text */}
 
                     <InputArea onSendMessage={handleSendMessage} isGenerating={isGenerating} />
                     <div className="flex justify-center items-center gap-4 mt-3">
-                        <p className="text-[10px] text-gray-500">
+                        <p className="text-[10px] text-on-surface-variant">
                             AI can make mistakes. Please verify important information.
                         </p>
                         {messages.length > 0 && (

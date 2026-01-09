@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import React, { useState, useRef } from 'react';
 import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon } from 'lucide-react';
 
@@ -11,6 +12,8 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
     const [isRecording, setIsRecording] = useState(false);
     const [files, setFiles] = useState<{ name: string, data: string, mimeType: string, preview: string }[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const hasContent = input.trim().length > 0 || files.length > 0;
 
     // Voice Interaction
     const toggleRecording = async () => {
@@ -111,7 +114,7 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
     };
 
     return (
-        <div className="p-4 md:p-6 pb-6">
+        <div className="p-3 md:p-6 pb-6">
 
             {/* File Previews */}
             {files.length > 0 && (
@@ -136,12 +139,18 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                 </div>
             )}
 
-            <div className="glass-panel rounded-2xl p-2 flex items-end gap-2 relative transition-all focus-within:ring-2 focus-within:ring-purple-500/50">
+            {/* Input Container - Material Search/Input Bar */}
+            <div className={cn(
+                "bg-surface-container-high rounded-[28px] p-2 flex items-end gap-2 relative transition-all duration-300 ease-emphasized shadow-sm hover:shadow-md elevation-1 group/input border border-transparent",
+                // Neon Glow if Focused OR Has Content (No hard border)
+                "focus-within:border-accent-primary/30 focus-within:shadow-[0_0_20px_rgba(208,188,255,0.3)]",
+                hasContent && "border-accent-primary/30 shadow-[0_0_20px_rgba(208,188,255,0.3)]"
+            )}>
 
                 {/* Attach Button */}
                 <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-3 text-gray-400 hover:text-white transition-colors rounded-xl hover:bg-white/5 shrink-0"
+                    className="p-3 text-on-surface-variant hover:text-on-surface transition-colors rounded-full hover:bg-surface-container-highest shrink-0 interactable"
                 >
                     <Paperclip size={20} />
                 </button>
@@ -160,7 +169,7 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Ask anything..."
-                    className="bg-transparent border-0 text-white placeholder-gray-400 focus:ring-0 flex-1 resize-none py-3 max-h-32 min-h-[44px] scrollbar-hide outline-none"
+                    className="bg-transparent border-0 text-on-surface placeholder-outline focus:ring-0 flex-1 resize-none py-3 max-h-32 min-h-[44px] scrollbar-hide outline-none leading-relaxed"
                     rows={1}
                 />
 
@@ -168,26 +177,25 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                 <div className="flex items-center gap-1 pb-1">
                     {/* Voice Input */}
                     <button
-                        className={`p-3 rounded-xl transition-all ${isRecording ? 'text-red-400 bg-red-500/10 animate-pulse' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                        className={`p-3 rounded-full transition-all ${isRecording ? 'text-error bg-error/10 animate-pulse' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest'}`}
                         onClick={toggleRecording}
                     >
                         <Mic size={20} />
                     </button>
 
-                    {/* Send Button */}
+                    {/* Send Button - FAB Style */}
                     <button
                         onClick={handleSend}
                         disabled={(!input.trim() && files.length === 0) || isGenerating}
-                        className="p-3 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-purple-500/25 transition-all w-11 h-11 flex items-center justify-center"
+                        className="p-3 bg-primary text-on-primary rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-all w-11 h-11 flex items-center justify-center transform active:scale-95"
                     >
                         {isGenerating ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
                     </button>
                 </div>
 
             </div>
-            <div className="text-center mt-2">
-                <p className="text-[10px] text-gray-500">AI can make mistakes. Please verify important information.</p>
-            </div>
+
+
         </div>
     );
 }
