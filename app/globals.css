@@ -3,36 +3,36 @@
 @tailwind utilities;
 
 :root {
-  /* Authentic Material You (Dark) - Deep Charcoal & Soft Lavender */
+  /* Vibrant Tech Theme - Electric Lime & Bright Blue */
   
   /* Backgrounds */
-  --md-sys-color-background: #0f0f0f; /* OLED Black-ish */
-  --md-sys-color-on-background: #E3E3E3;
+  --md-sys-color-background: #050505; /* Deepest Black for contrast */
+  --md-sys-color-on-background: #ffffff;
   
   /* Surfaces */
-  --md-sys-color-surface: #1e1e1e;
-  --md-sys-color-surface-container-low: #222222;
-  --md-sys-color-surface-container: #272727;
-  --md-sys-color-surface-container-high: #2b2b2b;
-  --md-sys-color-surface-container-highest: #383838;
+  --md-sys-color-surface: #0a0a0a;
+  --md-sys-color-surface-container-low: #121212;
+  --md-sys-color-surface-container: #1a1a1a;
+  --md-sys-color-surface-container-high: #222222;
+  --md-sys-color-surface-container-highest: #2c2c2c;
   
-  /* Primary - Soft Lavender/Periwinkle */
-  --md-sys-color-primary: #D0BCFF;
-  --md-sys-color-on-primary: #381E72;
-  --md-sys-color-primary-container: #4F378B;
-  --md-sys-color-on-primary-container: #EADDFF;
+  /* Primary - Electric Lime */
+  --md-sys-color-primary: #CCFF00;
+  --md-sys-color-on-primary: #000000;
+  --md-sys-color-primary-container: #4C6600;
+  --md-sys-color-on-primary-container: #EEFFB3;
   
-  /* Secondary - Muted Purple/Grey */
-  --md-sys-color-secondary: #CCC2DC;
-  --md-sys-color-on-secondary: #332D41;
-  --md-sys-color-secondary-container: #4A4458;
-  --md-sys-color-on-secondary-container: #E8DEF8;
+  /* Secondary - Bright Blue */
+  --md-sys-color-secondary: #2979FF;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #0047AB;
+  --md-sys-color-on-secondary-container: #D6E4FF;
   
-  /* Tertiary - Soft Pink/Coral for pop */
-  --md-sys-color-tertiary: #EFB8C8;
-  --md-sys-color-on-tertiary: #492532;
-  --md-sys-color-tertiary-container: #633B48;
-  --md-sys-color-on-tertiary-container: #FFD8E4;
+  /* Tertiary - Neon Orange */
+  --md-sys-color-tertiary: #FF3D00;
+  --md-sys-color-on-tertiary: #ffffff;
+  --md-sys-color-tertiary-container: #8F2200;
+  --md-sys-color-on-tertiary-container: #FFDBCF;
 
   /* Utility */
   --md-sys-color-error: #F2B8B5;

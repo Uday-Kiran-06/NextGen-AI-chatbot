@@ -215,7 +215,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                         "glass-button w-full flex items-center gap-3 py-3 font-semibold hover:bg-white/10 group relative overflow-hidden",
                         isCollapsed ? "justify-center px-0 rounded-xl" : "justify-start px-4 rounded-xl"
                     )}>
-                    <MessageSquarePlus size={isCollapsed ? 24 : 20} className="group-hover:scale-110 transition-transform text-accent-secondary" />
+                    <MessageSquarePlus size={isCollapsed ? 24 : 20} className="group-hover:scale-110 transition-transform text-white" />
                     {!isCollapsed && <span>New Chat</span>}
                     <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
