@@ -167,17 +167,18 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
     return (
         <div className="flex-1 flex flex-col h-full relative z-0 overflow-hidden">
             {/* Mobile Header */}
-            <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/5 z-20">
+            {/* Mobile Header - Sticky, Capsule, Floating */}
+            <div className="md:hidden absolute top-4 left-4 right-4 z-50 flex items-center justify-between px-4 py-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full shadow-lg">
                 <button
                     onClick={onOpenSidebar}
-                    className="p-2 -ml-2 text-gray-300 hover:text-white"
+                    className="p-1 text-gray-300 hover:text-white transition-colors"
                 >
-                    <Menu size={24} />
+                    <Menu size={20} />
                 </button>
-                <div className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-primary to-accent-secondary">
+                <div className="font-bold text-sm text-transparent bg-clip-text bg-gradient-to-r from-accent-primary to-accent-secondary">
                     NextGen AI
                 </div>
-                <div className="w-8" /> {/* Placeholder for balance */}
+                <div className="w-5" /> {/* Placeholder for balance */}
             </div>
 
             {/* Messages Area */}

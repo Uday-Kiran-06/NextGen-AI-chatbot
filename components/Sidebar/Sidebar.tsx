@@ -111,12 +111,18 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
         }
     };
 
-    const handleRenameSubmit = async (e: React.FormEvent, id: string) => {
+    const handleRenameSubmit = async (e: React.FormEvent | React.FocusEvent, id: string) => {
         e.preventDefault();
         e.stopPropagation();
-        if (editTitle.trim()) {
+
+        // Optimistic Update
+        if (editTitle.trim() && editTitle !== conversations.find(c => c.id === id)?.title) {
+            setConversations(prev => prev.map(c =>
+                c.id === id ? { ...c, title: editTitle } : c
+            ));
+
             await chatStore.renameConversation(id, editTitle);
-            refreshChats();
+            refreshChats(); // Background refresh
         }
         setEditingId(null);
     };
@@ -236,7 +242,10 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                                         type="text"
                                         value={editTitle}
                                         onChange={(e) => setEditTitle(e.target.value)}
-                                        onBlur={() => setEditingId(null)}
+                                        onBlur={(e) => handleRenameSubmit(e, item.id)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Escape') setEditingId(null);
+                                        }}
                                         autoFocus
                                         className="w-full bg-white/10 text-white rounded px-2 py-1 text-sm outline-none border border-accent-primary/50"
                                     />
@@ -288,7 +297,6 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                                 <div className="chat-menu-content absolute right-0 top-full mt-1 w-48 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200 origin-top-right">
                                     <div className="p-1 space-y-0.5">
                                         <MenuOption icon={Share} label="Share" onClick={(e: any) => handleAction(e, 'share', item)} />
-                                        <MenuOption icon={Users} label="Start group chat" onClick={(e: any) => alert('Group chat coming soon!')} className="opacity-50 cursor-not-allowed" />
                                         <MenuOption icon={Edit2} label="Rename" onClick={(e: any) => handleAction(e, 'rename', item)} />
                                         <div className="h-px bg-white/10 my-1 mx-2" />
                                         <MenuOption icon={Pin} label={item.is_pinned ? "Unpin chat" : "Pin chat"} onClick={(e: any) => handleAction(e, 'pin', item)} />

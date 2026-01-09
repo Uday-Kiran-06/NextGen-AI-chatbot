@@ -40,6 +40,9 @@ registerTool({
 });
 
 // 2. Web Search (Mock for high-performance automation demo)
+// 2. Web Search (Mock for high-performance automation demo)
+// DISABLED: Mock implementation causes hallucinations for general queries.
+/*
 registerTool({
     name: 'web_search',
     description: 'Search the web for real-time information.',
@@ -58,6 +61,7 @@ registerTool({
         };
     },
 });
+*/
 
 export function getToolDefinitions() {
     return Object.values(toolRegistry).map(tool => ({
