@@ -53,8 +53,8 @@ export const chatStore = {
                 .from('conversations')
                 .select('id, user_id, title, created_at') // Explicitly select columns to avoid "column does not exist" error
                 .eq('user_id', user.id)
-                // .is('is_archived', false) // TODO: Re-enable after DB migration
-                // .order('is_pinned', { ascending: false }) // TODO: Re-enable after DB migration
+                .is('is_archived', false) // Enabled
+                .order('is_pinned', { ascending: false }) // Enabled
                 .order('created_at', { ascending: false });
 
             if (error) throw error;

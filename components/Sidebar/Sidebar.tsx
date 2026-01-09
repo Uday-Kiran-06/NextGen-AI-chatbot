@@ -60,6 +60,75 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
         window.location.reload();
     };
 
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editTitle, setEditTitle] = useState('');
+    const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+    // Click outside to close menu
+    useEffect(() => {
+        const handleClickOutside = (event: any) => {
+            if (!event.target.closest('.chat-menu-trigger') && !event.target.closest('.chat-menu-content')) {
+                setActiveMenuId(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleAction = async (e: React.MouseEvent, action: string, conversation: Conversation) => {
+        e.stopPropagation(); // Prevent navigation
+        setActiveMenuId(null);
+
+        switch (action) {
+            case 'rename':
+                setEditingId(conversation.id);
+                setEditTitle(conversation.title);
+                break;
+            case 'pin':
+                await chatStore.togglePin(conversation.id, !conversation.is_pinned);
+                refreshChats();
+                break;
+            case 'archive':
+                if (confirm('Archive this chat?')) {
+                    await chatStore.toggleArchive(conversation.id, true);
+                    refreshChats();
+                    if (activeId === conversation.id) onNewChat();
+                }
+                break;
+            case 'delete':
+                if (confirm('Delete this conversation permanently?')) {
+                    await chatStore.deleteConversation(conversation.id);
+                    refreshChats();
+                    if (activeId === conversation.id) onNewChat();
+                }
+                break;
+            case 'share':
+                const messages = await chatStore.getMessages(conversation.id);
+                const text = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
+                navigator.clipboard.writeText(text);
+                alert('Conversation copied to clipboard!');
+                break;
+        }
+    };
+
+    const handleRenameSubmit = async (e: React.FormEvent, id: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (editTitle.trim()) {
+            await chatStore.renameConversation(id, editTitle);
+            refreshChats();
+        }
+        setEditingId(null);
+    };
+
+    const refreshChats = async () => {
+        // Helper to re-fetch without full loading state if desired, or just re-trigger effect
+        // For now, we can just trigger the parent's refresh logic if we had one, 
+        // but since we keep local state 'conversations', we should re-fetch:
+        const data = await chatStore.getConversations();
+        setConversations(data);
+    };
+
     const filteredHistory = conversations.filter(item =>
         item.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -157,21 +226,78 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                 {/* Filtered History Items */}
                 {filteredHistory.length > 0 ? (
                     filteredHistory.map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => {
-                                onSelectChat(item.id);
-                                if (window.innerWidth < 768) onClose?.();
-                            }}
-                            className={cn(
-                                "w-full text-left p-3 rounded-xl text-sm transition-all flex items-center gap-3 group relative overflow-hidden",
-                                activeId === item.id ? "bg-white/10 text-white" : "text-gray-400 hover:text-white hover:bg-white/5",
-                                isCollapsed && "justify-center"
-                            )}>
-                            <History size={18} className="shrink-0 opacity-60 group-hover:opacity-100 group-hover:text-accent-primary transition-colors" />
-                            {!isCollapsed && <span className="truncate relative z-10">{item.title}</span>}
-                            {isCollapsed && <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 rounded-xl" />}
-                        </button>
+                        <div key={item.id} className="relative group/item">
+                            {editingId === item.id ? (
+                                <form
+                                    onSubmit={(e) => handleRenameSubmit(e, item.id)}
+                                    className="p-2"
+                                >
+                                    <input
+                                        type="text"
+                                        value={editTitle}
+                                        onChange={(e) => setEditTitle(e.target.value)}
+                                        onBlur={() => setEditingId(null)}
+                                        autoFocus
+                                        className="w-full bg-white/10 text-white rounded px-2 py-1 text-sm outline-none border border-accent-primary/50"
+                                    />
+                                </form>
+                            ) : (
+                                <button
+                                    onClick={() => {
+                                        onSelectChat(item.id);
+                                        if (window.innerWidth < 768) onClose?.();
+                                    }}
+                                    className={cn(
+                                        "w-full text-left p-3 rounded-xl text-sm transition-all flex items-center gap-3 relative overflow-hidden",
+                                        activeId === item.id ? "bg-white/10 text-white" : "text-gray-400 hover:text-white hover:bg-white/5",
+                                        isCollapsed && "justify-center"
+                                    )}>
+
+                                    {/* Icon */}
+                                    {item.is_pinned ? (
+                                        <Pin size={16} className="shrink-0 text-accent-secondary" strokeWidth={2.5} />
+                                    ) : (
+                                        <History size={18} className="shrink-0 opacity-60 group-hover/item:opacity-100 group-hover/item:text-accent-primary transition-colors" />
+                                    )}
+
+                                    {/* Title */}
+                                    {!isCollapsed && <span className="truncate relative z-10 flex-1 pr-6">{item.title}</span>}
+
+                                    {isCollapsed && <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/item:opacity-100 rounded-xl" />}
+                                </button>
+                            )}
+
+                            {/* Three Dots Menu Trigger */}
+                            {!isCollapsed && !editingId && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveMenuId(activeMenuId === item.id ? null : item.id);
+                                    }}
+                                    className={cn(
+                                        "chat-menu-trigger absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/20 transition-all opacity-0 group-hover/item:opacity-100 z-20",
+                                        activeMenuId === item.id && "opacity-100 bg-white/20 text-white"
+                                    )}
+                                >
+                                    <MoreVertical size={16} />
+                                </button>
+                            )}
+
+                            {/* Dropdown Menu */}
+                            {!isCollapsed && activeMenuId === item.id && (
+                                <div className="chat-menu-content absolute right-0 top-full mt-1 w-48 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+                                    <div className="p-1 space-y-0.5">
+                                        <MenuOption icon={Share} label="Share" onClick={(e: any) => handleAction(e, 'share', item)} />
+                                        <MenuOption icon={Users} label="Start group chat" onClick={(e: any) => alert('Group chat coming soon!')} className="opacity-50 cursor-not-allowed" />
+                                        <MenuOption icon={Edit2} label="Rename" onClick={(e: any) => handleAction(e, 'rename', item)} />
+                                        <div className="h-px bg-white/10 my-1 mx-2" />
+                                        <MenuOption icon={Pin} label={item.is_pinned ? "Unpin chat" : "Pin chat"} onClick={(e: any) => handleAction(e, 'pin', item)} />
+                                        <MenuOption icon={Archive} label="Archive" onClick={(e: any) => handleAction(e, 'archive', item)} />
+                                        <MenuOption icon={Trash2} label="Delete" onClick={(e: any) => handleAction(e, 'delete', item)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     ))
                 ) : (
                     !isCollapsed && <div className="px-4 text-xs text-center text-gray-600 italic">
