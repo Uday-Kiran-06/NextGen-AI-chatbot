@@ -16,7 +16,7 @@ interface SidebarProps {
 
 // Helper component for menu options moved to bottom
 
-export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey }: SidebarProps) {
+export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey, isOpen, onClose }: SidebarProps & { isOpen?: boolean, onClose?: () => void }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -35,8 +35,13 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey 
 
         // Check Auth
         const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                setUser(user);
+            } catch (error) {
+                console.warn('Sidebar auth check failed:', error);
+                setUser(null);
+            }
         };
         checkUser();
 
@@ -59,42 +64,46 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey 
         item.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    return (
-        <motion.aside
-            initial={{ width: 256 }}
-            animate={{ width: isCollapsed ? 80 : 256 }}
-            transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-            className="glass-panel rounded-2xl flex flex-col z-20 overflow-hidden h-full shrink-0 relative group/sidebar"
-        >
-            {/* Toggle Button - "Handle" Style */}
+    const SidebarContent = (
+        <div className="flex flex-col h-full w-full">
+            {/* Header */}
+            <div className={cn("flex items-center gap-3 p-4 mb-2", isCollapsed ? "justify-center" : "justify-between")}>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-accent-primary to-accent-secondary flex items-center justify-center shrink-0 shadow-lg shadow-accent-primary/20">
+                        <Sparkles size={20} className="text-white" />
+                    </div>
+                    <AnimatePresence>
+                        {!isCollapsed && (
+                            <motion.h1
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -10 }}
+                                className="font-bold text-xl tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 whitespace-nowrap"
+                            >
+                                NextGen
+                            </motion.h1>
+                        )}
+                    </AnimatePresence>
+                </div>
+                {/* Mobile Close Button */}
+                <button
+                    onClick={onClose}
+                    className="md:hidden text-gray-400 hover:text-white"
+                >
+                    <X size={24} />
+                </button>
+            </div>
+
+            {/* Toggle Button - Desktop Only */}
             <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-accent-primary rounded-full flex items-center justify-center text-white text-xs z-50 hover:scale-110 transition-transform shadow-lg cursor-pointer"
+                className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-accent-primary rounded-full items-center justify-center text-white text-xs z-50 hover:scale-110 transition-transform shadow-lg cursor-pointer"
                 title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >
                 {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
 
-            {/* Header */}
-            <div className={cn("flex items-center gap-3 p-4 mb-2", isCollapsed ? "justify-center" : "justify-start")}>
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-accent-primary to-accent-secondary flex items-center justify-center shrink-0 shadow-lg shadow-accent-primary/20">
-                    <Sparkles size={20} className="text-white" />
-                </div>
-                <AnimatePresence>
-                    {!isCollapsed && (
-                        <motion.h1
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -10 }}
-                            className="font-bold text-xl tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 whitespace-nowrap"
-                        >
-                            NextGen
-                        </motion.h1>
-                    )}
-                </AnimatePresence>
-            </div>
-
-            {/* Search Bar - Only visible when expanded */}
+            {/* Search Bar */}
             <div className="px-4 mb-4">
                 {!isCollapsed ? (
                     <div className="relative">
@@ -119,7 +128,10 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey 
             {/* New Chat Button */}
             <div className="px-4 mb-6">
                 <button
-                    onClick={onNewChat}
+                    onClick={() => {
+                        onNewChat();
+                        if (window.innerWidth < 768) onClose?.();
+                    }}
                     className={cn(
                         "glass-button w-full flex items-center gap-3 py-3 font-semibold hover:bg-white/10 group relative overflow-hidden",
                         isCollapsed ? "justify-center px-0 rounded-xl" : "justify-start px-4 rounded-xl"
@@ -147,7 +159,10 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey 
                     filteredHistory.map((item) => (
                         <button
                             key={item.id}
-                            onClick={() => onSelectChat(item.id)}
+                            onClick={() => {
+                                onSelectChat(item.id);
+                                if (window.innerWidth < 768) onClose?.();
+                            }}
                             className={cn(
                                 "w-full text-left p-3 rounded-xl text-sm transition-all flex items-center gap-3 group relative overflow-hidden",
                                 activeId === item.id ? "bg-white/10 text-white" : "text-gray-400 hover:text-white hover:bg-white/5",
@@ -198,7 +213,48 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey 
                     </a>
                 )}
             </div>
-        </motion.aside>
+        </div>
+    );
+
+    return (
+        <>
+            {/* Desktop Sidebar */}
+            <motion.aside
+                initial={{ width: 256 }}
+                animate={{ width: isCollapsed ? 80 : 256 }}
+                transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+                className="hidden md:flex glass-panel rounded-2xl flex-col z-20 overflow-hidden h-full shrink-0 relative group/sidebar"
+            >
+                {SidebarContent}
+            </motion.aside>
+
+            {/* Mobile Sidebar Overlay */}
+            <AnimatePresence>
+                {isOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={onClose}
+                            className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                        />
+                        {/* Drawer */}
+                        <motion.aside
+                            initial={{ x: "-100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "-100%" }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="md:hidden fixed top-0 left-0 bottom-0 w-[280px] glass-panel z-50 flex flex-col h-full bg-black/90 border-r border-white/10"
+                        >
+                            {/* Force expanded state on mobile */}
+                            {SidebarContent}
+                        </motion.aside>
+                    </>
+                )}
+            </AnimatePresence>
+        </>
     );
 }
 

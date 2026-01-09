@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import MessageBubble from './MessageBubble';
 import InputArea from './InputArea';
-import { Share2, Sparkles, Zap, Image as ImageIcon, Code, PenTool } from 'lucide-react';
+import { Share2, Sparkles, Zap, Image as ImageIcon, Code, PenTool, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { chatStore, Message as DBMessage } from '@/lib/chat-store';
@@ -24,9 +24,10 @@ const QUICK_PROMPTS = [
 interface ChatInterfaceProps {
     conversationId: string | null;
     onConversationCreated: (id: string) => void;
+    onOpenSidebar?: () => void;
 }
 
-export default function ChatInterface({ conversationId, onConversationCreated }: ChatInterfaceProps) {
+export default function ChatInterface({ conversationId, onConversationCreated, onOpenSidebar }: ChatInterfaceProps) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [isGenerating, setIsGenerating] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -165,6 +166,19 @@ export default function ChatInterface({ conversationId, onConversationCreated }:
 
     return (
         <div className="flex-1 flex flex-col h-full relative z-0 overflow-hidden">
+            {/* Mobile Header */}
+            <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white/5 border-b border-white/5 z-20">
+                <button
+                    onClick={onOpenSidebar}
+                    className="p-2 -ml-2 text-gray-300 hover:text-white"
+                >
+                    <Menu size={24} />
+                </button>
+                <div className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-primary to-accent-secondary">
+                    NextGen AI
+                </div>
+                <div className="w-8" /> {/* Placeholder for balance */}
+            </div>
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 md:p-8 scrollbar-hide pt-20 md:pt-4">

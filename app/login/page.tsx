@@ -39,7 +39,14 @@ export default function LoginPage() {
                 setSuccessMessage('Password reset link sent to your email!');
             }
         } catch (err: any) {
-            setError(err.message);
+            let message = err.message;
+            // Handle Supabase Rate Limits / Configuration Errors
+            if (message === 'Error sending recovery email' || message === 'Error sending confirmation mail') {
+                message = 'Server email limit reached. Please try again in an hour or contact support.';
+            } else if (message.includes('rate limit')) {
+                message = 'Too many attempts. Please try again later.';
+            }
+            setError(message);
         } finally {
             setLoading(false);
         }

@@ -27,9 +27,15 @@ let guestMessages: Record<string, Message[]> = {};
 export const chatStore = {
     // Fetch all conversations
     async getConversations() {
+        let user = null;
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data } = await supabase.auth.getUser();
+            user = data?.user;
+        } catch (e) {
+            console.warn('Auth check failed in getConversations, defaulting to guest mode:', e);
+        }
 
+        try {
             // Guest Mode: Return in-memory conversations
             if (!user) {
                 return guestConversations
@@ -42,28 +48,35 @@ export const chatStore = {
                     });
             }
 
+            console.log('Fetching conversations safely...'); // Debug log
             const { data, error } = await supabase
                 .from('conversations')
-                .select('*')
+                .select('id, user_id, title, created_at') // Explicitly select columns to avoid "column does not exist" error
                 .eq('user_id', user.id)
-                .is('is_archived', false) // Filter out archived by default
-                .order('is_pinned', { ascending: false }) // Pinned first
+                // .is('is_archived', false) // TODO: Re-enable after DB migration
+                // .order('is_pinned', { ascending: false }) // TODO: Re-enable after DB migration
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
             return data as Conversation[];
         } catch (error) {
-            console.error('Error fetching conversations:', error);
-            // Fallback to guest text if Supabase fails? No, better return empty or cached.
+            console.error('Error fetching conversations:', JSON.stringify(error, null, 2));
+            // Return empty array on error to prevent UI crashes
             return [];
         }
     },
 
     // Create a new conversation
     async createConversation(title: string) {
+        let user = null;
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data } = await supabase.auth.getUser();
+            user = data?.user;
+        } catch (e) {
+            console.warn('Auth check failed in createConversation, defaulting to guest:', e);
+        }
 
+        try {
             // Guest Mode: Create and store in memory
             if (!user) {
                 const newConvo: Conversation = {
@@ -81,7 +94,7 @@ export const chatStore = {
             const { data, error } = await supabase
                 .from('conversations')
                 .insert([{ user_id: user.id, title }])
-                .select()
+                .select('id, user_id, title, created_at')
                 .single();
 
             if (error) throw error;
