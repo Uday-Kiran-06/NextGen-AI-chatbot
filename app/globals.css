@@ -3,79 +3,147 @@
 @tailwind utilities;
 
 :root {
-  --background: #020617;
-  /* Deep midnight blue */
-  --foreground: #f8fafc;
+  /* Vibrant Tech Theme - Electric Lime & Bright Blue */
+  
+  /* Backgrounds */
+  --md-sys-color-background: #050505; /* Deepest Black for contrast */
+  --md-sys-color-on-background: #ffffff;
+  
+  /* Surfaces */
+  --md-sys-color-surface: #0a0a0a;
+  --md-sys-color-surface-container-low: #121212;
+  --md-sys-color-surface-container: #1a1a1a;
+  --md-sys-color-surface-container-high: #222222;
+  --md-sys-color-surface-container-highest: #2c2c2c;
+  
+  /* Primary - Electric Lime */
+  --md-sys-color-primary: #CCFF00;
+  --md-sys-color-on-primary: #000000;
+  --md-sys-color-primary-container: #4C6600;
+  --md-sys-color-on-primary-container: #EEFFB3;
+  
+  /* Secondary - Bright Blue */
+  --md-sys-color-secondary: #2979FF;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #0047AB;
+  --md-sys-color-on-secondary-container: #D6E4FF;
+  
+  /* Tertiary - Neon Orange */
+  --md-sys-color-tertiary: #FF3D00;
+  --md-sys-color-on-tertiary: #ffffff;
+  --md-sys-color-tertiary-container: #8F2200;
+  --md-sys-color-on-tertiary-container: #FFDBCF;
 
-  /* Glassmorphism Tokens */
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shimmer: rgba(255, 255, 255, 0.1);
-  --glass-blur: 16px;
+  /* Utility */
+  --md-sys-color-error: #F2B8B5;
+  --md-sys-color-outline: #938F99;
+  --md-sys-color-outline-variant: #49454F;
 
-  /* Accent Colors - Vibe Driven */
-  --accent-primary: #7c3aed;
-  /* Violet */
-  --accent-secondary: #db2777;
-  /* Pink */
-  --accent-glow: rgba(124, 58, 237, 0.15);
+  /* Motion - Standard Easing */
+  --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  
+  /* Legacy mapping */
+  --background: var(--md-sys-color-background);
+  --foreground: var(--md-sys-color-on-background);
+  --accent-primary: var(--md-sys-color-primary);
+  --accent-secondary: var(--md-sys-color-tertiary);
+  
+  --glass-bg: var(--md-sys-color-surface-container-high);
+  --glass-border: var(--md-sys-color-outline-variant);
 
   /* Font */
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--md-sys-color-on-background);
+  background: var(--md-sys-color-background);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  background: var(--md-sys-color-surface-container-highest);
+  border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--md-sys-color-outline);
 }
 
 @layer utilities {
+  .surface-panel {
+    background: var(--md-sys-color-surface-container);
+    border-radius: 24px;
+    border: 1px solid transparent; 
+  }
+  
+  .elevation-1 {
+     background: var(--md-sys-color-surface-container-low);
+     box-shadow: 0px 1px 2px rgba(0,0,0,0.3), 0px 1px 3px 1px rgba(0,0,0,0.15);
+  }
+
+  .elevation-3 {
+     background: var(--md-sys-color-surface-container-high);
+     box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3), 0px 4px 8px 3px rgba(0,0,0,0.15);
+  }
+
+  .material-button {
+    border-radius: 9999px;
+    transition: all 0.3s var(--motion-easing-standard);
+  }
+  
+  /* Ripple Effect Simulation */
+  .interactable {
+    position: relative;
+    overflow: hidden;
+  }
+  .interactable::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.2s linear;
+    pointer-events: none;
+  }
+  .interactable:hover::after {
+    opacity: 0.08;
+  }
+  .interactable:active::after {
+    opacity: 0.12;
+  }
+
+  /* Authentic Grainy Texture */
+  .bg-noise {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+
   .glass-panel {
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      @apply surface-panel elevation-1;
   }
-
   .glass-button {
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .glass-button:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 20px var(--accent-glow);
-  }
-
-  .text-glow {
-    text-shadow: 0 0 20px var(--accent-glow);
-  }
-
-  .active-bounce:active {
-    transform: scale(0.95);
+    @apply material-button bg-primary-container text-on-primary-container shadow-sm hover:shadow-md interactable;
   }
 }
 
@@ -84,12 +152,10 @@ body {
   padding: 0;
   margin: 0;
 }
-
 a {
   color: inherit;
   text-decoration: none;
 }
-
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;

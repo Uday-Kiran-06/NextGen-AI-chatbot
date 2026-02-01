@@ -1,12 +1,18 @@
 import type { Metadata } from 'next';
-import { Outfit } from 'next/font/google';
+import { Space_Grotesk } from 'next/font/google';
 import './globals.css';
 
-const outfit = Outfit({ subsets: ['latin'] });
+const spaceGrotesk = Space_Grotesk({ 
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
-  title: 'NextGen Chatbot',
-  description: 'AI-powered chatbot with Gemini API and Glassmorphism design',
+  title: 'QUBIT AI',
+  icons: {
+    icon: '/logo.png?v=2',
+    apple: '/logo.png?v=2',
+  },
 };
 
 export default function RootLayout({
@@ -16,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={outfit.className}>{children}</body>
+      <body className={spaceGrotesk.className}>{children}</body>
     </html>
   );
 }

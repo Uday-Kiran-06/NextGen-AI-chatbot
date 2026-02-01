@@ -144,8 +144,12 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
             {/* Header */}
             <div className={cn("flex items-center gap-3 p-4 mb-2", isCollapsed ? "justify-center" : "justify-between")}>
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-accent-primary to-accent-secondary flex items-center justify-center shrink-0 shadow-lg shadow-accent-primary/20">
-                        <Sparkles size={20} className="text-white" />
+                    <div className="relative w-10 h-10 shrink-0 rounded-xl overflow-hidden shadow-sm border border-white/5 flex items-center justify-center bg-[#0f0f0f]">
+                        <img 
+                            src="/logo.png" 
+                            alt="QUBIT AI Logo" 
+                            className="w-full h-full object-contain p-0.5"
+                        />
                     </div>
                     <AnimatePresence>
                         {!isCollapsed && (
@@ -155,7 +159,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                                 exit={{ opacity: 0, x: -10 }}
                                 className="font-bold text-xl tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 whitespace-nowrap"
                             >
-                                NextGen
+                                QUBIT
                             </motion.h1>
                         )}
                     </AnimatePresence>
@@ -211,7 +215,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                         "glass-button w-full flex items-center gap-3 py-3 font-semibold hover:bg-white/10 group relative overflow-hidden",
                         isCollapsed ? "justify-center px-0 rounded-xl" : "justify-start px-4 rounded-xl"
                     )}>
-                    <MessageSquarePlus size={isCollapsed ? 24 : 20} className="group-hover:scale-110 transition-transform text-accent-secondary" />
+                    <MessageSquarePlus size={isCollapsed ? 24 : 20} className="group-hover:scale-110 transition-transform text-white" />
                     {!isCollapsed && <span>New Chat</span>}
                     <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>

@@ -17,7 +17,7 @@ export default function Home() {
 
   return (
     <AuroraBackground>
-      <div className="flex h-screen w-full gap-4 p-0 md:p-4 relative z-10 overflow-hidden">
+      <div className="flex h-[100dvh] w-full gap-4 p-0 md:p-4 relative z-10 overflow-hidden">
         <Sidebar
           activeId={activeConversationId}
           onSelectChat={setActiveConversationId}

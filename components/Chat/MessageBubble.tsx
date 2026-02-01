@@ -34,8 +34,8 @@ export default function MessageBubble({ message, isLast }: MessageBubbleProps) {
             )}>
                 {/* Avatar */}
                 <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg mt-1",
-                    isUser ? "bg-accent-primary text-white" : "bg-gradient-to-br from-cyan-500 to-blue-600 text-white"
+                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm mt-1",
+                    isUser ? "bg-primary-container text-on-primary-container" : "bg-secondary-container text-on-secondary-container"
                 )}>
                     {isUser ? <User size={16} /> : <Bot size={18} />}
                 </div>
@@ -43,23 +43,18 @@ export default function MessageBubble({ message, isLast }: MessageBubbleProps) {
                 {/* Bubble */}
                 <div className="flex flex-col gap-1 min-w-0">
                     <div className={cn(
-                        "p-4 rounded-2xl shadow-md min-w-[60px] relative overflow-hidden",
+                        "p-4 shadow-sm min-w-[60px] relative overflow-hidden",
                         isUser
-                            ? "bg-accent-primary text-white rounded-tr-sm"
-                            : "glass-panel text-gray-100 rounded-tl-sm border-white/10 bg-white/5"
+                            ? "bg-primary text-on-primary rounded-[24px] rounded-tr-sm"
+                            : "bg-surface-container-high text-on-surface rounded-[24px] rounded-tl-sm"
                     )}>
-                        {/* Shimmer Effect for User */}
-                        {isUser && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
-                        )}
-
                         <div className="prose prose-invert prose-sm max-w-none leading-relaxed break-words">
                             <ReactMarkdown
                                 urlTransform={(value) => value}
                                 components={{
                                     img: ({ node, ...props }) => {
                                         if (!props.src) return null;
-                                        return <img {...props} className="rounded-xl max-w-full my-2 border border-white/10" />;
+                                        return <img {...props} className="rounded-xl max-w-full my-2 border border-outline-variant" />;
                                     }
                                 }}
                             >
@@ -76,14 +71,14 @@ export default function MessageBubble({ message, isLast }: MessageBubbleProps) {
                             transition={{ delay: 0.2 }}
                             className="flex items-center gap-2 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                            <button className="p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Copy">
-                                <Copy size={14} />
+                            <button className="p-1.5 hover:bg-surface-container-highest rounded-full text-on-surface-variant hover:text-on-surface transition-colors" title="Copy">
+                                <Copy size={16} />
                             </button>
-                            <button className="p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Helpful">
-                                <ThumbsUp size={14} />
+                            <button className="p-1.5 hover:bg-surface-container-highest rounded-full text-on-surface-variant hover:text-on-surface transition-colors" title="Helpful">
+                                <ThumbsUp size={16} />
                             </button>
-                            <button className="p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Not Helpful">
-                                <ThumbsDown size={14} />
+                            <button className="p-1.5 hover:bg-surface-container-highest rounded-full text-on-surface-variant hover:text-on-surface transition-colors" title="Not Helpful">
+                                <ThumbsDown size={16} />
                             </button>
                         </motion.div>
                     )}
