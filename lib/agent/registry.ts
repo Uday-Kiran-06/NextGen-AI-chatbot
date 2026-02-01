@@ -47,9 +47,10 @@ registerTool({
         prompt: z.string().describe('The detailed visual description of the image to generate'),
     }),
     execute: async ({ prompt }) => {
-        const encodedPrompt = encodeURIComponent(prompt);
-        // Using Pollinations.ai for free, instant generation
-        const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
+        const encodedPrompt = encodeURIComponent(prompt.slice(0, 500));
+        const seed = Math.floor(Math.random() * 1000000);
+        // User provided API Key: sk_mEWxPjZizTEUPa1FsEFasSWkowb0Yzlt (Not used in URL for now to ensure stability)
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux`;
         return { imageUrl, info: "Image generated successfully. Embed this URL in markdown." };
     },
 });

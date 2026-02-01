@@ -2,9 +2,10 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Bot, User, Copy, ThumbsUp, ThumbsDown, MoreHorizontal } from 'lucide-react';
+import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { useState, useRef, useEffect } from 'react';
 
 interface MessageBubbleProps {
     message: {
@@ -13,10 +14,41 @@ interface MessageBubbleProps {
         content: string;
     };
     isLast?: boolean;
+    onEdit?: (id: string, newContent: string) => void;
 }
 
-export default function MessageBubble({ message, isLast }: MessageBubbleProps) {
+export default function MessageBubble({ message, isLast, onEdit }: MessageBubbleProps) {
     const isUser = message.role === 'user';
+    const [isCopied, setIsCopied] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editContent, setEditContent] = useState(message.content);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        if (isEditing && textareaRef.current) {
+            textareaRef.current.focus();
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+        }
+    }, [isEditing]);
+
+    const handleCopy = async () => {
+        await navigator.clipboard.writeText(message.content);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+    };
+
+    const handleSaveEdit = () => {
+        if (onEdit && editContent.trim() !== "") {
+            onEdit(message.id, editContent);
+            setIsEditing(false);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditContent(message.content);
+        setIsEditing(false);
+    };
 
     return (
         <motion.div
@@ -34,54 +66,126 @@ export default function MessageBubble({ message, isLast }: MessageBubbleProps) {
             )}>
                 {/* Avatar */}
                 <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm mt-1",
-                    isUser ? "bg-primary-container text-on-primary-container" : "bg-secondary-container text-on-secondary-container"
+                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg mt-1",
+                    isUser ? "bg-accent-primary text-white" : "bg-gradient-to-br from-cyan-500 to-blue-600 text-white"
                 )}>
                     {isUser ? <User size={16} /> : <Bot size={18} />}
                 </div>
 
-                {/* Bubble */}
-                <div className="flex flex-col gap-1 min-w-0">
-                    <div className={cn(
-                        "p-4 shadow-sm min-w-[60px] relative overflow-hidden",
-                        isUser
-                            ? "bg-primary text-on-primary rounded-[24px] rounded-tr-sm"
-                            : "bg-surface-container-high text-on-surface rounded-[24px] rounded-tl-sm"
-                    )}>
-                        <div className="prose prose-invert prose-sm max-w-none leading-relaxed break-words">
-                            <ReactMarkdown
-                                urlTransform={(value) => value}
-                                components={{
-                                    img: ({ node, ...props }) => {
-                                        if (!props.src) return null;
-                                        return <img {...props} className="rounded-xl max-w-full my-2 border border-outline-variant" />;
-                                    }
-                                }}
-                            >
-                                {message.content}
-                            </ReactMarkdown>
+                {/* Bubble Container */}
+                <div className={cn("flex flex-col gap-1 min-w-0", isUser ? "items-end" : "items-start")}>
+                    <div className={cn("flex items-end gap-2 group/bubble", isUser ? "flex-row-reverse" : "flex-row")}>
+
+
+
+                        <div className={cn(
+                            "p-4 rounded-2xl shadow-md min-w-[60px] relative overflow-hidden",
+                            isUser
+                                ? "bg-accent-primary text-white rounded-tr-sm"
+                                : "glass-panel text-gray-100 rounded-tl-sm border-white/10 bg-white/5",
+                            isEditing ? "w-full min-w-[300px]" : ""
+                        )}>
+                            {/* Shimmer Effect for User */}
+                            {isUser && !isEditing && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
+                            )}
+
+                            {isEditing ? (
+                                <div className="flex flex-col gap-2 w-full">
+                                    <textarea
+                                        ref={textareaRef}
+                                        value={editContent}
+                                        onChange={(e) => {
+                                            setEditContent(e.target.value);
+                                            e.target.style.height = 'auto';
+                                            e.target.style.height = e.target.scrollHeight + 'px';
+                                        }}
+                                        className="w-full bg-black/20 text-white p-2 rounded-md outline-none resize-none min-h-[60px]"
+                                    />
+                                    <div className="flex justify-end gap-2">
+                                        <button onClick={handleCancelEdit} className="p-1 hover:bg-white/10 rounded text-gray-300 hover:text-white">
+                                            <X size={16} />
+                                        </button>
+                                        <button onClick={handleSaveEdit} className="p-1 hover:bg-green-500/20 rounded text-green-400 hover:text-green-300">
+                                            <Send size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="prose prose-invert prose-sm max-w-none leading-relaxed break-words">
+                                    <ReactMarkdown
+                                        urlTransform={(value) => value}
+                                        components={{
+                                            img: ({ node, ...props }) => {
+                                                if (!props.src) return null;
+                                                const [error, setError] = useState(false);
+
+                                                if (error) {
+                                                    return (
+                                                        <div className="p-4 rounded-xl border border-white/10 bg-white/5 text-gray-400 text-sm flex items-center gap-2">
+                                                            <X size={16} />
+                                                            <span>Failed to load image. content may have expired.</span>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <img
+                                                        {...props}
+                                                        className="rounded-xl max-w-full my-2 border border-white/10"
+                                                        onError={() => setError(true)}
+                                                    />
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        {message.content}
+                                    </ReactMarkdown>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Actions (Only for Model) */}
-                    {!isUser && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                            className="flex items-center gap-2 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                            <button className="p-1.5 hover:bg-surface-container-highest rounded-full text-on-surface-variant hover:text-on-surface transition-colors" title="Copy">
-                                <Copy size={16} />
+                    {/* Actions (Model and User) */}
+                    <div
+                        className={cn(
+                            "flex items-center gap-2 mt-1 px-1 select-none",
+                            isUser ? "justify-end" : "justify-start"
+                        )}
+                    >
+                        {!isUser && (
+                            <>
+                                <button className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors" title="Helpful">
+                                    <ThumbsUp size={14} />
+                                </button>
+                                <button className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors" title="Not Helpful">
+                                    <ThumbsDown size={14} />
+                                </button>
+                            </>
+                        )}
+
+                        {/* Copy Button (Both) */}
+                        {!isEditing && (
+                            <button
+                                onClick={handleCopy}
+                                className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors"
+                                title="Copy"
+                            >
+                                {isCopied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
                             </button>
-                            <button className="p-1.5 hover:bg-surface-container-highest rounded-full text-on-surface-variant hover:text-on-surface transition-colors" title="Helpful">
-                                <ThumbsUp size={16} />
+                        )}
+
+                        {/* Edit Button (User Only) */}
+                        {isUser && !isEditing && (
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors"
+                                title="Edit"
+                            >
+                                <Pencil size={14} />
                             </button>
-                            <button className="p-1.5 hover:bg-surface-container-highest rounded-full text-on-surface-variant hover:text-on-surface transition-colors" title="Not Helpful">
-                                <ThumbsDown size={16} />
-                            </button>
-                        </motion.div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </motion.div>
