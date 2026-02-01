@@ -49,8 +49,9 @@ registerTool({
     execute: async ({ prompt }) => {
         const encodedPrompt = encodeURIComponent(prompt.slice(0, 500));
         const seed = Math.floor(Math.random() * 1000000);
-        // User provided API Key: sk_mEWxPjZizTEUPa1FsEFasSWkowb0Yzlt (Not used in URL for now to ensure stability)
-        const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux`;
+        const apiKey = 'sk_mEWxPjZizTEUPa1FsEFasSWkowb0Yzlt';
+        const keyParam = `&key=${apiKey}`;
+        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true${keyParam}`;
         return { imageUrl, info: "Image generated successfully. Embed this URL in markdown." };
     },
 });

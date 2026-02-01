@@ -74,11 +74,39 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
         if (userInput.trim().toLowerCase().startsWith('/image')) {
             try {
                 const prompt = userInput.replace(/^\/image\s*/i, '').trim() || "random abstract art";
-                const encodedPrompt = encodeURIComponent(prompt.slice(0, 500));
-                const seed = Math.floor(Math.random() * 1000000);
 
-                // Construct URL directly (Client-side)
-                const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux`;
+                let imageUrl = '';
+
+                try {
+                    console.log('Fetching secure image URL...');
+                    const response = await fetch('/api/image', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt })
+                    });
+
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(`API Error (${response.status}): ${errText}`);
+                    }
+
+                    const data = await response.json();
+                    imageUrl = data.imageUrl;
+                    console.log('Secure image URL received:', imageUrl);
+
+                } catch (apiError) {
+                    console.error('Secure image generation failed, falling back to client-side:', apiError);
+
+                    // Fallback to client-side generation (may have watermark)
+                    const encodedPrompt = encodeURIComponent(prompt.slice(0, 500));
+                    const seed = Math.floor(Math.random() * 1000000);
+                    // Fallback: Use client-side generation with hardcoded key
+                    const apiKey = 'sk_mEWxPjZizTEUPa1FsEFasSWkowb0Yzlt';
+                    imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true&key=${apiKey}`;
+                }
+
+                if (!imageUrl) throw new Error('Failed to generate image URL');
+
                 const aiMessageContent = `![Generated Image](${imageUrl})\n\n_Generated via direct command: "${prompt}"_`;
 
                 // Add AI Message to State
@@ -91,6 +119,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                 }
             } catch (err) {
                 console.error("Image command failed", err);
+                setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: 'Sorry, I encountered an error generating the image.' }]);
             } finally {
                 setIsGenerating(false);
             }

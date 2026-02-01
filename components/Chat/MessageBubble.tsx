@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send } from 'lucide-react';
+import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { useState, useRef, useEffect } from 'react';
@@ -119,22 +119,62 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                                             img: ({ node, ...props }) => {
                                                 if (!props.src) return null;
                                                 const [error, setError] = useState(false);
+                                                const [isDownloading, setIsDownloading] = useState(false);
+
+                                                const handleDownload = async (e: React.MouseEvent) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    if (!props.src) return;
+
+                                                    try {
+                                                        setIsDownloading(true);
+                                                        const response = await fetch(String(props.src));
+                                                        const blob = await response.blob();
+                                                        const url = window.URL.createObjectURL(blob);
+                                                        const a = document.createElement('a');
+                                                        a.href = url;
+                                                        a.download = `generated-image-${Date.now()}.jpg`;
+                                                        document.body.appendChild(a);
+                                                        a.click();
+                                                        window.URL.revokeObjectURL(url);
+                                                        document.body.removeChild(a);
+                                                    } catch (err) {
+                                                        console.error("Failed to download image:", err);
+                                                    } finally {
+                                                        setIsDownloading(false);
+                                                    }
+                                                };
 
                                                 if (error) {
                                                     return (
-                                                        <div className="p-4 rounded-xl border border-white/10 bg-white/5 text-gray-400 text-sm flex items-center gap-2">
+                                                        <span className="p-4 rounded-xl border border-white/10 bg-white/5 text-gray-400 text-sm flex items-center gap-2 w-full">
                                                             <X size={16} />
                                                             <span>Failed to load image. content may have expired.</span>
-                                                        </div>
+                                                        </span>
                                                     );
                                                 }
 
                                                 return (
-                                                    <img
-                                                        {...props}
-                                                        className="rounded-xl max-w-full my-2 border border-white/10"
-                                                        onError={() => setError(true)}
-                                                    />
+                                                    <span className="relative group inline-block max-w-full">
+                                                        <img
+                                                            {...props}
+                                                            className="rounded-xl max-w-full !max-h-[300px] w-auto my-2 border border-white/10 object-contain block"
+                                                            style={{ maxHeight: '300px', width: 'auto' }}
+                                                            onError={() => setError(true)}
+                                                        />
+                                                        <button
+                                                            onClick={handleDownload}
+                                                            disabled={isDownloading}
+                                                            className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
+                                                            title="Download Image"
+                                                        >
+                                                            {isDownloading ? (
+                                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                            ) : (
+                                                                <Download size={16} />
+                                                            )}
+                                                        </button>
+                                                    </span>
                                                 );
                                             }
                                         }}
