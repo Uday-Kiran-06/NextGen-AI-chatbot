@@ -10,12 +10,23 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
     const [input, setInput] = useState('');
     const [isRecording, setIsRecording] = useState(false);
     const [files, setFiles] = useState<{ name: string, data: string, mimeType: string, preview: string }[]>([]);
+    const [interimTranscript, setInterimTranscript] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Cleanup on unmount
+    React.useEffect(() => {
+        return () => {
+            if ((window as any).recognitionInstance) {
+                (window as any).recognitionInstance.stop();
+            }
+        };
+    }, []);
 
     // Voice Interaction
     const toggleRecording = async () => {
         if (isRecording) {
             setIsRecording(false);
+            setInterimTranscript('');
             (window as any).recognitionInstance?.stop();
             return;
         }
@@ -38,19 +49,32 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
             recognition.interimResults = true;
             recognition.lang = 'en-US';
 
-            recognition.onstart = () => setIsRecording(true);
-            recognition.onend = () => setIsRecording(false);
+            recognition.onstart = () => {
+                setIsRecording(true);
+                setInterimTranscript('');
+            };
+
+            recognition.onend = () => {
+                setIsRecording(false);
+                setInterimTranscript('');
+            };
 
             recognition.onresult = (event: any) => {
                 let finalTranscript = '';
+                let interim = '';
+
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) {
                         finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interim += event.results[i][0].transcript;
                     }
                 }
+
                 if (finalTranscript) {
                     setInput(prev => prev + (prev ? ' ' : '') + finalTranscript);
                 }
+                setInterimTranscript(interim);
             };
 
             recognition.onerror = (event: any) => {
@@ -101,6 +125,8 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
         setInput('');
         setFiles([]);
         setIsRecording(false);
+        setInterimTranscript('');
+        (window as any).recognitionInstance?.stop();
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -111,7 +137,21 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
     };
 
     return (
-        <div className="p-4 md:p-6 pb-6">
+        <div className="p-4 md:p-6 pb-6 relative">
+
+            {/* Voice Status Indicator */}
+            {isRecording && (
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-2 z-50 pointer-events-none">
+                    <div className="bg-black/80 backdrop-blur-md text-white text-sm px-4 py-2 rounded-full flex items-center gap-2 border border-white/10 shadow-xl">
+                        <div className="flex gap-1 items-center h-4">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="w-1 bg-red-500 rounded-full animate-music-bar" style={{ animationDelay: `${i * 0.1}s`, height: '100%' }} />
+                            ))}
+                        </div>
+                        <span>{interimTranscript || "Listening..."}</span>
+                    </div>
+                </div>
+            )}
 
             {/* File Previews */}
             {files.length > 0 && (
@@ -168,10 +208,10 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                 <div className="flex items-center gap-1 pb-1">
                     {/* Voice Input */}
                     <button
-                        className={`p-3 rounded-xl transition-all ${isRecording ? 'text-red-400 bg-red-500/10 animate-pulse' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                        className={`p-3 rounded-xl transition-all ${isRecording ? 'text-red-400 bg-red-500/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                         onClick={toggleRecording}
                     >
-                        <Mic size={20} />
+                        <Mic size={20} className={isRecording ? 'animate-pulse' : ''} />
                     </button>
 
                     {/* Send Button */}

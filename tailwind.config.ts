@@ -18,6 +18,7 @@ const config: Config = {
             animation: {
                 "aurora": "aurora 60s linear infinite",
                 "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                "music-bar": "music-bar 1s ease-in-out infinite",
             },
             keyframes: {
                 aurora: {
@@ -27,6 +28,10 @@ const config: Config = {
                     "100%": {
                         backgroundPosition: "350% 50%, 350% 50%",
                     },
+                },
+                "music-bar": {
+                    "0%, 100%": { height: "0.5rem" },
+                    "50%": { height: "1rem" },
                 },
             },
         },
