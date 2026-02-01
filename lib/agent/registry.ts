@@ -39,6 +39,21 @@ registerTool({
     },
 });
 
+// 2. Generate Image
+registerTool({
+    name: 'generate_image',
+    description: 'Generate an image based on a text prompt.',
+    parameters: z.object({
+        prompt: z.string().describe('The detailed visual description of the image to generate'),
+    }),
+    execute: async ({ prompt }) => {
+        const encodedPrompt = encodeURIComponent(prompt);
+        // Using Pollinations.ai for free, instant generation
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
+        return { imageUrl, info: "Image generated successfully. Embed this URL in markdown." };
+    },
+});
+
 // 2. Web Search (Mock for high-performance automation demo)
 // 2. Web Search (Mock for high-performance automation demo)
 // DISABLED: Mock implementation causes hallucinations for general queries.

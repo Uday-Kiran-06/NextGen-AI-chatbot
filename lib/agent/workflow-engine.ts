@@ -47,6 +47,8 @@ If you need to use a tool, respond ONLY with a JSON object in this format:
 { "tool": "tool_name", "args": { ... } }
 
 If no tool is needed, simply respond with the text answer.
+
+IMPORTANT: If you use the 'generate_image' tool, you MUST include the returned 'imageUrl' in your final response using Markdown image syntax: ![Generated Image](imageUrl).
 `;
 
     // 3. Send Message

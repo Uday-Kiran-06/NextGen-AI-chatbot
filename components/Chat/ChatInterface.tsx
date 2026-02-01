@@ -215,7 +215,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                         onClick={() => handleSendMessage(item.prompt, [])}
                                         className="flex flex-col items-center gap-3 p-4 rounded-2xl glass-panel border-white/5 hover:border-accent-primary/50 hover:bg-white/5 transition-all group"
                                     >
-                                        <div className="p-3 rounded-full bg-white/5 group-hover:bg-accent-primary/20 group-hover:text-accent-primary transition-colors">
+                                        <div className="p-3 rounded-full bg-blue-700 text-white group-hover:bg-blue-600 transition-colors">
                                             <item.icon size={20} />
                                         </div>
                                         <span className="text-sm font-medium text-gray-300 group-hover:text-white">{item.label}</span>
