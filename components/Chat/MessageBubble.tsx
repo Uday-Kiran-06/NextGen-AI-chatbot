@@ -120,6 +120,7 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                                                 if (!props.src) return null;
                                                 const [error, setError] = useState(false);
                                                 const [isDownloading, setIsDownloading] = useState(false);
+                                                const [isLoading, setIsLoading] = useState(true);
 
                                                 const handleDownload = async (e: React.MouseEvent) => {
                                                     e.preventDefault();
@@ -155,25 +156,42 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                                                 }
 
                                                 return (
-                                                    <span className="relative group inline-block max-w-full">
+                                                    <span className="relative group inline-block max-w-full min-h-[100px] min-w-[200px]">
+                                                        {isLoading && (
+                                                            <span className="absolute inset-0 flex items-center justify-center bg-white/5 rounded-xl border border-white/10">
+                                                                <span className="flex flex-col items-center gap-2">
+                                                                    <span className="w-6 h-6 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
+                                                                    <span className="text-xs text-gray-400">Generating...</span>
+                                                                </span>
+                                                            </span>
+                                                        )}
                                                         <img
                                                             {...props}
-                                                            className="rounded-xl max-w-full !max-h-[300px] w-auto my-2 border border-white/10 object-contain block"
-                                                            style={{ maxHeight: '300px', width: 'auto' }}
-                                                            onError={() => setError(true)}
-                                                        />
-                                                        <button
-                                                            onClick={handleDownload}
-                                                            disabled={isDownloading}
-                                                            className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
-                                                            title="Download Image"
-                                                        >
-                                                            {isDownloading ? (
-                                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                            ) : (
-                                                                <Download size={16} />
+                                                            className={cn(
+                                                                "rounded-xl max-w-full !max-h-[300px] w-auto my-2 border border-white/10 object-contain block transition-opacity duration-300",
+                                                                isLoading ? "opacity-0" : "opacity-100"
                                                             )}
-                                                        </button>
+                                                            style={{ maxHeight: '300px', width: 'auto' }}
+                                                            onLoad={() => setIsLoading(false)}
+                                                            onError={() => {
+                                                                setIsLoading(false);
+                                                                setError(true);
+                                                            }}
+                                                        />
+                                                        {!isLoading && (
+                                                            <button
+                                                                onClick={handleDownload}
+                                                                disabled={isDownloading}
+                                                                className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
+                                                                title="Download Image"
+                                                            >
+                                                                {isDownloading ? (
+                                                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                                ) : (
+                                                                    <Download size={16} />
+                                                                )}
+                                                            </button>
+                                                        )}
                                                     </span>
                                                 );
                                             }
