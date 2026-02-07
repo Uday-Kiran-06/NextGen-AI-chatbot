@@ -47,38 +47,230 @@ registerTool({
         prompt: z.string().describe('The detailed visual description of the image to generate'),
     }),
     execute: async ({ prompt }) => {
-        const encodedPrompt = encodeURIComponent(prompt.slice(0, 500));
+        // Enhance prompt for realism
+        const enhancedPrompt = `${prompt}, photorealistic, 4k, highly detailed, cinematic lighting, hd, raw photo`;
+        const encodedPrompt = encodeURIComponent(enhancedPrompt);
         const seed = Math.floor(Math.random() * 1000000);
         const apiKey = 'sk_mEWxPjZizTEUPa1FsEFasSWkowb0Yzlt';
         const keyParam = `&key=${apiKey}`;
-        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true${keyParam}`;
+        // Use flux-realism model for better results
+        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux-realism&nologo=true${keyParam}`;
+        console.log("Generated Image URL:", imageUrl);
         return { imageUrl, info: "Image generated successfully. Embed this URL in markdown." };
     },
 });
 
-// 2. Web Search (Mock for high-performance automation demo)
-// 2. Web Search (Mock for high-performance automation demo)
-// DISABLED: Mock implementation causes hallucinations for general queries.
-/*
+// 3. Web Search (Scraping implementation)
 registerTool({
     name: 'web_search',
-    description: 'Search the web for real-time information.',
+    description: 'Search the web for real-time information. Use this to find news, facts, and general info.',
     parameters: z.object({
         query: z.string().describe('The search query'),
     }),
     execute: async ({ query }) => {
-        // Mocking a high-performance search API response
-        // In production, connect this to Tavily or Google Search API
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network latency
-        return {
-            results: [
-                { title: `${query} - Official Docs`, snippet: `Detailed documentation about ${query}...`, url: 'https://example.com/docs' },
-                { title: `Latest news on ${query}`, snippet: `Breaking changes in the recent version of ${query}...`, url: 'https://example.com/news' }
-            ]
-        };
+        try {
+            const cheerio = require('cheerio');
+            const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+
+            // Use fetch (built-in Node 18+)
+            const response = await fetch(searchUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+            });
+
+            const html = await response.text();
+            const $ = cheerio.load(html);
+            const results: any[] = [];
+
+            $('.result').each((i: number, element: any) => {
+                if (i >= 5) return; // Limit to 5 results
+                const title = $(element).find('.result__title').text().trim();
+                const snippet = $(element).find('.result__snippet').text().trim();
+                const url = $(element).find('.result__url').attr('href');
+
+                if (title && url) {
+                    results.push({ title, snippet, url });
+                }
+            });
+
+            return { results };
+        } catch (error: any) {
+            console.error("Web search error:", error);
+            return { error: "Failed to perform web search." };
+        }
     },
 });
-*/
+
+// 4. Search Images (Scraping implementation)
+registerTool({
+    name: 'search_images',
+    description: 'Search for existing images on the web. Use this when the user asks to "find" or "search for" photos/images rather than generating them.',
+    parameters: z.object({
+        query: z.string().describe('The image search query'),
+    }),
+    execute: async ({ query }) => {
+        try {
+            // DuckDuckGo Image Search is harder to scrape via simple HTML (requires JS/API tokens usually).
+            // A simpler fallback for "finding" images is to use a direct image search URL or a different provider.
+            // However, sticking to the plan: we'll try to find images or fall back to explaining.
+            // BETTER APPROACH for this environment: Use Unsplash or similar free API if available?
+            // No, user didn't provide keys.
+            // Alternative: Use DuckDuckGo HTML but look for image-like results? Hard.
+            // Alternative: Google encoded search?
+            // Let's use Pollinations "search" (which acts like a generator but consistent) OR
+            // just use the web_search and look for likely image URLs?
+
+            // Let's try to scrape DuckDuckGo images directly (risky).
+            // Actually, for this specific request "extract photos from internet", 
+            // a robust way without keys is hard. 
+            // Let's try a creative work-around: Return a link to a search result page,
+            // OR use a specific public image API like generic unsplash source if possible.
+
+            // Re-reading request: "extract photos from internet and displayed in chatboot"
+            // Let's try to fetch the DDG HTML search and look for the 'img' tags?
+            // DDG HTML version doesn't show images easily.
+
+            // Plan B: Use a consistent placebo or a "search" via pollinations that looks like a search result?
+            // No, that's fake.
+
+            // Plan C: Bing Images scraping is blocked.
+            // Let's use `web_search` but focused on finding image URLs?
+            // Or... utilize the `generate_image` but prompt it to "photorealistic photo of..." as a strong fallback
+            // if we can't truly "find" them.
+
+            // WAIT! The user wants to "extract photos". 
+            // Let's try to find an image-specific open API. 
+            // `https://source.unsplash.com/1600x900/?${query}` was deprecated.
+            // `https://image.pollinations.ai/...` IS a generative search.
+
+            // Let's try to purely scrape for ANY img tags in a general search?
+            // That usually yields icons.
+
+            // Let's implement a "best effort" using a known open hack or just return a search URL.
+            // Actually, let's use the DuckDuckGo HTML scrape but parse specifically for things that might be images?
+            // No, the HTML version is text-heavy.
+
+            // DECISION: I will implement a "search_images" that actually just performs a web search
+            // and looks for Open Graph images (og:image) from the top results.
+
+            const cheerio = require('cheerio');
+            const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+            const response = await fetch(searchUrl, {
+                headers: { 'User-Agent': 'Mozilla/5.0' }
+            });
+            const html = await response.text();
+            const $ = cheerio.load(html);
+            const imageUrls: string[] = [];
+
+            // This is a naive attempt to find images. 
+            // Since we can't easily scrape image results, we'll try to find *pages* about the image,
+            // and maybe return their og:image? That's too slow (N requests).
+
+            // ALTERNATIVE: Use a "Text-to-Image" generator as a "Search" proxy if the user accepts it.
+            // But they strictly asked for "extract photos from internet".
+
+            // Let's try searching Wikimedia Commons? 
+            // `https://commons.wikimedia.org/w/index.php?search=${query}`
+            // That's scrappable!
+
+            const wikiUrl = `https://commons.wikimedia.org/w/index.php?search=${encodeURIComponent(query)}&title=Special:MediaSearch&go=Go&type=image`;
+            // Note: Wikimedia's JS-heavy search might be hard to scrape with just fetch.
+            // Let's stick to the old `Special:Search`?
+
+            // Let's just use the `web_search` results and try to extract images from the snippets? Unlikely.
+
+            // FINAL PLAN for this tool: Return a direct link to the image search for the user to click,
+            // AND/OR generate a placeholder "visual" using our image gen but labelled as "Visualize".
+            // BUT, the user said "extract... and displayed".
+
+            // okay, let's use the specialized `keyword` based image sources if possible.
+            // `https://loremflickr.com/g/320/240/${query}` ? It's random.
+
+            // Let's stick to simple "web_search" for now, and I will try to parse
+            // the `result__icon` from DDG if available?
+
+            // Let's try scraping `https://www.google.com/search?tbm=isch&q=${query}` 
+            // using a mobile user agent. It usually gives base64 thumbnails.
+
+            const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=isch`;
+            const gRes = await fetch(googleUrl, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+            });
+            const gHtml = await gRes.text();
+            const $g = cheerio.load(gHtml);
+
+            // Google obfuscates classes. Look for 'img' tags effectively.
+            $g('img').each((i: number, el: any) => {
+                if (imageUrls.length >= 5) return;
+                const src = $g(el).attr('src');
+                if (src && src.startsWith('http')) {
+                    imageUrls.push(src);
+                }
+            });
+
+            if (imageUrls.length > 0) {
+                return { images: imageUrls };
+            }
+
+            return { error: "No images found." };
+
+        } catch (error: any) {
+            console.error("Image search error:", error);
+            return { error: "Failed to search images." };
+        }
+    },
+});
+
+// 5. Search Knowledge (RAG)
+registerTool({
+    name: 'search_knowledge',
+    description: 'Search the internal knowledge base for documents. Use this when the user asks about specific stored information.',
+    parameters: z.object({
+        query: z.string().describe('The search query for the knowledge base'),
+    }),
+    execute: async ({ query }) => {
+        try {
+            const { searchDocuments } = require('../vector-store');
+            const documents = await searchDocuments(query);
+            if (documents.length === 0) {
+                return { result: "No relevant documents found in the knowledge base." };
+            }
+            // Format results for the LLM
+            const result = documents.map((doc: any) => `[ID: ${doc.id}]\n${doc.content}`).join('\n\n');
+            return { result };
+        } catch (error: any) {
+            console.error("Knowledge search error:", error);
+            return { error: "Failed to search knowledge base." };
+        }
+    },
+});
+
+// 6. Learn Knowledge (Add to RAG)
+registerTool({
+    name: 'learn_knowledge',
+    description: 'Add new information to the knowledge base. Use this when the user explicitly teaches you something or asks you to remember something.',
+    parameters: z.object({
+        content: z.string().describe('The content to store in the knowledge base'),
+        topic: z.string().optional().describe('Optional topic or category metadata'),
+    }),
+    execute: async ({ content, topic }) => {
+        try {
+            const { addDocument } = require('../vector-store');
+            const metadata = topic ? { topic } : {};
+            const doc = await addDocument(content, metadata);
+            if (doc) {
+                return { result: `Successfully added information to knowledge base (ID: ${doc.id}).` };
+            }
+            return { error: "Failed to add information." };
+        } catch (error: any) {
+            console.error("Learn knowledge error:", error);
+            return { error: "Failed to add to knowledge base." };
+        }
+    },
+});
 
 export function getToolDefinitions() {
     return Object.values(toolRegistry).map(tool => ({

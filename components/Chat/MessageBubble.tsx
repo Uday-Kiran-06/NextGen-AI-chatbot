@@ -76,8 +76,6 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                 <div className={cn("flex flex-col gap-1 min-w-0", isUser ? "items-end" : "items-start")}>
                     <div className={cn("flex items-end gap-2 group/bubble", isUser ? "flex-row-reverse" : "flex-row")}>
 
-
-
                         <div className={cn(
                             "p-4 rounded-2xl shadow-md min-w-[60px] relative overflow-hidden",
                             isUser
@@ -116,84 +114,46 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                                     <ReactMarkdown
                                         urlTransform={(value) => value}
                                         components={{
-                                            img: ({ node, ...props }) => {
-                                                if (!props.src) return null;
-                                                const [error, setError] = useState(false);
-                                                const [isDownloading, setIsDownloading] = useState(false);
-                                                const [isLoading, setIsLoading] = useState(true);
-
-                                                const handleDownload = async (e: React.MouseEvent) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    if (!props.src) return;
-
-                                                    try {
-                                                        setIsDownloading(true);
-                                                        const response = await fetch(String(props.src));
-                                                        const blob = await response.blob();
-                                                        const url = window.URL.createObjectURL(blob);
-                                                        const a = document.createElement('a');
-                                                        a.href = url;
-                                                        a.download = `generated-image-${Date.now()}.jpg`;
-                                                        document.body.appendChild(a);
-                                                        a.click();
-                                                        window.URL.revokeObjectURL(url);
-                                                        document.body.removeChild(a);
-                                                    } catch (err) {
-                                                        console.error("Failed to download image:", err);
-                                                    } finally {
-                                                        setIsDownloading(false);
-                                                    }
-                                                };
-
-                                                if (error) {
-                                                    return (
-                                                        <span className="p-4 rounded-xl border border-white/10 bg-white/5 text-gray-400 text-sm flex items-center gap-2 w-full">
-                                                            <X size={16} />
-                                                            <span>Failed to load image. content may have expired.</span>
-                                                        </span>
-                                                    );
-                                                }
-
-                                                return (
-                                                    <span className="relative group inline-block max-w-full min-h-[100px] min-w-[200px]">
-                                                        {isLoading && (
-                                                            <span className="absolute inset-0 flex items-center justify-center bg-white/5 rounded-xl border border-white/10">
-                                                                <span className="flex flex-col items-center gap-2">
-                                                                    <span className="w-6 h-6 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
-                                                                    <span className="text-xs text-gray-400">Generating...</span>
-                                                                </span>
-                                                            </span>
-                                                        )}
-                                                        <img
-                                                            {...props}
-                                                            className={cn(
-                                                                "rounded-xl max-w-full !max-h-[300px] w-auto my-2 border border-white/10 object-contain block transition-opacity duration-300",
-                                                                isLoading ? "opacity-0" : "opacity-100"
-                                                            )}
-                                                            style={{ maxHeight: '300px', width: 'auto' }}
-                                                            onLoad={() => setIsLoading(false)}
-                                                            onError={() => {
-                                                                setIsLoading(false);
-                                                                setError(true);
-                                                            }}
-                                                        />
-                                                        {!isLoading && (
-                                                            <button
-                                                                onClick={handleDownload}
-                                                                disabled={isDownloading}
-                                                                className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
-                                                                title="Download Image"
-                                                            >
-                                                                {isDownloading ? (
-                                                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                                ) : (
-                                                                    <Download size={16} />
-                                                                )}
-                                                            </button>
-                                                        )}
-                                                    </span>
+                                            // Custom Paragraph to handle Image Galleries
+                                            p: ({ children }) => {
+                                                // Check if children are mostly images
+                                                const childrenArray = React.Children.toArray(children);
+                                                const imageChildren = childrenArray.filter(
+                                                    (child: any) =>
+                                                        React.isValidElement(child) &&
+                                                        (child.type === 'img' || (child.type as any)?.name === 'ImageAttachment')
                                                 );
+
+                                                const hasImages = imageChildren.length > 0;
+
+                                                if (hasImages) {
+                                                    // Use 'single' variant if exactly one image, else 'grid'
+                                                    const variant = imageChildren.length === 1 ? 'single' : 'grid';
+
+                                                    // Remap children to inject variant prop
+                                                    const content = childrenArray.map((child: any) => {
+                                                        if (React.isValidElement(child) && (child.type === 'img' || (child.type as any)?.name === 'ImageAttachment')) {
+                                                            return React.cloneElement(child, { variant } as any);
+                                                        }
+                                                        return child;
+                                                    });
+
+                                                    if (variant === 'grid') {
+                                                        return (
+                                                            <div className="flex flex-wrap gap-2 my-2 w-full justify-start">
+                                                                {content}
+                                                            </div>
+                                                        );
+                                                    }
+
+                                                    // Single image
+                                                    return <p className="mb-2 last:mb-0 w-full">{content}</p>;
+                                                }
+                                                return <p className="mb-2 last:mb-0">{children}</p>;
+                                            },
+
+                                            img: ({ node, ...props }) => {
+                                                return <ImageAttachment src={(props.src as string) || ''} alt={(props.alt as string) || ''} />;
                                             }
                                         }}
                                     >
@@ -245,7 +205,124 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                         )}
                     </div>
                 </div>
-            </div>
-        </motion.div>
+            </div >
+        </motion.div >
+    );
+}
+
+function ImageAttachment({ src, alt, variant = 'single' }: { src: string, alt: string, variant?: 'single' | 'grid' }) {
+    const [error, setError] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const handleDownload = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!src) return;
+
+        try {
+            setIsDownloading(true);
+            const response = await fetch(src);
+            const blob = await response.blob() as Blob;
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `image-${Date.now()}.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error("Failed to download image:", err);
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    if (error) {
+        return (
+            <span className="p-4 rounded-xl border border-white/10 bg-white/5 text-gray-400 text-sm flex items-center gap-2 w-full h-full min-h-[100px] justify-center">
+                <X size={16} />
+                <span>Failed to load image</span>
+            </span>
+        );
+    }
+
+    const isGrid = variant === 'grid';
+
+    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+    return (
+        <>
+            <span
+                onClick={() => setIsLightboxOpen(true)}
+                className={cn(
+                    "relative group block overflow-hidden rounded-xl border border-white/10 bg-black/20 shrink-0 cursor-zoom-in",
+                    isGrid ? "w-[260px] h-[260px]" : "w-full max-w-full h-auto min-h-[200px]"
+                )}
+            >
+                {isLoading && (
+                    <span className="absolute inset-0 flex items-center justify-center bg-white/5 min-h-[200px]">
+                        <span className="w-6 h-6 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
+                    </span>
+                )}
+                <img
+                    src={src}
+                    alt={alt}
+                    className={cn(
+                        "transition-opacity duration-300 transition-transform",
+                        isGrid ? "w-full h-full object-cover hover:scale-105" : "w-full h-auto block max-h-[300px] object-contain", // Changed max-h-[500px] to max-h-[300px]
+                        isLoading ? "opacity-0" : "opacity-100"
+                    )}
+                    onLoad={() => setIsLoading(false)}
+                    onError={() => {
+                        setIsLoading(false);
+                        setError(true);
+                    }}
+                />
+                {!isLoading && (
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
+                        {/* Visual hint only, click handles open */}
+                        <div className="bg-black/60 text-white rounded-full p-2 backdrop-blur-sm">
+                            <Download size={18} />
+                        </div>
+                    </div>
+                )}
+            </span>
+
+            {/* Lightbox Portal */}
+            {isLightboxOpen && (
+                <div
+                    className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+                    onClick={() => setIsLightboxOpen(false)}
+                >
+                    <button
+                        onClick={() => setIsLightboxOpen(false)}
+                        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-[101]"
+                    >
+                        <X size={24} />
+                    </button>
+
+                    <button
+                        onClick={handleDownload}
+                        className="absolute bottom-8 right-8 flex items-center gap-2 px-4 py-2 bg-accent-primary hover:bg-accent-primary/80 text-white rounded-full transition-colors z-[101]"
+                    >
+                        {isDownloading ? (
+                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <Download size={18} />
+                        )}
+                        <span>Download</span>
+                    </button>
+
+                    <img
+                        src={src}
+                        alt={alt}
+                        className="max-w-full max-h-full object-contain shadow-2xl rounded-sm pointer-events-auto"
+                        onClick={(e) => e.stopPropagation()} // Prevent close when clicking image
+                    />
+                </div>
+            )}
+        </>
     );
 }
