@@ -1,16 +1,8 @@
 {
   "name": "nextgen-chatbot",
-  "description": "NextGen AI Chatbot",
   "version": "0.1.0",
+  "description": "NextGen AI Chatbot - v2",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "test": "vitest",
-    "test:coverage": "vitest run --coverage"
-  },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@supabase/ssr": "^0.8.0",
@@ -44,5 +36,13 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5",
     "vitest": "^4.0.18"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
   }
 }
