@@ -1,4 +1,4 @@
-const https = require('https');
+import https from 'https';
 
 const urls = [
     'https://image.pollinations.ai/prompt/cool%20cyberpunk%20city?model=flux',

@@ -5,7 +5,7 @@ import { MessageSquarePlus, History, Settings, ChevronLeft, ChevronRight, Sparkl
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { chatStore, Conversation } from '@/lib/chat-store';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 
 interface SidebarProps {
     activeId: string | null;
@@ -14,9 +14,8 @@ interface SidebarProps {
     refreshKey: number;
 }
 
-// Helper component for menu options moved to bottom
-
 export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey, isOpen, onClose }: SidebarProps & { isOpen?: boolean, onClose?: () => void }) {
+    const supabase = createClient();
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [conversations, setConversations] = useState<Conversation[]>([]);
