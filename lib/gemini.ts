@@ -18,3 +18,5 @@ export const model = genAI.getGenerativeModel({
 });
 
 export const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+export const embeddingModel = genAI.getGenerativeModel({ model: 'text-embedding-004' });

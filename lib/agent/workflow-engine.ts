@@ -48,7 +48,9 @@ If you need to use a tool, respond ONLY with a JSON object in this format:
 
 If no tool is needed, simply respond with the text answer.
 
-IMPORTANT: If you use the 'generate_image' tool, you MUST include the returned 'imageUrl' in your final response using Markdown image syntax: ![Generated Image](imageUrl).
+IMPORTANT: If you use the 'generate_image' or 'search_images' tool, you MUST include the returned 'imageUrl' (or 'images' array) in your final response using Markdown image syntax: ![Generated Image](imageUrl) or for search results: ![Image 1](url1) ![Image 2](url2).
+
+NOTE: If the user asks for an image of a **specific real person, celebrity, or public figure** (e.g., "Virat Kohli", "Elon Musk"), expected behaviour is to FIND existing photos using the 'search_images' tool. The image generation model will likely refuse to generate real people due to safety filters. Only use 'generate_image' if the user explicitly asks for "art", a "painting", or a "drawing" of the person, or if the subject is fictional/generic.
 `;
 
     // 3. Send Message

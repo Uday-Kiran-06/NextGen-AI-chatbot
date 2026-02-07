@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
         }
 
-        const encodedPrompt = encodeURIComponent(prompt.slice(0, 500));
+        const encodedPrompt = encodeURIComponent(prompt);
         const seed = Math.floor(Math.random() * 1000000);
         const apiKey = 'sk_mEWxPjZizTEUPa1FsEFasSWkowb0Yzlt';
         const keyParam = `&key=${apiKey}`;
