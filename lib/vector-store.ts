@@ -1,5 +1,5 @@
 
-import { supabase } from './supabase';
+import { createClient } from './supabase/server';
 import { embeddingModel } from './gemini';
 
 export interface Document {
@@ -29,6 +29,7 @@ export async function embedText(text: string): Promise<number[]> {
  */
 export async function addDocument(content: string, metadata: Record<string, any> = {}): Promise<Document | null> {
     try {
+        const supabase = await createClient();
         const embedding = await embedText(content);
 
         const { data, error } = await supabase
@@ -59,8 +60,10 @@ export async function addDocument(content: string, metadata: Record<string, any>
  */
 export async function searchDocuments(query: string, matchCount: number = 5): Promise<Document[]> {
     try {
+        const supabase = await createClient();
         const queryEmbedding = await embedText(query);
 
+        // RPC call might need explicit casting in some setups, but usually fine
         const { data: documents, error } = await supabase.rpc('match_documents', {
             query_embedding: queryEmbedding,
             match_threshold: 0.5, // Adjust threshold as needed
