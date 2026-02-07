@@ -2,23 +2,15 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import path from 'path'
 
 export default defineConfig({
     plugins: [react()],
     test: {
-        environment: 'jsdom',
-        alias: {
-            '@': path.resolve(__dirname, './'),
-        },
-    },
-});
         globals: true,
+        environment: 'jsdom',
         setupFiles: './vitest.setup.ts',
         alias: {
-            '@': path.resolve(process.cwd(), './')
+            '@': path.resolve(__dirname, './'),
         },
         coverage: {
             provider: 'v8',
@@ -30,8 +22,6 @@ export default defineConfig({
                 'packages/*/test?(s)/**',
                 '**/*.d.ts',
                 '**/virtual:*',
-                '**/__x00__*',
-                '**/\x00*',
                 'cypress/**',
                 'test?(s)/**',
                 'test?(-*).?(c|m)js?(x)',
@@ -43,4 +33,4 @@ export default defineConfig({
             ],
         },
     },
-})
+});
