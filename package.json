@@ -1,5 +1,6 @@
 {
   "name": "nextgen-chatbot",
+  "description": "NextGen AI Chatbot",
   "version": "0.1.0",
   "private": true,
   "scripts": {
