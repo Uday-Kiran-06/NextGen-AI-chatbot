@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { chatStore, Conversation } from '@/lib/chat-store';
 import { createClient } from '@/lib/supabase/client';
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 interface SidebarProps {
     activeId: string | null;
@@ -45,7 +46,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
         checkUser();
 
         // Listen for Auth Changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
             setUser(session?.user ?? null);
             fetchChats(); // Re-fetch chats on auth change
         });
