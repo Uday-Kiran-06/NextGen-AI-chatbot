@@ -174,6 +174,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-accent-primary rounded-full items-center justify-center text-white text-xs z-50 hover:scale-110 transition-transform shadow-lg cursor-pointer"
                 title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                suppressHydrationWarning
             >
                 {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
@@ -189,6 +190,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
+                            suppressHydrationWarning
                         />
                     </div>
                 ) : (
@@ -210,7 +212,9 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                     className={cn(
                         "glass-button w-full flex items-center gap-3 py-3 font-semibold hover:bg-white/10 group relative overflow-hidden",
                         isCollapsed ? "justify-center px-0 rounded-xl" : "justify-start px-4 rounded-xl"
-                    )}>
+                    )}
+                    suppressHydrationWarning
+                >
                     <MessageSquarePlus size={isCollapsed ? 24 : 20} className="group-hover:scale-110 transition-transform text-accent-secondary" />
                     {!isCollapsed && <span>New Chat</span>}
                     <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -396,6 +400,7 @@ const MenuOption = ({ icon: Icon, label, onClick, className }: any) => (
     <button
         onClick={onClick}
         className={cn("w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-left", className)}
+        suppressHydrationWarning
     >
         <Icon size={14} className="opacity-70" />
         {label}

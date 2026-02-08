@@ -12,15 +12,18 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+    const [mode, setMode] = useState<'signin' | 'signup' | 'forgot-password'>('signin');
     const [error, setError] = useState<string | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
     const router = useRouter();
     const supabase = createClient();
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setLoading(true);
         setError(null);
+        setMessage(null);
 
         try {
             if (mode === 'signup') {
@@ -32,7 +35,19 @@ export default function LoginPage() {
                     },
                 });
                 if (error) throw error;
-                setError('Check your email for the confirmation link.');
+                setMessage('Check your email for the confirmation link.');
+                const response = await fetch('/api/send-reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email }),
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to send reset email');
+                }
+
+                setMessage('Check your email for the password reset link.');
             } else {
                 const { error } = await supabase.auth.signInWithPassword({
                     email,
@@ -40,7 +55,7 @@ export default function LoginPage() {
                 });
                 if (error) throw error;
                 router.push('/');
-                router.refresh(); // Refresh server components
+                router.refresh();
             }
         } catch (err: any) {
             setError(err.message);
@@ -76,12 +91,14 @@ export default function LoginPage() {
                             <Sparkles size={24} className="text-white" />
                         </div>
                         <h1 className="text-2xl font-bold text-white mb-2">
-                            {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
+                            {mode === 'signin' ? 'Welcome Back' : mode === 'signup' ? 'Create Account' : 'Reset Password'}
                         </h1>
                         <p className="text-gray-400 text-sm text-center">
                             {mode === 'signin'
                                 ? 'Enter your credentials to access your chat history'
-                                : 'Sign up to start your AI journey'}
+                                : mode === 'signup'
+                                    ? 'Sign up to start your AI journey'
+                                    : 'Enter your email to receive a password reset link'}
                         </p>
                     </div>
 
@@ -101,21 +118,23 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-medium text-gray-300 ml-1">Password</label>
-                            <div className="relative">
-                                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
-                                    required
-                                    minLength={6}
-                                />
+                        {mode !== 'forgot-password' && (
+                            <div className="space-y-2">
+                                <label className="text-xs font-medium text-gray-300 ml-1">Password</label>
+                                <div className="relative">
+                                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                    <input
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
+                                        required
+                                        minLength={6}
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {error && (
                             <motion.div
@@ -127,45 +146,99 @@ export default function LoginPage() {
                             </motion.div>
                         )}
 
+                        {message && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="text-green-400 text-xs bg-green-500/10 border border-green-500/20 p-2 rounded-lg text-center"
+                            >
+                                {message}
+                            </motion.div>
+                        )}
+
+                        {mode === 'signin' && (
+                            <div className="flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setMode('forgot-password');
+                                        setError(null);
+                                        setMessage(null);
+                                    }}
+                                    className="text-xs text-gray-400 hover:text-white transition-colors"
+                                >
+                                    Forgot Password?
+                                </button>
+                            </div>
+                        )}
+
                         <button
                             type="submit"
                             disabled={loading}
                             className="w-full bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-accent-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? <Loader2 size={18} className="animate-spin" /> : (mode === 'signin' ? 'Sign In' : 'Sign Up')}
+                            {loading ? (
+                                <Loader2 size={18} className="animate-spin" />
+                            ) : mode === 'signin' ? (
+                                'Sign In'
+                            ) : mode === 'signup' ? (
+                                'Sign Up'
+                            ) : (
+                                'Send Reset Link'
+                            )}
                         </button>
                     </form>
 
-                    <div className="relative my-6">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-white/10"></div>
+                    {mode !== 'forgot-password' && (
+                        <div className="relative my-6">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-white/10"></div>
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-black/40 px-2 text-gray-500">Or continue with</span>
+                            </div>
                         </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-black/40 px-2 text-gray-500">Or continue with</span>
-                        </div>
-                    </div>
+                    )}
 
-                    <div className="grid grid-cols-1 gap-3">
-                        <button
-                            onClick={() => handleOAuth('github')}
-                            className="flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white transition-all text-sm font-medium"
-                        >
-                            <Github size={18} />
-                            GitHub
-                        </button>
-                    </div>
+                    {mode !== 'forgot-password' && (
+                        <div className="grid grid-cols-1 gap-3">
+                            <button
+                                onClick={() => handleOAuth('github')}
+                                className="flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white transition-all text-sm font-medium"
+                            >
+                                <Github size={18} />
+                                GitHub
+                            </button>
+                        </div>
+                    )}
 
                     <div className="mt-8 text-center text-sm text-gray-400">
-                        {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
-                        <button
-                            onClick={() => {
-                                setMode(mode === 'signin' ? 'signup' : 'signin');
-                                setError(null);
-                            }}
-                            className="text-accent-primary hover:text-accent-secondary font-medium transition-colors"
-                        >
-                            {mode === 'signin' ? 'Sign Up' : 'Sign In'}
-                        </button>
+                        {mode === 'forgot-password' ? (
+                            <button
+                                onClick={() => {
+                                    setMode('signin');
+                                    setError(null);
+                                    setMessage(null);
+                                }}
+                                className="text-accent-primary hover:text-accent-secondary font-medium transition-colors"
+                            >
+                                Back to Sign In
+                            </button>
+                        ) : (
+                            <>
+                                {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
+                                <button
+                                    onClick={() => {
+                                        setMode(mode === 'signin' ? 'signup' : 'signin');
+                                        setError(null);
+                                        setMessage(null);
+                                    }}
+                                    className="text-accent-primary hover:text-accent-secondary font-medium transition-colors"
+                                >
+                                    {mode === 'signin' ? 'Sign Up' : 'Sign In'}
+                                </button>
+                            </>
+                        )}
                     </div>
                 </motion.div>
             </div>

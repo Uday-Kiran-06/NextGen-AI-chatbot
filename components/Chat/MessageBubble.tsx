@@ -140,14 +140,14 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
 
                                                     if (variant === 'grid') {
                                                         return (
-                                                            <div className="flex flex-wrap gap-2 my-2 w-full justify-start">
+                                                            <div className="flex gap-2 my-2 w-full overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent snap-x">
                                                                 {content}
                                                             </div>
                                                         );
                                                     }
 
-                                                    // Single image
-                                                    return <p className="mb-2 last:mb-0 w-full">{content}</p>;
+                                                    // Single image - use div to avoid p > div nesting issue
+                                                    return <div className="mb-2 last:mb-0 w-full">{content}</div>;
                                                 }
                                                 return <p className="mb-2 last:mb-0">{children}</p>;
                                             },
@@ -257,8 +257,8 @@ function ImageAttachment({ src, alt, variant = 'single' }: { src: string, alt: s
             <span
                 onClick={() => setIsLightboxOpen(true)}
                 className={cn(
-                    "relative group block overflow-hidden rounded-xl border border-white/10 bg-black/20 shrink-0 cursor-zoom-in",
-                    isGrid ? "w-[260px] h-[260px]" : "w-full max-w-full h-auto min-h-[200px]"
+                    "relative group block overflow-hidden rounded-xl border border-white/10 bg-black/20 shrink-0 cursor-zoom-in snap-center",
+                    isGrid ? "w-[200px] h-[200px]" : "w-full max-w-full h-auto min-h-[200px]"
                 )}
             >
                 {isLoading && (

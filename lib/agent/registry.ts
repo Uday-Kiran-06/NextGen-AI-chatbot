@@ -70,12 +70,16 @@ registerTool({
     execute: async ({ query }) => {
         try {
             const cheerio = require('cheerio');
-            const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+            const searchUrl = "https://lite.duckduckgo.com/lite/";
+            const body = new URLSearchParams();
+            body.append('q', query);
 
-            // Use fetch (built-in Node 18+)
             const response = await fetch(searchUrl, {
+                method: 'POST',
+                body: body,
                 headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 }
             });
 
@@ -83,14 +87,28 @@ registerTool({
             const $ = cheerio.load(html);
             const results: any[] = [];
 
-            $('.result').each((i: number, element: any) => {
-                if (i >= 5) return; // Limit to 5 results
-                const title = $(element).find('.result__title').text().trim();
-                const snippet = $(element).find('.result__snippet').text().trim();
-                const url = $(element).find('.result__url').attr('href');
+            const rows = $('table').last().find('tr');
+            let currentTitle: string | null = null;
+            let currentUrl: string | null = null;
 
-                if (title && url) {
-                    results.push({ title, snippet, url });
+            rows.each((i: number, element: any) => {
+                if (results.length >= 5) return; // Limit results
+
+                const linkAnchor = $(element).find('a.result-link');
+                if (linkAnchor.length > 0) {
+                    currentTitle = linkAnchor.text().trim();
+                    currentUrl = linkAnchor.attr('href');
+                } else {
+                    const snippet = $(element).find('.result-snippet').text().trim();
+                    if (snippet && currentTitle && currentUrl) {
+                        results.push({
+                            title: currentTitle,
+                            url: currentUrl,
+                            snippet: snippet
+                        });
+                        currentTitle = null;
+                        currentUrl = null;
+                    }
                 }
             });
 
