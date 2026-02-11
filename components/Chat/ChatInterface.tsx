@@ -40,6 +40,12 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
     useEffect(() => {
         const loadMessages = async () => {
             if (conversationId) {
+                // Prevent wiping out the "Thinking..." state if we are currently generating.
+                // The new message will be added via state updates in generateAIResponse.
+                if (isGenerating) {
+                    console.log('Skipping message load during generation to preserve state');
+                    return;
+                }
                 const dbMessages = await chatStore.getMessages(conversationId);
                 setMessages(dbMessages.map(m => ({ id: m.id, role: m.role, content: m.content })));
             } else {
