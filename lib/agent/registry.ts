@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import * as cheerio from 'cheerio';
+import * as vectorStore from '../vector-store';
 
 export interface Tool {
     name: string;
@@ -69,7 +71,7 @@ registerTool({
     }),
     execute: async ({ query }) => {
         try {
-            const cheerio = require('cheerio');
+            // Cheerio is imported at the top level now
             const searchUrl = "https://lite.duckduckgo.com/lite/";
             const body = new URLSearchParams();
             body.append('q', query);
@@ -97,7 +99,7 @@ registerTool({
                 const linkAnchor = $(element).find('a.result-link');
                 if (linkAnchor.length > 0) {
                     currentTitle = linkAnchor.text().trim();
-                    currentUrl = linkAnchor.attr('href');
+                    currentUrl = linkAnchor.attr('href') || null;
                 } else {
                     const snippet = $(element).find('.result-snippet').text().trim();
                     if (snippet && currentTitle && currentUrl) {
@@ -172,7 +174,12 @@ registerTool({
             // DECISION: I will implement a "search_images" that actually just performs a web search
             // and looks for Open Graph images (og:image) from the top results.
 
-            const cheerio = require('cheerio');
+            const cheerio = require('cheerio'); // Already imported at top, but let's remove this line or comment it out if it was re-added. Actually, safer to just rely on the top-level import and remove this line entirely.
+            // Wait, I should verify if the previous tool call actually removed it or if it failed.
+            // The file content in Step 408 shows it present at line 176.
+
+            // Remove the line:
+            // const cheerio = require('cheerio');
             const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
             const response = await fetch(searchUrl, {
                 headers: { 'User-Agent': 'Mozilla/5.0' }
@@ -251,8 +258,8 @@ registerTool({
     }),
     execute: async ({ query }) => {
         try {
-            const { searchDocuments } = require('../vector-store');
-            const documents = await searchDocuments(query);
+            // using top-level import
+            const documents = await vectorStore.searchDocuments(query);
             if (documents.length === 0) {
                 return { result: "No relevant documents found in the knowledge base." };
             }
@@ -276,9 +283,9 @@ registerTool({
     }),
     execute: async ({ content, topic }) => {
         try {
-            const { addDocument } = require('../vector-store');
+            // using top-level import
             const metadata = topic ? { topic } : {};
-            const doc = await addDocument(content, metadata);
+            const doc = await vectorStore.addDocument(content, metadata);
             if (doc) {
                 return { result: `Successfully added information to knowledge base (ID: ${doc.id}).` };
             }
