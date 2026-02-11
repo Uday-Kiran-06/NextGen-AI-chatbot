@@ -63,6 +63,9 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             const newConvo = await chatStore.createConversation(shortTitle);
             if (newConvo) {
                 currentConvoId = newConvo.id;
+                // CRITICAL: Save the initial user message to DB *before* triggering the parent update.
+                // This prevents the "disappearing message" bug where the UI reloads from an empty DB.
+                await chatStore.addMessage(currentConvoId, 'user', userInput);
                 onConversationCreated(newConvo.id);
             }
         }
