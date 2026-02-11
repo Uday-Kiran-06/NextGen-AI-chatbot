@@ -14,10 +14,13 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !RESEND_API_KEY) {
     console.error('Missing required environment variables for password reset (Supabase or Resend).');
 }
 
-const resend = new Resend(RESEND_API_KEY);
+// Initialize inside the handler to avoid build-time errors if env var is missing
+// const resend = new Resend(RESEND_API_KEY);
 
 export async function POST(req: NextRequest) {
     try {
+        const resend = new Resend(RESEND_API_KEY);
+
         const body = await req.json();
         const email = (body.email || '').trim().toLowerCase();
 
