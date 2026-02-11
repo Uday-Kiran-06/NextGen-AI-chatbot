@@ -61,6 +61,14 @@ export async function POST(req: NextRequest) {
             finalContent = response.content || "";
             // Cache the final result for short duration
             Cache.set(cacheKey, finalContent, 60);
+        } else if (response.type === 'tool_call') {
+            // Context: The agent wants to use a tool but we hit the depth limit
+            finalContent = "I apologize, but I reached a complexity limit while processing your request with tools. Could you please provide more specific details?";
+        }
+
+        // Fallback for empty content
+        if (!finalContent.trim()) {
+            finalContent = "I apologize, but I encountered an issue generating a response. Please try asking again.";
         }
 
         // Stream the result back
