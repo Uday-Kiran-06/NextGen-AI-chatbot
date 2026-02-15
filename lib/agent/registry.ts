@@ -71,10 +71,14 @@ registerTool({
     }),
     execute: async ({ query }) => {
         try {
-            // Cheerio is imported at the top level now
-            const searchUrl = "https://lite.duckduckgo.com/lite/";
+            // Cheerio is imported at the top level
+            const searchUrl = "https://html.duckduckgo.com/html/";
             const body = new URLSearchParams();
             body.append('q', query);
+
+            // Add a timeout signal to prevent long hangs
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
             const response = await fetch(searchUrl, {
                 method: 'POST',
@@ -82,41 +86,54 @@ registerTool({
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                     'Content-Type': 'application/x-www-form-urlencoded'
-                }
+                },
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                return { error: `Search failed with status ${response.status}` };
+            }
 
             const html = await response.text();
             const $ = cheerio.load(html);
             const results: any[] = [];
 
-            const rows = $('table').last().find('tr');
-            let currentTitle: string | null = null;
-            let currentUrl: string | null = null;
+            // HTML DuckDuckGo structure parsing
+            const links = $('.result__a');
+            links.each((i, element) => {
+                if (results.length >= 5) return;
 
-            rows.each((i: number, element: any) => {
-                if (results.length >= 5) return; // Limit results
+                const title = $(element).text().trim();
+                const url = $(element).attr('href');
+                const snippet = $(element).closest('.result').find('.result__snippet').text().trim();
 
-                const linkAnchor = $(element).find('a.result-link');
-                if (linkAnchor.length > 0) {
-                    currentTitle = linkAnchor.text().trim();
-                    currentUrl = linkAnchor.attr('href') || null;
-                } else {
-                    const snippet = $(element).find('.result-snippet').text().trim();
-                    if (snippet && currentTitle && currentUrl) {
-                        results.push({
-                            title: currentTitle,
-                            url: currentUrl,
-                            snippet: snippet
-                        });
-                        currentTitle = null;
-                        currentUrl = null;
-                    }
+                if (title && url && snippet) {
+                    results.push({ title, url, snippet });
                 }
             });
 
-            return { results };
+            if (results.length === 0) {
+                // Fallback for different HTML structure
+                const rows = $('table').last().find('tr');
+                rows.each((i: number, element: any) => {
+                    if (results.length >= 5) return;
+                    const linkAnchor = $(element).find('a.result-link');
+                    if (linkAnchor.length > 0) {
+                        const title = linkAnchor.text().trim();
+                        const url = linkAnchor.attr('href');
+                        const snippet = $(element).find('.result-snippet').text().trim();
+                        if (title && url) {
+                            results.push({ title, url, snippet });
+                        }
+                    }
+                });
+            }
+
+            return { results: results.length > 0 ? results : "No results found." };
         } catch (error: any) {
             console.error("Web search error:", error);
+            // Return specific error so the Agent knows to fall back
             return { error: "Failed to perform web search." };
         }
     },
