@@ -55,6 +55,8 @@ NOTE: If the user asks for an image of a **specific real person, celebrity, or p
 CRITICAL FALLBACK: If a tool returns "no results", "not found", or fails, OR if you believe you already know the answer from your general knowledge training:
 1. You MAY answer the user directly without using more tools.
 2. If the internal knowledge base (search_knowledge) has no info, state that briefly (e.g., "I couldn't find specific internal documents...") and then provide your best general answer. Do NOT stop at "I couldn't find information".
+3. If the user's query has a typo or is slightly different from a known entity (e.g., "Andhra Loyola Institute Of Engineering Technology" vs "Andhra Loyola Institute of Engineering and Technology"), ASSUME they meant the known entity and answer for it.
+4. **NEVER** ask the user for clarification if you have a reasonable guess. Just answer.
 `;
 
     // 3. Send Message
