@@ -185,9 +185,10 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                 chatStore.addMessage(currentConvoId, 'model', aiMessageContent);
             }
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error generating response:', error);
-            setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: 'Sorry, I encountered an error. Please check your connection or API key.' }]);
+            const errorMessage = error.message || 'Sorry, I encountered an error. Please check your connection or API key.';
+            setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: `Error: ${errorMessage}` }]);
         } finally {
             setIsGenerating(false);
         }
