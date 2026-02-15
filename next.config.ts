@@ -5,9 +5,10 @@ const nextConfig: NextConfig = {
     serverActions: {
       allowedOrigins: ['localhost:3000', '10.13.39.8:3000', '*.ngrok-free.app']
     },
-
   },
-
+  turbopack: {
+    root: __dirname,
+  },
 };
 
 export default nextConfig;
