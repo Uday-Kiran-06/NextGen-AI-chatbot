@@ -1,5 +1,5 @@
 
-import { createClient } from './supabase/server';
+import { createAdminClient } from './supabase/admin';
 import { embeddingModel } from './gemini';
 
 export interface Document {
@@ -29,7 +29,7 @@ export async function embedText(text: string): Promise<number[]> {
  */
 export async function addDocument(content: string, metadata: Record<string, any> = {}): Promise<Document | null> {
     try {
-        const supabase = await createClient();
+        const supabase = await createAdminClient();
         const embedding = await embedText(content);
 
         const { data, error } = await supabase
@@ -60,7 +60,7 @@ export async function addDocument(content: string, metadata: Record<string, any>
  */
 export async function searchDocuments(query: string, matchCount: number = 5): Promise<Document[]> {
     try {
-        const supabase = await createClient();
+        const supabase = await createAdminClient();
         const queryEmbedding = await embedText(query);
 
         // RPC call might need explicit casting in some setups, but usually fine
