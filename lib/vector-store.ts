@@ -72,12 +72,12 @@ export async function searchDocuments(query: string, matchCount: number = 5): Pr
 
         if (error) {
             console.error("Error searching documents:", error);
-            throw error;
+            throw new Error(`Supabase Search Error: ${error.message}`);
         }
 
         return documents || [];
-    } catch (error) {
+    } catch (error: any) {
         console.error("Failed to search documents:", error);
-        return [];
+        throw error; // Re-throw to be caught by the tool execution
     }
 }

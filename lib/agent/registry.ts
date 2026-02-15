@@ -268,7 +268,7 @@ registerTool({
             return { result };
         } catch (error: any) {
             console.error("Knowledge search error:", error);
-            return { error: "Failed to search knowledge base." };
+            return { result: `Error accessing knowledge base: ${error.message || String(error)}. Please check administrative logs or environment configuration.` };
         }
     },
 });
