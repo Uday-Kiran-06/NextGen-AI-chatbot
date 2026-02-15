@@ -65,26 +65,13 @@ NOTE: If the user asks for an image of a **specific real person, celebrity, or p
 
     // 4. Parse for Tool Calls
     try {
-        // Find the first occurrence of '{' and traverse to find a valid JSON object
         const firstOpenBrace = responseText.indexOf('{');
         if (firstOpenBrace !== -1) {
-            // Attempt to parse substring starting from first open brace
-            // Simple heuristic: Try to find the matching closing brace by counting
-            let balance = 0;
-            let lastCloseBrace = -1;
+            // Backtracking approach: Find the last '}', matches valid JSON against JSON.parse
+            // This handles nested objects and strings better than a simple counter.
+            let lastCloseBrace = responseText.lastIndexOf('}');
 
-            for (let i = firstOpenBrace; i < responseText.length; i++) {
-                if (responseText[i] === '{') balance++;
-                if (responseText[i] === '}') {
-                    balance--;
-                    if (balance === 0) {
-                        lastCloseBrace = i;
-                        break;
-                    }
-                }
-            }
-
-            if (lastCloseBrace !== -1) {
+            while (lastCloseBrace > firstOpenBrace) {
                 const potentialJsonString = responseText.substring(firstOpenBrace, lastCloseBrace + 1);
                 try {
                     const potentialJson = JSON.parse(potentialJsonString);
@@ -95,8 +82,14 @@ NOTE: If the user asks for an image of a **specific real person, celebrity, or p
                             toolArgs: potentialJson.args
                         };
                     }
+                    // If parse succeeds but no tool, it's valid JSON but not a tool call? 
+                    // We should probably stop here or continue? 
+                    // If it's valid JSON, it's likely the intended output.
+                    return { type: 'text', content: responseText }; // Fallback
                 } catch (jsonError) {
-                    console.error("Failed to parse extracted JSON candidate:", jsonError);
+                    // JSON parse failed, meaning the substring includes extra garbage or is incomplete.
+                    // Try the previous closing brace.
+                    lastCloseBrace = responseText.lastIndexOf('}', lastCloseBrace - 1);
                 }
             }
         }
