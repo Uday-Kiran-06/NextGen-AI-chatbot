@@ -51,6 +51,10 @@ If no tool is needed, simply respond with the text answer.
 IMPORTANT: If you use the 'generate_image' or 'search_images' tool, you MUST include the returned 'imageUrl' (or 'images' array) in your final response using Markdown image syntax: ![Generated Image](imageUrl) or for search results: ![Image 1](url1) ![Image 2](url2).
 
 NOTE: If the user asks for an image of a **specific real person, celebrity, or public figure** (e.g., "Virat Kohli", "Elon Musk"), expected behaviour is to FIND existing photos using the 'search_images' tool. The image generation model will likely refuse to generate real people due to safety filters. Only use 'generate_image' if the user explicitly asks for "art", a "painting", or a "drawing" of the person, or if the subject is fictional/generic.
+
+CRITICAL FALLBACK: If a tool returns "no results", "not found", or fails, OR if you believe you already know the answer from your general knowledge training:
+1. You MAY answer the user directly without using more tools.
+2. If the internal knowledge base (search_knowledge) has no info, state that briefly (e.g., "I couldn't find specific internal documents...") and then provide your best general answer. Do NOT stop at "I couldn't find information".
 `;
 
     // 3. Send Message
