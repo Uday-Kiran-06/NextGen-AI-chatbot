@@ -65,16 +65,39 @@ NOTE: If the user asks for an image of a **specific real person, celebrity, or p
 
     // 4. Parse for Tool Calls
     try {
-        // Attempt to find JSON in the response
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            const potentialJson = JSON.parse(jsonMatch[0]);
-            if (potentialJson.tool && toolRegistry[potentialJson.tool]) {
-                return {
-                    type: 'tool_call',
-                    toolName: potentialJson.tool,
-                    toolArgs: potentialJson.args
-                };
+        // Find the first occurrence of '{' and traverse to find a valid JSON object
+        const firstOpenBrace = responseText.indexOf('{');
+        if (firstOpenBrace !== -1) {
+            // Attempt to parse substring starting from first open brace
+            // Simple heuristic: Try to find the matching closing brace by counting
+            let balance = 0;
+            let lastCloseBrace = -1;
+
+            for (let i = firstOpenBrace; i < responseText.length; i++) {
+                if (responseText[i] === '{') balance++;
+                if (responseText[i] === '}') {
+                    balance--;
+                    if (balance === 0) {
+                        lastCloseBrace = i;
+                        break;
+                    }
+                }
+            }
+
+            if (lastCloseBrace !== -1) {
+                const potentialJsonString = responseText.substring(firstOpenBrace, lastCloseBrace + 1);
+                try {
+                    const potentialJson = JSON.parse(potentialJsonString);
+                    if (potentialJson.tool && toolRegistry[potentialJson.tool]) {
+                        return {
+                            type: 'tool_call',
+                            toolName: potentialJson.tool,
+                            toolArgs: potentialJson.args
+                        };
+                    }
+                } catch (jsonError) {
+                    console.error("Failed to parse extracted JSON candidate:", jsonError);
+                }
             }
         }
     } catch (e) {
