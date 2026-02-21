@@ -1,5 +1,13 @@
-import React, { useState, useRef } from 'react';
-import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon, Music } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface InputAreaProps {
     onSendMessage: (text: string, files: any[]) => void;
@@ -12,9 +20,18 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
     const [files, setFiles] = useState<{ name: string, data: string, mimeType: string, preview: string }[]>([]);
     const [interimTranscript, setInterimTranscript] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Auto-resize textarea
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto'; // Reset height
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 128)}px`; // Set to scrollHeight but max 128px
+        }
+    }, [input]);
 
     // Cleanup on unmount
-    React.useEffect(() => {
+    useEffect(() => {
         return () => {
             if ((window as any).recognitionInstance) {
                 (window as any).recognitionInstance.stop();
@@ -22,7 +39,7 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
         };
     }, []);
 
-    // Voice Interaction
+    // Voice Interaction Logic (Same as before, just kept for functionality)
     const toggleRecording = async () => {
         if (isRecording) {
             setIsRecording(false);
@@ -33,7 +50,6 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
 
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (SpeechRecognition) {
-            // Explicitly request mic permission first (modern browsers prefer this)
             try {
                 await navigator.mediaDevices.getUserMedia({ audio: true });
             } catch (err) {
@@ -43,9 +59,9 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
             }
 
             const recognition = new SpeechRecognition();
-            (window as any).recognitionInstance = recognition; // Store instance to stop it later
+            (window as any).recognitionInstance = recognition;
 
-            recognition.continuous = true; // KEEP RECORDING until stopped
+            recognition.continuous = true;
             recognition.interimResults = true;
             recognition.lang = 'en-US';
 
@@ -77,16 +93,6 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                 setInterimTranscript(interim);
             };
 
-            recognition.onerror = (event: any) => {
-                console.error("Speech recognition error", event.error);
-                if (event.error === 'audio-capture') {
-                    // Mute alert if it's just a transient connection issue, but show for persistent
-                    console.warn("No mic detected.");
-                }
-                // Don't separate logic here, let it just stop.
-                // setIsRecording(false) handles the UI reset.
-            };
-
             recognition.start();
         } else {
             alert("Speech recognition not supported in this browser.");
@@ -99,7 +105,6 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
             const processed = await Promise.all(newFiles.map(file => new Promise<any>((resolve) => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                    // data:image/png;base64,...
                     const result = reader.result as string;
                     const base64Data = result.split(',')[1];
                     resolve({
@@ -127,6 +132,7 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
         setIsRecording(false);
         setInterimTranscript('');
         (window as any).recognitionInstance?.stop();
+        if (textareaRef.current) textareaRef.current.style.height = 'auto';
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -137,37 +143,44 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
     };
 
     return (
-        <div className="p-4 md:p-6 pb-6 relative">
-
-            {/* Voice Status Indicator */}
+        <div className="w-full relative z-20">
+            {/* Voice Visualizer */}
             {isRecording && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-2 z-50 pointer-events-none">
-                    <div className="bg-black/80 backdrop-blur-md text-white text-sm px-4 py-2 rounded-full flex items-center gap-2 border border-white/10 shadow-xl">
-                        <div className="flex gap-1 items-center h-4">
-                            {[1, 2, 3].map(i => (
-                                <div key={i} className="w-1 bg-red-500 rounded-full animate-music-bar" style={{ animationDelay: `${i * 0.1}s`, height: '100%' }} />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[120%] z-50">
+                    <div className="bg-black/80 backdrop-blur-xl text-white text-sm px-6 py-3 rounded-full flex items-center gap-3 border border-white/10 shadow-[0_0_30px_-5px_var(--accent)] animate-in fade-in slide-in-from-bottom-5">
+                        <div className="flex gap-1 items-end h-4">
+                            {[1, 2, 3, 4, 5].map(i => (
+                                <div key={i} className="w-1 bg-accent rounded-full animate-music-bar" style={{ animationDelay: `${i * 0.1}s`, height: '100%' }} />
                             ))}
                         </div>
-                        <span>{interimTranscript || "Listening..."}</span>
+                        <span className="font-medium tracking-wide">{interimTranscript || "Listening..."}</span>
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 rounded-full p-0 text-muted-foreground hover:text-white hover:bg-white/10 ml-2"
+                            onClick={toggleRecording}
+                        >
+                            <X size={14} />
+                        </Button>
                     </div>
                 </div>
             )}
 
             {/* File Previews */}
             {files.length > 0 && (
-                <div className="flex gap-2 mb-2 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-3 mb-3 overflow-x-auto pb-2 scrollbar-hide px-2">
                     {files.map((f: any, i) => (
-                        <div key={i} className="relative group shrink-0">
-                            <div className="w-16 h-16 rounded-lg border border-white/20 overflow-hidden bg-white/5 flex items-center justify-center">
+                        <div key={i} className="relative group shrink-0 animate-in fade-in zoom-in-95 duration-200">
+                            <div className="w-20 h-20 rounded-xl border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shadow-lg">
                                 {f.mimeType.startsWith('image/') ? (
                                     <img src={f.preview} alt={f.name} className="w-full h-full object-cover" />
                                 ) : (
-                                    <ImageIcon size={24} className="text-gray-400" />
+                                    <ImageIcon size={24} className="text-muted-foreground" />
                                 )}
                             </div>
                             <button
                                 onClick={() => removeFile(i)}
-                                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute -top-2 -right-2 bg-destructive text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
                             >
                                 <X size={12} />
                             </button>
@@ -176,15 +189,28 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                 </div>
             )}
 
-            <div className="glass-panel rounded-2xl p-2 flex items-end gap-2 relative transition-all focus-within:ring-2 focus-within:ring-purple-500/50">
-
+            {/* Main Input Box */}
+            <div className={cn(
+                "glass-panel rounded-3xl p-2 flex items-end gap-2 relative transition-all duration-300 ring-1 ring-white/5",
+                "focus-within:ring-accent focus-within:shadow-[0_0_30px_-10px_var(--accent-glow)]"
+            )}>
                 {/* Attach Button */}
-                <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="p-3 text-gray-400 hover:text-white transition-colors rounded-xl hover:bg-white/5 shrink-0"
-                >
-                    <Paperclip size={20} />
-                </button>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="h-10 w-10 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 shrink-0"
+                            >
+                                <Paperclip size={20} />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Attach files</TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
                 <input
                     type="file"
                     ref={fileInputRef}
@@ -196,36 +222,55 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
 
                 {/* Text Input */}
                 <textarea
+                    ref={textareaRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Ask anything..."
-                    className="bg-transparent border-0 text-white placeholder-gray-400 focus:ring-0 flex-1 resize-none py-3 max-h-32 min-h-[44px] scrollbar-hide outline-none"
+                    className="bg-transparent border-0 text-white placeholder:text-muted-foreground focus:ring-0 flex-1 resize-none py-3 min-h-[44px] max-h-32 scrollbar-hide outline-none text-sm leading-relaxed"
                     rows={1}
                 />
 
-                {/* Right Actions */}
-                <div className="flex items-center gap-1 pb-1">
+                <div className="flex items-center gap-1 pb-0.5">
                     {/* Voice Input */}
-                    <button
-                        className={`p-3 rounded-xl transition-all ${isRecording ? 'text-red-400 bg-red-500/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
-                        onClick={toggleRecording}
-                    >
-                        <Mic size={20} className={isRecording ? 'animate-pulse' : ''} />
-                    </button>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className={cn(
+                                        "h-10 w-10 rounded-full transition-all",
+                                        isRecording ? "text-red-400 bg-red-500/10 animate-pulse" : "text-muted-foreground hover:text-white"
+                                    )}
+                                    onClick={toggleRecording}
+                                >
+                                    <Mic size={20} />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Voice Input</TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
 
                     {/* Send Button */}
-                    <button
+                    <Button
                         onClick={handleSend}
                         disabled={(!input.trim() && files.length === 0) || isGenerating}
-                        className="p-3 bg-gradient-to-r from-accent-primary to-accent-secondary rounded-xl text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-purple-500/25 transition-all w-11 h-11 flex items-center justify-center"
+                        size="icon"
+                        className={cn(
+                            "h-10 w-10 rounded-full bg-gradient-to-tr from-accent to-violet-600 border border-white/10 shadow-lg transition-all hover:scale-105 hover:shadow-accent/25",
+                            isGenerating && "opacity-80"
+                        )}
                     >
-                        {isGenerating ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
-                    </button>
+                        {isGenerating ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} className="ml-0.5" />}
+                    </Button>
                 </div>
-
             </div>
-            <div className="text-center mt-2">
+
+            <div className="text-center mt-3">
+                <p className="text-[10px] text-muted-foreground">
+                    NextGen AI can make mistakes. Check important info.
+                </p>
             </div>
         </div>
     );

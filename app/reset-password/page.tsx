@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Sparkles, Lock, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { AuroraBackground } from '@/components/UI/AuroraBackground';
+import { AuroraBackground } from '@/components/ui/AuroraBackground';
 
 export default function ResetPasswordPage() {
     const [password, setPassword] = useState('');

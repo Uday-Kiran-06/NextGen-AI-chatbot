@@ -2,40 +2,73 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Mail, Lock, Loader2, Github } from 'lucide-react';
+import { Sparkles, Mail, Lock, Loader2, Github, User } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { AuroraBackground } from '@/components/UI/AuroraBackground';
+import { toast } from 'sonner';
+import { AuroraBackground } from '@/components/ui/AuroraBackground';
 import { cn } from '@/lib/utils';
+import { getFriendlyErrorMessage } from '@/lib/utils/auth-error';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [fullName, setFullName] = useState('');
     const [loading, setLoading] = useState(false);
     const [mode, setMode] = useState<'signin' | 'signup' | 'forgot-password'>('signin');
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
     const router = useRouter();
     const supabase = createClient();
+    const [cooldown, setCooldown] = useState(0);
+
+    const validateForm = () => {
+        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            setError('Please enter a valid email address.');
+            return false;
+        }
+        if (mode !== 'forgot-password' && password.length < 6) {
+            setError('Password must be at least 6 characters.');
+            return false;
+        }
+        if (mode === 'signup' && !fullName.trim()) {
+            setError('Full Name is required for signup.');
+            return false;
+        }
+        return true;
+    };
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
+        if (loading || cooldown > 0) return;
+
+        if (!validateForm()) return;
+
         setLoading(true);
         setError(null);
         setMessage(null);
 
         try {
             if (mode === 'signup') {
-                const { error } = await supabase.auth.signUp({
+                const { data, error } = await supabase.auth.signUp({
                     email,
                     password,
                     options: {
                         emailRedirectTo: `${location.origin}/auth/callback`,
+                        data: {
+                            full_name: fullName,
+                        }
                     },
                 });
                 if (error) throw error;
-                setMessage('Check your email for the confirmation link.');
+
+                if (data.session) {
+                    router.push('/');
+                    router.refresh();
+                } else {
+                    setMessage('Check your email for the confirmation link.');
+                }
+            } else if (mode === 'forgot-password') {
                 const response = await fetch('/api/send-reset', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -58,7 +91,17 @@ export default function LoginPage() {
                 router.refresh();
             }
         } catch (err: any) {
-            setError(err.message);
+            setError(getFriendlyErrorMessage(err.message));
+            setCooldown(3);
+            const timer = setInterval(() => {
+                setCooldown((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(timer);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
         } finally {
             setLoading(false);
         }
@@ -74,7 +117,9 @@ export default function LoginPage() {
             });
             if (error) throw error;
         } catch (err: any) {
-            setError(err.message);
+            const msg = getFriendlyErrorMessage(err.message);
+            setError(msg);
+            toast.error(msg);
         }
     };
 
@@ -82,9 +127,10 @@ export default function LoginPage() {
         <AuroraBackground>
             <div className="flex min-h-screen items-center justify-center p-4 relative z-10">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="w-full max-w-md bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl"
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.5, type: 'spring' }}
+                    className="w-full max-w-md"
                 >
                     <div className="flex flex-col items-center mb-8">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-accent-primary to-accent-secondary flex items-center justify-center mb-4 shadow-lg shadow-accent-primary/20">
@@ -103,6 +149,23 @@ export default function LoginPage() {
                     </div>
 
                     <form onSubmit={handleAuth} className="space-y-4">
+                        {mode === 'signup' && (
+                            <div className="space-y-2">
+                                <label className="text-xs font-medium text-gray-300 ml-1">Full Name</label>
+                                <div className="relative">
+                                    <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                    <input
+                                        type="text"
+                                        value={fullName}
+                                        onChange={(e) => setFullName(e.target.value)}
+                                        placeholder="Full Name"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        )}
+
                         <div className="space-y-2">
                             <label className="text-xs font-medium text-gray-300 ml-1">Email</label>
                             <div className="relative">
@@ -140,7 +203,7 @@ export default function LoginPage() {
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
-                                className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 p-2 rounded-lg text-center"
+                                className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg text-center font-medium"
                             >
                                 {error}
                             </motion.div>
@@ -174,11 +237,13 @@ export default function LoginPage() {
 
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || cooldown > 0}
                             className="w-full bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-accent-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <Loader2 size={18} className="animate-spin" />
+                            ) : cooldown > 0 ? (
+                                `Wait ${cooldown}s`
                             ) : mode === 'signin' ? (
                                 'Sign In'
                             ) : mode === 'signup' ? (

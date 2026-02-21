@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { runAgentWorkflow } from '../workflow-engine';
+import { runAgentWorkflow } from '../agent/workflow-engine';
 
 // Mock Gemini
 const mockSendMessage = vi.fn();
