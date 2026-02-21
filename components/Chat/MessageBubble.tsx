@@ -76,7 +76,7 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.4, type: 'spring', bounce: 0.3 }}
             className={cn(
-                "flex w-full mb-6 group/message",
+                "flex w-full mb-3 group/message",
                 isUser ? "justify-end" : "justify-start"
             )}
         >
@@ -101,7 +101,7 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                 <div className={cn("flex flex-col gap-1 min-w-0 max-w-full", isUser ? "items-end" : "items-start")}>
 
                     <div className={cn(
-                        "p-4 rounded-2xl shadow-md min-w-[60px] relative overflow-hidden",
+                        "px-4 py-3 rounded-2xl shadow-md min-w-[60px] relative overflow-hidden",
                         isUser
                             ? "bg-accent text-white rounded-tr-sm"
                             : "glass-panel text-gray-100 rounded-tl-sm border-white/10 bg-white/5",
@@ -112,7 +112,7 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
                         )}
 
-                        <div className="p-4">
+                        <div>
                             {isEditing ? (
                                 <div className="flex flex-col gap-2 w-full">
                                     <textarea
