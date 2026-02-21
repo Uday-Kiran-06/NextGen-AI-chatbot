@@ -14,6 +14,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 // Sub-components
 import { SidebarHeader } from './SidebarHeader';
@@ -63,7 +64,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
         checkUser();
 
         // Listen for Auth Changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
             setUser(session?.user ?? null);
             fetchChats(); // Re-fetch chats on auth change
         });
@@ -86,16 +87,14 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
             <SidebarHeader isCollapsed={isCollapsed} onClose={onClose} />
 
             {/* Toggle Button - Desktop Only */}
-            <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 z-50">
-                <Button
-                    variant="default"
-                    size="icon"
-                    className="h-6 w-6 rounded-full shadow-lg border border-white/10"
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                >
-                    {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
-                </Button>
-            </div>
+            <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-accent-primary rounded-full items-center justify-center text-white text-xs z-50 hover:scale-110 transition-transform shadow-lg cursor-pointer"
+                title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                suppressHydrationWarning
+            >
+                {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+            </button>
 
             {/* Search Bar */}
             <div className="px-4 mb-4">
@@ -106,7 +105,8 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                             placeholder="Search chats..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 bg-white/5 border-white/10 focus:bg-black/50 transition-colors"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
+                            suppressHydrationWarning
                         />
                     </div>
                 ) : (
@@ -127,27 +127,21 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
 
             {/* New Chat Button */}
             <div className="px-4 mb-6">
-                <TooltipProvider>
-                    <Tooltip delayDuration={0}>
-                        <TooltipTrigger asChild>
-                            <Button
-                                onClick={() => {
-                                    onNewChat();
-                                    if (window.innerWidth < 768) onClose?.();
-                                }}
-                                className={cn(
-                                    "w-full gap-3 shadow-[0_0_20px_-5px_var(--accent)] hover:shadow-[0_0_25px_-5px_var(--accent)] transition-all",
-                                    isCollapsed && "px-0 justify-center"
-                                )}
-                                size="lg"
-                            >
-                                <MessageSquarePlus size={isCollapsed ? 20 : 18} />
-                                {!isCollapsed && <span>New Chat</span>}
-                            </Button>
-                        </TooltipTrigger>
-                        {isCollapsed && <TooltipContent side="right">New Chat</TooltipContent>}
-                    </Tooltip>
-                </TooltipProvider>
+                <button
+                    onClick={() => {
+                        onNewChat();
+                        if (window.innerWidth < 768) onClose?.();
+                    }}
+                    className={cn(
+                        "glass-button w-full flex items-center gap-3 py-3 font-semibold hover:bg-white/10 group relative overflow-hidden",
+                        isCollapsed ? "justify-center px-0 rounded-xl" : "justify-start px-4 rounded-xl"
+                    )}
+                    suppressHydrationWarning
+                >
+                    <MessageSquarePlus size={isCollapsed ? 24 : 20} className="group-hover:scale-110 transition-transform text-accent-secondary" />
+                    {!isCollapsed && <span>New Chat</span>}
+                    <div className="absolute inset-0 bg-gradient-to-r from-accent-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
             </div>
 
             <ChatList
@@ -214,3 +208,14 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
         </>
     );
 }
+
+const MenuOption = ({ icon: Icon, label, onClick, className }: any) => (
+    <button
+        onClick={onClick}
+        className={cn("w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors text-left", className)}
+        suppressHydrationWarning
+    >
+        <Icon size={14} className="opacity-70" />
+        {label}
+    </button>
+);

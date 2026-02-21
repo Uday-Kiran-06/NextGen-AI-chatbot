@@ -62,11 +62,11 @@ describe('chatStore', () => {
             mocks.getUser.mockResolvedValue({ data: { user: null } });
             const convo = await chatStore.createConversation('Guest Chat');
 
-            const msg = await chatStore.addMessage(convo.id, 'user', 'Hello');
+            const msg = await chatStore.addMessage(convo!.id, 'user', 'Hello');
             expect(msg).not.toBeNull();
             expect(msg?.content).toBe('Hello');
 
-            const messages = await chatStore.getMessages(convo.id);
+            const messages = await chatStore.getMessages(convo!.id);
             expect(messages).toHaveLength(1);
             expect(messages[0].content).toBe('Hello');
         });

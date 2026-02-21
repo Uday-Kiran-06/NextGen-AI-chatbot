@@ -90,22 +90,16 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                 {/* Bubble Container */}
                 <div className={cn("flex flex-col gap-1 min-w-0 max-w-full", isUser ? "items-end" : "items-start")}>
 
-                    {/* Role Label */}
-                    <span className="text-[10px] text-muted-foreground ml-1 uppercase tracking-wider font-semibold opacity-0 group-hover/message:opacity-100 transition-opacity">
-                        {isUser ? "You" : "NextGen AI"}
-                    </span>
-
                     <div className={cn(
-                        "relative overflow-hidden transition-all duration-300",
+                        "p-4 rounded-2xl shadow-md min-w-[60px] relative overflow-hidden",
                         isUser
-                            ? "rounded-2xl rounded-tr-sm bg-accent text-white shadow-[0_0_15px_-3px_var(--accent)]"
-                            : "rounded-2xl rounded-tl-sm bg-[#1a1a1a]/80 backdrop-blur-md border border-white/10 text-gray-100 shadow-xl",
-                        isEditing ? "w-full min-w-[300px]" : "min-w-[60px]"
+                            ? "bg-accent-primary text-white rounded-tr-sm"
+                            : "glass-panel text-gray-100 rounded-tl-sm border-white/10 bg-white/5",
+                        isEditing ? "w-full min-w-[300px]" : ""
                     )}>
-
                         {/* Shimmer Effect for User */}
                         {isUser && !isEditing && (
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] animate-[shimmer_3s_infinite]" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
                         )}
 
                         <div className="p-4">
@@ -134,6 +128,44 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                                 <div className={cn("prose prose-invert prose-sm max-w-none leading-relaxed break-words safe-html")}>
                                     <ReactMarkdown
                                         components={{
+                                            // Custom Paragraph to handle Image Galleries
+                                            p: ({ children }) => {
+                                                // Check if children are mostly images
+                                                const childrenArray = React.Children.toArray(children);
+                                                const imageChildren = childrenArray.filter(
+                                                    (child: any) =>
+                                                        React.isValidElement(child) &&
+                                                        (child.type === 'img' || (child.type as any)?.name === 'ImageAttachment')
+                                                );
+
+                                                const hasImages = imageChildren.length > 0;
+
+                                                if (hasImages) {
+                                                    // Use 'single' variant if exactly one image, else 'grid'
+                                                    const variant = imageChildren.length === 1 ? 'single' : 'grid';
+
+                                                    // Remap children to inject variant prop
+                                                    const content = childrenArray.map((child: any) => {
+                                                        if (React.isValidElement(child) && (child.type === 'img' || (child.type as any)?.name === 'ImageAttachment')) {
+                                                            return React.cloneElement(child, { variant } as any);
+                                                        }
+                                                        return child;
+                                                    });
+
+                                                    if (variant === 'grid') {
+                                                        return (
+                                                            <div className="flex gap-2 my-2 w-full overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent snap-x">
+                                                                {content}
+                                                            </div>
+                                                        );
+                                                    }
+
+                                                    // Single image - use div to avoid p > div nesting issue
+                                                    return <div className="mb-2 last:mb-0 w-full">{content}</div>;
+                                                }
+                                                return <p className="mb-2 last:mb-0">{children}</p>;
+                                            },
+
                                             code({ node, inline, className, children, ...props }: any) {
                                                 const match = /language-(\w+)/.exec(className || '');
                                                 return !inline && match ? (
@@ -166,6 +198,10 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                                                     </code>
                                                 )
                                             },
+
+                                            img: ({ node, ...props }) => {
+                                                return <ImageAttachment src={(props.src as string) || ''} alt={(props.alt as string) || ''} />;
+                                            }
                                         }}
                                     >
                                         {message.content}
@@ -201,8 +237,125 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                         )}
                     </div>
                 </div>
-            </div>
-        </motion.div>
+            </div >
+        </motion.div >
+    );
+}
+
+function ImageAttachment({ src, alt, variant = 'single' }: { src: string, alt: string, variant?: 'single' | 'grid' }) {
+    const [error, setError] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const handleDownload = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!src) return;
+
+        try {
+            setIsDownloading(true);
+            const response = await fetch(src);
+            const blob = await response.blob() as Blob;
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `image-${Date.now()}.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error("Failed to download image:", err);
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    if (error) {
+        return (
+            <span className="p-4 rounded-xl border border-white/10 bg-white/5 text-gray-400 text-sm flex items-center gap-2 w-full h-full min-h-[100px] justify-center">
+                <X size={16} />
+                <span>Failed to load image</span>
+            </span>
+        );
+    }
+
+    const isGrid = variant === 'grid';
+
+    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+    return (
+        <>
+            <span
+                onClick={() => setIsLightboxOpen(true)}
+                className={cn(
+                    "relative group block overflow-hidden rounded-xl border border-white/10 bg-black/20 shrink-0 cursor-zoom-in snap-center",
+                    isGrid ? "w-[200px] h-[200px]" : "w-full max-w-full h-auto min-h-[200px]"
+                )}
+            >
+                {isLoading && (
+                    <span className="absolute inset-0 flex items-center justify-center bg-white/5 min-h-[200px]">
+                        <span className="w-6 h-6 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
+                    </span>
+                )}
+                <img
+                    src={src}
+                    alt={alt}
+                    className={cn(
+                        "transition-opacity duration-300 transition-transform",
+                        isGrid ? "w-full h-full object-cover hover:scale-105" : "w-full h-auto block max-h-[300px] object-contain",
+                        isLoading ? "opacity-0" : "opacity-100"
+                    )}
+                    onLoad={() => setIsLoading(false)}
+                    onError={() => {
+                        setIsLoading(false);
+                        setError(true);
+                    }}
+                />
+                {!isLoading && (
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
+                        {/* Visual hint only, click handles open */}
+                        <div className="bg-black/60 text-white rounded-full p-2 backdrop-blur-sm">
+                            <Download size={18} />
+                        </div>
+                    </div>
+                )}
+            </span>
+
+            {/* Lightbox Portal */}
+            {isLightboxOpen && (
+                <div
+                    className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+                    onClick={() => setIsLightboxOpen(false)}
+                >
+                    <button
+                        onClick={() => setIsLightboxOpen(false)}
+                        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-[101]"
+                    >
+                        <X size={24} />
+                    </button>
+
+                    <button
+                        onClick={handleDownload}
+                        className="absolute bottom-8 right-8 flex items-center gap-2 px-4 py-2 bg-accent-primary hover:bg-accent-primary/80 text-white rounded-full transition-colors z-[101]"
+                    >
+                        {isDownloading ? (
+                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <Download size={18} />
+                        )}
+                        <span>Download</span>
+                    </button>
+
+                    <img
+                        src={src}
+                        alt={alt}
+                        className="max-w-full max-h-full object-contain shadow-2xl rounded-sm pointer-events-auto"
+                        onClick={(e) => e.stopPropagation()} // Prevent close when clicking image
+                    />
+                </div>
+            )}
+        </>
     );
 }
 

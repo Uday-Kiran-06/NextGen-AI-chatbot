@@ -41,6 +41,12 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
     useEffect(() => {
         const loadMessages = async () => {
             if (conversationId) {
+                // Prevent wiping out the "Thinking..." state if we are currently generating.
+                // The new message will be added via state updates in generateAIResponse.
+                if (isGenerating) {
+                    console.log('Skipping message load during generation to preserve state');
+                    return;
+                }
                 const dbMessages = await chatStore.getMessages(conversationId);
                 setMessages(dbMessages.map(m => ({ id: m.id, role: m.role, content: m.content })));
             } else {
@@ -64,6 +70,9 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             const newConvo = await chatStore.createConversation(shortTitle);
             if (newConvo) {
                 currentConvoId = newConvo.id;
+                // CRITICAL: Save the initial user message to DB *before* triggering the parent update.
+                // This prevents the "disappearing message" bug where the UI reloads from an empty DB.
+                await chatStore.addMessage(currentConvoId, 'user', userInput);
                 onConversationCreated(newConvo.id);
             }
         }
@@ -170,9 +179,10 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                 chatStore.addMessage(currentConvoId, 'model', aiMessageContent);
             }
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error generating response:', error);
-            setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: 'Sorry, I encountered an error. Please check your connection or API key.' }]);
+            const errorMessage = error.message || 'Sorry, I encountered an error. Please check your connection or API key.';
+            setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: `Error: ${errorMessage}` }]);
         } finally {
             setIsGenerating(false);
         }

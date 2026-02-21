@@ -25,12 +25,19 @@ export async function POST(req: NextRequest) {
 
         // Agent Execution Loop
         // 1. Initial Plan/Thought
+        // We pass 'history' here, but for the loop we need the accumulated context
         let response = await runAgentWorkflow(history, message, layers);
 
         // 2. Loop if tool calls are needed
         // (Limit depth to 3 for safety in this demo)
         let depth = 0;
         let finalContent = "";
+
+        // CRITICAL FIX: Ensure the original message is in history for the loop
+        // If history doesn't contain the last user message, the agent forgets the question
+        // when processing tool results. Use a fresh copy for mutable operations.
+        const workingHistory = [...history];
+        workingHistory.push({ role: 'user', content: message });
 
         while (response.type === 'tool_call' && depth < 3) {
             const { toolName, toolArgs } = response;
@@ -41,11 +48,12 @@ export async function POST(req: NextRequest) {
             // Add tool result to history conceptually
             // In Gemini API, we'd send a "function_response" part.
             // For this simpler "chat" abstraction, we feed it back as system info.
-            history.push({ role: 'model', content: `Requesting tool: ${toolName}` });
-            history.push({ role: 'user', content: `Tool Result for ${toolName}: ${JSON.stringify(toolResult)}` });
+            workingHistory.push({ role: 'model', content: `Requesting tool: ${toolName}` });
+            workingHistory.push({ role: 'user', content: `Tool Result for ${toolName}: ${JSON.stringify(toolResult)}` });
 
             // Re-run Agent with new context
-            response = await runAgentWorkflow(history, "Continue based on the tool result.");
+            // Pass EMPTY message because the real question is now in workingHistory
+            response = await runAgentWorkflow(workingHistory, "Continue based on the tool result.");
             depth++;
         }
 
@@ -53,6 +61,14 @@ export async function POST(req: NextRequest) {
             finalContent = response.content || "";
             // Cache the final result for short duration
             Cache.set(cacheKey, finalContent, 60);
+        } else if (response.type === 'tool_call') {
+            // Context: The agent wants to use a tool but we hit the depth limit
+            finalContent = "I apologize, but I reached a complexity limit while processing your request with tools. Could you please provide more specific details?";
+        }
+
+        // Fallback for empty content
+        if (!finalContent.trim()) {
+            finalContent = "I apologize, but I encountered an issue generating a response. Please try asking again.";
         }
 
         // Stream the result back
