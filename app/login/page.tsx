@@ -2,15 +2,13 @@
 
 import { useState } from 'react';
 import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
-import { Envelope } from '@phosphor-icons/react/dist/csr/Envelope';
-import { Lock } from '@phosphor-icons/react/dist/csr/Lock';
 import { CircleNotch } from '@phosphor-icons/react/dist/csr/CircleNotch';
-import { User } from '@phosphor-icons/react/dist/csr/User';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { getFriendlyErrorMessage } from '@/lib/utils/auth-error';
+import { useRateLimit } from '@/lib/hooks/useRateLimit';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -22,7 +20,7 @@ export default function LoginPage() {
     const [message, setMessage] = useState<string | null>(null);
     const router = useRouter();
     const supabase = createClient();
-    const [cooldown, setCooldown] = useState(0);
+    const { isRateLimited, cooldownSeconds, startCooldown } = useRateLimit(3);
 
     const validateForm = () => {
         if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
@@ -42,7 +40,7 @@ export default function LoginPage() {
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (loading || cooldown > 0) return;
+        if (loading || isRateLimited) return;
 
         if (!validateForm()) return;
 
@@ -94,147 +92,115 @@ export default function LoginPage() {
             }
         } catch (err: any) {
             setError(getFriendlyErrorMessage(err.message));
-            setCooldown(3);
-            const timer = setInterval(() => {
-                setCooldown((prev) => {
-                    if (prev <= 1) {
-                        clearInterval(timer);
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
+            startCooldown();
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <main className="relative flex flex-col min-h-screen w-full bg-background text-slate-950 overflow-hidden">
-            {/* Lightweight CSS aurora effect */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -inset-[10px] opacity-20 will-change-transform"
-                    style={{
-                        backgroundImage: `repeating-linear-gradient(100deg, var(--primary) 10%, var(--secondary) 15%, #1b4332 20%, #0f2e21 25%, #2d6a4f 30%)`,
-                        backgroundSize: '200% 100%',
-                        filter: 'blur(10px)',
-                        maskImage: 'radial-gradient(ellipse at 100% 0%, black 10%, transparent 70%)',
-                    }}
-                />
-            </div>
+        <main className="relative flex flex-col min-h-screen w-full bg-slate-950 text-slate-50 overflow-hidden">
+            {/* Ambient background glow to replace the expensive aurora effect */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-slate-950 to-slate-950 pointer-events-none" />
 
             <div className="flex min-h-screen items-center justify-center p-4 relative z-10">
-                <div
-                    className="w-full max-w-md animate-[fadeInUp_0.5s_ease-out_both]"
-                >
+                <div className="w-full max-w-sm animate-[fadeInUp_0.5s_ease-out_both] bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-8 shadow-2xl">
                     <div className="flex flex-col items-center mb-8">
-                        <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center mb-4 shadow-md shadow-primary/10">
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
                             <Sparkle size={24} className="text-primary" weight="fill" />
                         </div>
-                        <h1 className="text-2xl font-bold text-white mb-2">
-                            {mode === 'signin' ? 'Welcome Back' : mode === 'signup' ? 'Create Account' : 'Reset Password'}
+                        <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">
+                            {mode === 'signin' ? 'Welcome back' : mode === 'signup' ? 'Create an account' : 'Reset password'}
                         </h1>
-                        <p className="text-gray-400 text-sm text-center">
+                        <p className="text-slate-400 text-sm text-center">
                             {mode === 'signin'
-                                ? 'Enter your credentials to access your chat history'
+                                ? 'Enter your details to continue'
                                 : mode === 'signup'
                                     ? 'Sign up to start your AI journey'
-                                    : 'Enter your email to receive a password reset link'}
+                                    : 'Enter your email to receive a reset link'}
                         </p>
                     </div>
 
                     <form onSubmit={handleAuth} className="space-y-4">
                         {mode === 'signup' && (
-                            <div className="space-y-2">
-                                <label className="text-xs font-medium text-gray-300 ml-1">Full Name</label>
-                                <div className="relative">
-                                    <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" weight="bold" />
-                                    <input
-                                        type="text"
-                                        value={fullName}
-                                        onChange={(e) => setFullName(e.target.value)}
-                                        placeholder="Full Name"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="space-y-2">
-                            <label className="text-xs font-medium text-gray-300 ml-1">Email</label>
-                            <div className="relative">
-                                <Envelope size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" weight="bold" />
+                            <div className="space-y-1.5">
+                                <label className="text-sm font-medium text-slate-300">Full Name</label>
                                 <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="your@email.com"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
+                                    type="text"
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
+                                    placeholder="Jane Doe"
+                                    className="w-full bg-slate-900/50 rounded-lg py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-colors border border-white/5"
                                     required
                                 />
                             </div>
+                        )}
+
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-medium text-slate-300">Email</label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="name@example.com"
+                                className="w-full bg-slate-900/50 rounded-lg py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-colors border border-white/5"
+                                required
+                            />
                         </div>
 
                         {mode !== 'forgot-password' && (
-                            <div className="space-y-2">
-                                <label className="text-xs font-medium text-gray-300 ml-1">Password</label>
-                                <div className="relative">
-                                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" weight="bold" />
-                                    <input
-                                        type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="••••••••"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-                                        required
-                                        minLength={6}
-                                    />
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm font-medium text-slate-300">Password</label>
+                                    {mode === 'signin' && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setMode('forgot-password');
+                                                setError(null);
+                                                setMessage(null);
+                                            }}
+                                            className="text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+                                        >
+                                            Forgot password?
+                                        </button>
+                                    )}
                                 </div>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="w-full bg-slate-900/50 rounded-lg py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-colors border border-white/5"
+                                    required
+                                    minLength={6}
+                                />
                             </div>
                         )}
 
                         {error && (
-                            <div
-                                className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg text-center font-medium animate-[fadeIn_0.3s_ease-out_both]"
-                            >
+                            <div className="text-red-400 text-xs bg-red-500/10 p-2.5 rounded-lg text-center font-medium">
                                 {error}
                             </div>
                         )}
 
                         {message && (
-                            <div
-                                className="text-green-400 text-xs bg-green-500/10 border border-green-500/20 p-2 rounded-lg text-center animate-[fadeIn_0.3s_ease-out_both]"
-                            >
+                            <div className="text-green-400 text-xs bg-green-500/10 p-2.5 rounded-lg text-center font-medium">
                                 {message}
                             </div>
                         )}
 
-                        {mode === 'signin' && (
-                            <div className="flex justify-end">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setMode('forgot-password');
-                                        setError(null);
-                                        setMessage(null);
-                                    }}
-                                    className="text-xs text-gray-400 hover:text-white transition-colors"
-                                >
-                                    Forgot Password?
-                                </button>
-                            </div>
-                        )}
+                        <div className="pt-2">
 
                         <button
                             type="submit"
-                            disabled={loading || cooldown > 0}
-                            className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-xl transition-all shadow-md shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={loading || isRateLimited}
+                            className="w-full bg-white text-slate-900 hover:bg-slate-200 font-medium text-sm py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (
-                                <CircleNotch size={18} className="animate-spin" weight="bold" />
-                            ) : cooldown > 0 ? (
-                                `Wait ${cooldown}s`
+                                <CircleNotch size={16} className="animate-spin" weight="bold" />
+                            ) : isRateLimited ? (
+                                `Wait ${cooldownSeconds}s`
                             ) : mode === 'signin' ? (
                                 'Sign In'
                             ) : mode === 'signup' ? (
@@ -243,9 +209,10 @@ export default function LoginPage() {
                                 'Send Reset Link'
                             )}
                         </button>
+                        </div>
                     </form>
 
-                    <div className="mt-8 text-center text-sm text-gray-400">
+                    <div className="mt-8 text-center text-sm text-slate-400">
                         {mode === 'forgot-password' ? (
                             <button
                                 onClick={() => {
@@ -253,22 +220,22 @@ export default function LoginPage() {
                                     setError(null);
                                     setMessage(null);
                                 }}
-                                className="text-primary hover:text-primary/80 font-medium transition-colors"
+                                className="text-white hover:text-slate-300 font-medium transition-colors ml-1"
                             >
-                                Back to Sign In
+                                Back to sign in
                             </button>
                         ) : (
                             <>
-                                {mode === 'signin' ? "Don't have an account? " : "Already have an account? "}
+                                {mode === 'signin' ? "Don't have an account?" : "Already have an account?"}
                                 <button
                                     onClick={() => {
                                         setMode(mode === 'signin' ? 'signup' : 'signin');
                                         setError(null);
                                         setMessage(null);
                                     }}
-                                    className="text-primary hover:text-primary/80 font-medium transition-colors"
+                                    className="text-white hover:text-slate-300 font-medium transition-colors ml-1"
                                 >
-                                    {mode === 'signin' ? 'Sign Up' : 'Sign In'}
+                                    {mode === 'signin' ? 'Sign up' : 'Sign in'}
                                 </button>
                             </>
                         )}

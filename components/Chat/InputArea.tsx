@@ -151,14 +151,14 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
         <div className="w-full relative z-20">
             {/* Voice Visualizer */}
             {isRecording && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[120%] z-50">
-                    <div className="bg-black/80 backdrop-blur-xl text-white text-sm px-6 py-3 rounded-full flex items-center gap-3 border border-white/10 shadow-[0_0_30px_-5px_var(--accent)] animate-in fade-in slide-in-from-bottom-5">
-                        <div className="flex gap-1 items-end h-4">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[110%] md:-translate-y-[120%] z-50 w-[90%] max-w-sm">
+                    <div className="bg-black/80 backdrop-blur-xl text-white text-sm px-4 md:px-6 py-3 rounded-full flex items-center justify-between gap-2 md:gap-3 border border-white/10 shadow-[0_0_30px_-5px_var(--accent)] animate-in fade-in slide-in-from-bottom-5 w-full">
+                        <div className="flex gap-1 items-end h-4 shrink-0">
                             {[1, 2, 3, 4, 5].map(i => (
                                 <div key={i} className="w-1 bg-accent rounded-full animate-music-bar" style={{ animationDelay: `${i * 0.1}s`, height: '100%' }} />
                             ))}
                         </div>
-                        <span className="font-medium tracking-wide">{interimTranscript || "Listening..."}</span>
+                        <span className="font-medium tracking-wide truncate">{interimTranscript || "Listening..."}</span>
                         <Button
                             size="sm"
                             variant="ghost"
@@ -196,7 +196,7 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
 
             {/* Main Input Box */}
             <div className={cn(
-                "glass-panel rounded-3xl p-2 flex items-end gap-2 relative transition-all duration-300 ring-1 ring-white/5",
+                "glass-panel rounded-2xl md:rounded-3xl p-1.5 md:p-2 flex items-end gap-1 md:gap-2 relative transition-all duration-300 ring-1 ring-white/5",
                 "focus-within:ring-accent focus-within:shadow-[0_0_30px_-10px_var(--accent-glow)]"
             )}>
                 {/* Attach Button */}
@@ -207,9 +207,9 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                                 size="icon"
                                 variant="ghost"
                                 onClick={() => fileInputRef.current?.click()}
-                                className="h-10 w-10 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 shrink-0"
+                                className="h-10 w-10 md:h-10 md:w-10 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 shrink-0"
                             >
-                                <Paperclip size={20} weight="bold" />
+                                <Paperclip className="h-[18px] w-[18px] md:h-5 md:w-5" weight="bold" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>Attach files</TooltipContent>
@@ -232,11 +232,11 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Ask anything..."
-                    className="bg-transparent border-0 text-white placeholder:text-muted-foreground focus:ring-0 flex-1 resize-none py-3 min-h-[44px] max-h-32 scrollbar-hide outline-none text-sm leading-relaxed"
+                    className="bg-transparent border-0 text-white placeholder:text-muted-foreground focus:ring-0 flex-1 resize-none py-2 md:py-3 min-h-[40px] md:min-h-[44px] max-h-32 scrollbar-hide outline-none text-sm leading-relaxed"
                     rows={1}
                 />
 
-                <div className="flex items-center gap-1 pb-0.5">
+                <div className="flex items-center gap-0.5 md:gap-1 pb-0.5 shrink-0">
                     {/* Voice Input */}
                     <TooltipProvider>
                         <Tooltip>

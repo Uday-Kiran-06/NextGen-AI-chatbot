@@ -8,6 +8,7 @@ import { CircleNotch } from '@phosphor-icons/react/dist/csr/CircleNotch';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { AuroraBackground } from '@/components/ui/AuroraBackground';
+import { useRateLimit } from '@/lib/hooks/useRateLimit';
 
 export default function ResetPasswordPage() {
     const [password, setPassword] = useState('');
@@ -17,9 +18,11 @@ export default function ResetPasswordPage() {
     const [message, setMessage] = useState<string | null>(null);
     const router = useRouter();
     const supabase = createClient();
+    const { isRateLimited, cooldownSeconds, startCooldown } = useRateLimit(3);
 
     const handleReset = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (isRateLimited) return;
         setLoading(true);
         setError(null);
         setMessage(null);
@@ -42,6 +45,7 @@ export default function ResetPasswordPage() {
             }, 2000);
         } catch (err: any) {
             setError(err.message);
+            startCooldown();
         } finally {
             setLoading(false);
         }
@@ -122,10 +126,16 @@ export default function ResetPasswordPage() {
 
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || isRateLimited}
                             className="w-full bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-accent-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? <CircleNotch size={18} className="animate-spin" weight="bold" /> : 'Update Password'}
+                            {loading ? (
+                                <CircleNotch size={18} className="animate-spin" weight="bold" />
+                            ) : isRateLimited ? (
+                                `Wait ${cooldownSeconds}s`
+                            ) : (
+                                'Update Password'
+                            )}
                         </button>
                     </form>
                 </motion.div>

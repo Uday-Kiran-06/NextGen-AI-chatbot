@@ -260,7 +260,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     variant="ghost"
                     size="icon"
                     onClick={onOpenSidebar}
-                    className="text-gray-300 hover:text-white"
+                    className="text-gray-300 hover:text-white shrink-0"
                 >
                     <List size={20} weight="bold" />
                 </Button>
@@ -276,7 +276,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
 
                     {/* Welcome View */}
                     {messages.length === 0 && (
-                        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-12 min-h-[50vh]">
+                        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-12 py-10 min-h-[50vh]">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -294,7 +294,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                             </motion.div>
 
                             <motion.div
-                                className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl px-4"
+                                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl px-4"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3, duration: 0.8 }}
@@ -303,9 +303,9 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                     <button
                                         key={i}
                                         onClick={() => handleSendMessage(item.prompt, [])}
-                                        className="flex flex-col items-center gap-4 p-6 rounded-2xl glass-panel border-white/5 hover:border-accent/50 hover:bg-white/5 hover:scale-105 transition-all group duration-300"
+                                        className="flex sm:flex-col items-center sm:justify-center gap-4 p-4 sm:p-6 rounded-2xl glass-panel border-white/5 hover:border-accent/50 hover:bg-white/5 md:hover:scale-105 transition-all group duration-300 text-left sm:text-center w-full"
                                     >
-                                        <div className={`p-4 rounded-full bg-white/5 ${item.color} group-hover:bg-accent group-hover:text-white transition-all`}>
+                                        <div className={`p-3 sm:p-4 rounded-full bg-white/5 ${item.color} group-hover:bg-accent group-hover:text-white transition-all shrink-0`}>
                                             <item.icon size={24} weight="duotone" />
                                         </div>
                                         <span className="text-sm font-medium text-gray-300 group-hover:text-white">{item.label}</span>
@@ -344,7 +344,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                 </div>
             </div>
 
-            <div className="p-4 md:p-6 bg-gradient-to-t from-background via-background/90 to-transparent z-10 w-full backdrop-blur-sm pb-8 md:pb-6">
+            <div className="p-2 md:p-6 bg-gradient-to-t from-background via-background/90 to-transparent z-10 w-full backdrop-blur-sm pb-6 md:pb-6">
                 <div className="max-w-4xl mx-auto w-full">
                     <InputArea onSendMessage={handleSendMessage} isGenerating={isGenerating} />
                 </div>

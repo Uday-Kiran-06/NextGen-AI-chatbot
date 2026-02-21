@@ -1,6 +1,6 @@
 import React from 'react';
 import { SignOut } from '@phosphor-icons/react/dist/csr/SignOut';
-import { GearSix } from '@phosphor-icons/react/dist/csr/GearSix';
+import { SignIn } from '@phosphor-icons/react/dist/csr/SignIn';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -27,7 +27,7 @@ export const UserProfile = ({ user, isCollapsed, onLogout }: UserProfileProps) =
                     asChild
                 >
                     <a href="/login">
-                        <GearSix size={18} weight="duotone" />
+                        <SignIn size={18} weight="duotone" />
                         {!isCollapsed && <span>Login / Sign Up</span>}
                     </a>
                 </Button>
