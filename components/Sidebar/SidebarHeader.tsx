@@ -1,5 +1,6 @@
 import React from 'react';
-import { Sparkles, X } from 'lucide-react';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { X } from '@phosphor-icons/react/dist/csr/X';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -13,8 +14,8 @@ export const SidebarHeader = ({ isCollapsed, onClose }: SidebarHeaderProps) => {
     return (
         <div className={cn("flex items-center gap-3 p-4 mb-2", isCollapsed ? "justify-center" : "justify-between")}>
             <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-accent to-violet-600 flex items-center justify-center shrink-0 shadow-[0_0_15px_-3px_var(--accent)] ring-1 ring-white/20">
-                    <Sparkles size={20} className="text-white drop-shadow-md" />
+                <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center shrink-0 shadow-[0_0_15px_-3px_var(--accent)] ring-1 ring-white/20">
+                    <Sparkle size={20} className="text-white drop-shadow-md" weight="fill" />
                 </div>
                 <AnimatePresence mode='wait'>
                     {!isCollapsed && (
@@ -40,7 +41,7 @@ export const SidebarHeader = ({ isCollapsed, onClose }: SidebarHeaderProps) => {
                 onClick={onClose}
                 className="md:hidden text-muted-foreground hover:text-white"
             >
-                <X size={20} />
+                <X size={20} weight="bold" />
             </Button>
         </div>
     );

@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, Mail, Lock, Loader2, Github, User } from 'lucide-react';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { Envelope } from '@phosphor-icons/react/dist/csr/Envelope';
+import { Lock } from '@phosphor-icons/react/dist/csr/Lock';
+import { CircleNotch } from '@phosphor-icons/react/dist/csr/CircleNotch';
+import { User } from '@phosphor-icons/react/dist/csr/User';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { AuroraBackground } from '@/components/ui/AuroraBackground';
 import { cn } from '@/lib/utils';
 import { getFriendlyErrorMessage } from '@/lib/utils/auth-error';
 
@@ -107,34 +109,27 @@ export default function LoginPage() {
         }
     };
 
-    const handleOAuth = async (provider: 'github' | 'google') => {
-        try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider,
-                options: {
-                    redirectTo: `${location.origin}/auth/callback`,
-                },
-            });
-            if (error) throw error;
-        } catch (err: any) {
-            const msg = getFriendlyErrorMessage(err.message);
-            setError(msg);
-            toast.error(msg);
-        }
-    };
-
     return (
-        <AuroraBackground>
+        <main className="relative flex flex-col min-h-screen w-full bg-background text-slate-950 overflow-hidden">
+            {/* Lightweight CSS aurora effect */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -inset-[10px] opacity-20 will-change-transform"
+                    style={{
+                        backgroundImage: `repeating-linear-gradient(100deg, var(--primary) 10%, var(--secondary) 15%, #1b4332 20%, #0f2e21 25%, #2d6a4f 30%)`,
+                        backgroundSize: '200% 100%',
+                        filter: 'blur(10px)',
+                        maskImage: 'radial-gradient(ellipse at 100% 0%, black 10%, transparent 70%)',
+                    }}
+                />
+            </div>
+
             <div className="flex min-h-screen items-center justify-center p-4 relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.5, type: 'spring' }}
-                    className="w-full max-w-md"
+                <div
+                    className="w-full max-w-md animate-[fadeInUp_0.5s_ease-out_both]"
                 >
                     <div className="flex flex-col items-center mb-8">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-accent-primary to-accent-secondary flex items-center justify-center mb-4 shadow-lg shadow-accent-primary/20">
-                            <Sparkles size={24} className="text-white" />
+                        <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center mb-4 shadow-md shadow-primary/10">
+                            <Sparkle size={24} className="text-primary" weight="fill" />
                         </div>
                         <h1 className="text-2xl font-bold text-white mb-2">
                             {mode === 'signin' ? 'Welcome Back' : mode === 'signup' ? 'Create Account' : 'Reset Password'}
@@ -153,13 +148,13 @@ export default function LoginPage() {
                             <div className="space-y-2">
                                 <label className="text-xs font-medium text-gray-300 ml-1">Full Name</label>
                                 <div className="relative">
-                                    <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                    <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" weight="bold" />
                                     <input
                                         type="text"
                                         value={fullName}
                                         onChange={(e) => setFullName(e.target.value)}
                                         placeholder="Full Name"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
                                         required
                                     />
                                 </div>
@@ -169,13 +164,13 @@ export default function LoginPage() {
                         <div className="space-y-2">
                             <label className="text-xs font-medium text-gray-300 ml-1">Email</label>
                             <div className="relative">
-                                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                <Envelope size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" weight="bold" />
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="your@email.com"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
                                     required
                                 />
                             </div>
@@ -185,13 +180,13 @@ export default function LoginPage() {
                             <div className="space-y-2">
                                 <label className="text-xs font-medium text-gray-300 ml-1">Password</label>
                                 <div className="relative">
-                                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" weight="bold" />
                                     <input
                                         type="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
                                         required
                                         minLength={6}
                                     />
@@ -200,23 +195,19 @@ export default function LoginPage() {
                         )}
 
                         {error && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg text-center font-medium"
+                            <div
+                                className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg text-center font-medium animate-[fadeIn_0.3s_ease-out_both]"
                             >
                                 {error}
-                            </motion.div>
+                            </div>
                         )}
 
                         {message && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                className="text-green-400 text-xs bg-green-500/10 border border-green-500/20 p-2 rounded-lg text-center"
+                            <div
+                                className="text-green-400 text-xs bg-green-500/10 border border-green-500/20 p-2 rounded-lg text-center animate-[fadeIn_0.3s_ease-out_both]"
                             >
                                 {message}
-                            </motion.div>
+                            </div>
                         )}
 
                         {mode === 'signin' && (
@@ -238,10 +229,10 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             disabled={loading || cooldown > 0}
-                            className="w-full bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-accent-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-xl transition-all shadow-md shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (
-                                <Loader2 size={18} className="animate-spin" />
+                                <CircleNotch size={18} className="animate-spin" weight="bold" />
                             ) : cooldown > 0 ? (
                                 `Wait ${cooldown}s`
                             ) : mode === 'signin' ? (
@@ -254,29 +245,6 @@ export default function LoginPage() {
                         </button>
                     </form>
 
-                    {mode !== 'forgot-password' && (
-                        <div className="relative my-6">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-white/10"></div>
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-black/40 px-2 text-gray-500">Or continue with</span>
-                            </div>
-                        </div>
-                    )}
-
-                    {mode !== 'forgot-password' && (
-                        <div className="grid grid-cols-1 gap-3">
-                            <button
-                                onClick={() => handleOAuth('github')}
-                                className="flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white transition-all text-sm font-medium"
-                            >
-                                <Github size={18} />
-                                GitHub
-                            </button>
-                        </div>
-                    )}
-
                     <div className="mt-8 text-center text-sm text-gray-400">
                         {mode === 'forgot-password' ? (
                             <button
@@ -285,7 +253,7 @@ export default function LoginPage() {
                                     setError(null);
                                     setMessage(null);
                                 }}
-                                className="text-accent-primary hover:text-accent-secondary font-medium transition-colors"
+                                className="text-primary hover:text-primary/80 font-medium transition-colors"
                             >
                                 Back to Sign In
                             </button>
@@ -298,15 +266,15 @@ export default function LoginPage() {
                                         setError(null);
                                         setMessage(null);
                                     }}
-                                    className="text-accent-primary hover:text-accent-secondary font-medium transition-colors"
+                                    className="text-primary hover:text-primary/80 font-medium transition-colors"
                                 >
                                     {mode === 'signin' ? 'Sign Up' : 'Sign In'}
                                 </button>
                             </>
                         )}
                     </div>
-                </motion.div>
+                </div>
             </div>
-        </AuroraBackground>
+        </main>
     );
 }

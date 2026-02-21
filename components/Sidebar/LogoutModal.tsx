@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogOut } from 'lucide-react';
+import { SignOut } from '@phosphor-icons/react/dist/csr/SignOut';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ export const LogoutModal = ({ isOpen, onClose, onConfirm }: LogoutModalProps) =>
                         <Card className="border-white/10 bg-[#0a0a0a] shadow-2xl ring-1 ring-white/10">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-destructive">
-                                    <LogOut size={20} />
+                                    <SignOut size={20} weight="bold" />
                                     Confirm Logout
                                 </CardTitle>
                                 <CardDescription>

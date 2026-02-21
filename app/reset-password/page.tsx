@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Lock, Loader2 } from 'lucide-react';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { Lock } from '@phosphor-icons/react/dist/csr/Lock';
+import { CircleNotch } from '@phosphor-icons/react/dist/csr/CircleNotch';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { AuroraBackground } from '@/components/ui/AuroraBackground';
@@ -55,7 +57,7 @@ export default function ResetPasswordPage() {
                 >
                     <div className="flex flex-col items-center mb-8">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-accent-primary to-accent-secondary flex items-center justify-center mb-4 shadow-lg shadow-accent-primary/20">
-                            <Sparkles size={24} className="text-white" />
+                            <Sparkle size={24} className="text-white" weight="fill" />
                         </div>
                         <h1 className="text-2xl font-bold text-white mb-2">
                             Reset Password
@@ -69,7 +71,7 @@ export default function ResetPasswordPage() {
                         <div className="space-y-2">
                             <label className="text-xs font-medium text-gray-300 ml-1">New Password</label>
                             <div className="relative">
-                                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" weight="bold" />
                                 <input
                                     type="password"
                                     value={password}
@@ -85,7 +87,7 @@ export default function ResetPasswordPage() {
                         <div className="space-y-2">
                             <label className="text-xs font-medium text-gray-300 ml-1">Confirm Password</label>
                             <div className="relative">
-                                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" weight="bold" />
                                 <input
                                     type="password"
                                     value={confirmPassword}
@@ -123,7 +125,7 @@ export default function ResetPasswordPage() {
                             disabled={loading}
                             className="w-full bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-accent-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? <Loader2 size={18} className="animate-spin" /> : 'Update Password'}
+                            {loading ? <CircleNotch size={18} className="animate-spin" weight="bold" /> : 'Update Password'}
                         </button>
                     </form>
                 </motion.div>

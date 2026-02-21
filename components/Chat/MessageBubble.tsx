@@ -2,7 +2,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download, Terminal } from 'lucide-react';
+import { Robot } from '@phosphor-icons/react/dist/csr/Robot';
+import { User } from '@phosphor-icons/react/dist/csr/User';
+import { Copy } from '@phosphor-icons/react/dist/csr/Copy';
+import { Check } from '@phosphor-icons/react/dist/csr/Check';
+import { ThumbsUp } from '@phosphor-icons/react/dist/csr/ThumbsUp';
+import { ThumbsDown } from '@phosphor-icons/react/dist/csr/ThumbsDown';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { PaperPlaneRight } from '@phosphor-icons/react/dist/csr/PaperPlaneRight';
+import { Download } from '@phosphor-icons/react/dist/csr/Download';
+import { Terminal } from '@phosphor-icons/react/dist/csr/Terminal';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -77,13 +87,13 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                 {/* Avatar */}
                 <Avatar className={cn(
                     "h-8 w-8 mt-1 shadow-lg ring-2 ring-white/10",
-                    isUser ? "ring-accent" : "ring-purple-500/50"
+                    isUser ? "ring-accent" : "ring-white/20"
                 )}>
                     <AvatarFallback className={cn(
                         "text-xs font-bold",
-                        isUser ? "bg-accent text-white" : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
+                        isUser ? "bg-accent text-white" : "bg-white/10 text-white"
                     )}>
-                        {isUser ? <User size={14} /> : <Bot size={16} />}
+                        {isUser ? <User size={14} weight="fill" /> : <Robot size={16} weight="duotone" />}
                     </AvatarFallback>
                 </Avatar>
 
@@ -93,7 +103,7 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                     <div className={cn(
                         "p-4 rounded-2xl shadow-md min-w-[60px] relative overflow-hidden",
                         isUser
-                            ? "bg-accent-primary text-white rounded-tr-sm"
+                            ? "bg-accent text-white rounded-tr-sm"
                             : "glass-panel text-gray-100 rounded-tl-sm border-white/10 bg-white/5",
                         isEditing ? "w-full min-w-[300px]" : ""
                     )}>
@@ -117,10 +127,10 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                                     />
                                     <div className="flex justify-end gap-2">
                                         <Button size="sm" variant="ghost" onClick={handleCancelEdit} className="h-8 w-8 p-0">
-                                            <X size={14} />
+                                            <X size={14} weight="bold" />
                                         </Button>
                                         <Button size="sm" variant="default" onClick={handleSaveEdit} className="h-8 gap-2 bg-white/10 hover:bg-white/20">
-                                            <Send size={12} /> Save
+                                            <PaperPlaneRight size={12} weight="fill" /> Save
                                         </Button>
                                     </div>
                                 </div>
@@ -172,14 +182,14 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                                                     <div className="relative group/code my-4 rounded-lg overflow-hidden border border-white/10 shadow-2xl bg-[#1e1e1e]">
                                                         <div className="flex items-center justify-between px-4 py-1.5 bg-white/5 border-b border-white/5">
                                                             <div className="flex items-center gap-2">
-                                                                <Terminal size={12} className="text-muted-foreground" />
+                                                                <Terminal size={12} className="text-muted-foreground" weight="duotone" />
                                                                 <span className="text-xs text-muted-foreground font-mono">{match[1]}</span>
                                                             </div>
                                                             <button
                                                                 onClick={() => navigator.clipboard.writeText(String(children))}
                                                                 className="text-xs text-muted-foreground hover:text-white flex items-center gap-1 transition-colors"
                                                             >
-                                                                <Copy size={12} /> Copy
+                                                                <Copy size={12} weight="bold" /> Copy
                                                             </button>
                                                         </div>
                                                         <SyntaxHighlighter
@@ -233,7 +243,7 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                             />
                         )}
                         {isUser && !isEditing && (
-                            <ActionBtn icon={Pencil} label="Edit" onClick={() => setIsEditing(true)} />
+                            <ActionBtn icon={PencilSimple} label="Edit" onClick={() => setIsEditing(true)} />
                         )}
                     </div>
                 </div>
@@ -274,7 +284,7 @@ function ImageAttachment({ src, alt, variant = 'single' }: { src: string, alt: s
     if (error) {
         return (
             <span className="p-4 rounded-xl border border-white/10 bg-white/5 text-gray-400 text-sm flex items-center gap-2 w-full h-full min-h-[100px] justify-center">
-                <X size={16} />
+                <X size={16} weight="bold" />
                 <span>Failed to load image</span>
             </span>
         );
@@ -332,7 +342,7 @@ function ImageAttachment({ src, alt, variant = 'single' }: { src: string, alt: s
                         onClick={() => setIsLightboxOpen(false)}
                         className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-[101]"
                     >
-                        <X size={24} />
+                        <X size={24} weight="bold" />
                     </button>
 
                     <button
@@ -370,7 +380,7 @@ const ActionBtn = ({ icon: Icon, label, onClick, active }: any) => (
                         active && "text-green-400 hover:text-green-300"
                     )}
                 >
-                    <Icon size={14} />
+                    <Icon size={14} weight="duotone" />
                 </button>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="text-[10px]">{label}</TooltipContent>

@@ -3,7 +3,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import MessageBubble from './MessageBubble';
 import InputArea from './InputArea';
-import { Share2, Sparkles, Zap, Image as ImageIcon, Code, PenTool, Menu } from 'lucide-react';
+import { ShareNetwork } from '@phosphor-icons/react/dist/csr/ShareNetwork';
+import { Sparkle } from '@phosphor-icons/react/dist/csr/Sparkle';
+import { Lightning } from '@phosphor-icons/react/dist/csr/Lightning';
+import { Image as ImageIcon } from '@phosphor-icons/react/dist/csr/Image';
+import { Code } from '@phosphor-icons/react/dist/csr/Code';
+import { PenNib } from '@phosphor-icons/react/dist/csr/PenNib';
+import { List } from '@phosphor-icons/react/dist/csr/List';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { chatStore, Message as DBMessage } from '@/lib/chat-store';
@@ -16,10 +22,10 @@ interface Message {
 }
 
 const QUICK_PROMPTS = [
-    { icon: Zap, label: 'Analyze Data', prompt: 'Please analyze this technical data for me.', color: 'text-violet-400' },
-    { icon: ImageIcon, label: 'Generate Image', prompt: 'Create a futuristic cyberpunk cityscape.', color: 'text-pink-400' },
-    { icon: Code, label: 'Debug Code', prompt: 'Help me debug this React component.', color: 'text-cyan-400' },
-    { icon: PenTool, label: 'Write Story', prompt: 'Write a short science fiction story about AI.', color: 'text-amber-400' },
+    { icon: Lightning, label: 'Analyze Data', prompt: 'Please analyze this technical data for me.', color: 'text-emerald-400' },
+    { icon: ImageIcon, label: 'Generate Image', prompt: 'Create a futuristic cyberpunk cityscape.', color: 'text-teal-400' },
+    { icon: Code, label: 'Debug Code', prompt: 'Help me debug this React component.', color: 'text-green-400' },
+    { icon: PenNib, label: 'Write Story', prompt: 'Write a short science fiction story about AI.', color: 'text-lime-400' },
 ];
 
 interface ChatInterfaceProps {
@@ -101,12 +107,8 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     imageUrl = data.imageUrl;
 
                 } catch (apiError) {
-                    console.error('Secure image generation failed, falling back to client-side:', apiError);
-                    // Fallback using direct poll URL (for demo purposes if API fails)
-                    const encodedPrompt = encodeURIComponent(prompt.slice(0, 500));
-                    const seed = Math.floor(Math.random() * 1000000);
-                    const apiKey = 'sk_mEWxPjZizTEUPa1FsEFasSWkowb0Yzlt';
-                    imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true&key=${apiKey}`;
+                    console.error('Secure image generation failed:', apiError);
+                    throw new Error('Failed to generate image URL');
                 }
 
                 if (!imageUrl) throw new Error('Failed to generate image URL');
@@ -137,7 +139,8 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                 body: JSON.stringify({
                     history: history,
                     message: userInput,
-                    layers: files
+                    layers: files,
+                    conversationId: currentConvoId
                 })
             });
 
@@ -259,9 +262,9 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     onClick={onOpenSidebar}
                     className="text-gray-300 hover:text-white"
                 >
-                    <Menu size={20} />
+                    <List size={20} weight="bold" />
                 </Button>
-                <div className="font-bold text-sm text-transparent bg-clip-text bg-gradient-to-r from-accent to-violet-500">
+                <div className="font-bold text-sm text-accent tracking-wide">
                     NextGen AI
                 </div>
                 <div className="w-9" /> {/* Placeholder for balance */}
@@ -280,7 +283,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                 transition={{ duration: 0.8, ease: "easeOut" }}
                                 className="relative group cursor-default"
                             >
-                                <div className="absolute -inset-8 rounded-full bg-gradient-to-r from-accent to-violet-600 blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-1000 animate-pulse-slow" />
+                                <div className="absolute -inset-8 rounded-full bg-accent blur-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-1000 animate-pulse-slow" />
                                 <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/40 relative z-10 tracking-tight">
                                     NextGen AI
                                 </h1>
@@ -302,8 +305,8 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                         onClick={() => handleSendMessage(item.prompt, [])}
                                         className="flex flex-col items-center gap-4 p-6 rounded-2xl glass-panel border-white/5 hover:border-accent/50 hover:bg-white/5 hover:scale-105 transition-all group duration-300"
                                     >
-                                        <div className={`p-4 rounded-full bg-white/5 ${item.color} group-hover:bg-white/10 group-hover:shadow-[0_0_15px_-5px_currentColor] transition-all`}>
-                                            <item.icon size={24} />
+                                        <div className={`p-4 rounded-full bg-white/5 ${item.color} group-hover:bg-accent group-hover:text-white transition-all`}>
+                                            <item.icon size={24} weight="duotone" />
                                         </div>
                                         <span className="text-sm font-medium text-gray-300 group-hover:text-white">{item.label}</span>
                                     </button>
@@ -341,8 +344,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                 </div>
             </div>
 
-            {/* Input Area */}
-            <div className="p-4 md:p-6 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent z-10 w-full backdrop-blur-sm">
+            <div className="p-4 md:p-6 bg-gradient-to-t from-background via-background/90 to-transparent z-10 w-full backdrop-blur-sm pb-8 md:pb-6">
                 <div className="max-w-4xl mx-auto w-full">
                     <InputArea onSendMessage={handleSendMessage} isGenerating={isGenerating} />
                 </div>

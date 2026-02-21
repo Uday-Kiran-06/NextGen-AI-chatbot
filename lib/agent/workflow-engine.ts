@@ -1,5 +1,42 @@
 import { toolRegistry } from './registry';
 import { model } from '@/lib/gemini';
+import { FunctionDeclaration, SchemaType } from '@google/generative-ai';
+
+// Define tools for Gemini
+const geminiTools = [{
+    functionDeclarations: [
+        {
+            name: 'calculate',
+            description: 'Perform a mathematical calculation. Use this for precise math.',
+            parameters: { type: SchemaType.OBJECT, properties: { expression: { type: SchemaType.STRING, description: 'The mathematical expression to evaluate' } }, required: ['expression'] }
+        },
+        {
+            name: 'generate_image',
+            description: 'Generate an image based on a text prompt.',
+            parameters: { type: SchemaType.OBJECT, properties: { prompt: { type: SchemaType.STRING, description: 'The detailed visual description of the image to generate' } }, required: ['prompt'] }
+        },
+        {
+            name: 'web_search',
+            description: 'Search the web for real-time information. Use this to find news, facts, and general info.',
+            parameters: { type: SchemaType.OBJECT, properties: { query: { type: SchemaType.STRING, description: 'The search query' } }, required: ['query'] }
+        },
+        {
+            name: 'search_images',
+            description: 'Search for existing images on the web. Use this when the user asks to "find" or "search for" photos/images.',
+            parameters: { type: SchemaType.OBJECT, properties: { query: { type: SchemaType.STRING, description: 'The image search query' } }, required: ['query'] }
+        },
+        {
+            name: 'search_knowledge',
+            description: 'Search the internal knowledge base for documents. Use this when the user asks about specific stored information.',
+            parameters: { type: SchemaType.OBJECT, properties: { query: { type: SchemaType.STRING, description: 'The search query for the knowledge base' } }, required: ['query'] }
+        },
+        {
+            name: 'learn_knowledge',
+            description: 'Add new information to the knowledge base.',
+            parameters: { type: SchemaType.OBJECT, properties: { content: { type: SchemaType.STRING, description: 'The content to store' }, topic: { type: SchemaType.STRING, description: 'Optional topic metadata' } }, required: ['content'] }
+        }
+    ] as FunctionDeclaration[]
+}];
 
 interface AgentResponse {
     type: 'text' | 'tool_call' | 'error';
@@ -9,16 +46,33 @@ interface AgentResponse {
 }
 
 export async function runAgentWorkflow(history: any[], message: string, images: any[] = []) {
-    // 1. Prepare Context (High-Performance Context Pruning could go here)
+    // 1. Prepare Context
     // For now, we take the last 10 messages for speed
     let recentHistory = history.slice(-10).map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
+        role: (msg.role === 'user' ? 'user' : 'model') as 'user' | 'model',
         parts: [{ text: msg.content }],
     }));
 
+    // Consolidate adjacent roles to strictly satisfy Gemini API constraints
+    const normalizedHistory: { role: 'user' | 'model', parts: any[] }[] = [];
+    for (const msg of recentHistory) {
+        if (normalizedHistory.length > 0 && normalizedHistory[normalizedHistory.length - 1].role === msg.role) {
+            normalizedHistory[normalizedHistory.length - 1].parts[0].text += '\n\n' + msg.parts[0].text;
+        } else {
+            normalizedHistory.push(msg);
+        }
+    }
+
     // Gemini API Requirement: First message must be from 'user'
-    while (recentHistory.length > 0 && recentHistory[0].role === 'model') {
-        recentHistory.shift();
+    while (normalizedHistory.length > 0 && normalizedHistory[0].role === 'model') {
+        normalizedHistory.shift();
+    }
+
+    // Gemini API Requirement: The history passed to startChat must end with a 'model' role
+    // because chat.sendMessage() will append a 'user' role automatically.
+    if (normalizedHistory.length > 0 && normalizedHistory[normalizedHistory.length - 1].role === 'user') {
+        // Dummy acknowledgement to preserve the alternating sequence
+        normalizedHistory.push({ role: 'model', parts: [{ text: 'Acknowledged input.' }] });
     }
 
     // Convert images to Gemini format
@@ -31,77 +85,41 @@ export async function runAgentWorkflow(history: any[], message: string, images: 
 
     const chat = model.startChat({
         history: recentHistory,
-        generationConfig: {
-            maxOutputTokens: 1000,
-        },
+        generationConfig: { maxOutputTokens: 2000 },
+        tools: geminiTools
     });
 
-    // 2. Initial Prompt with Tool Instructions
-    // In a real high-performance setup, we would fine-tune or use specific tool-use models.
-    // Here we use a system-prompt injection technique for standard Gemini Pro.
-    const toolsPrompt = `
-You are an advanced AI assistant with access to the following tools:
-${Object.values(toolRegistry).map(t => `- ${t.name}: ${t.description}`).join('\n')}
-
-If you need to use a tool, respond ONLY with a JSON object in this format:
-{ "tool": "tool_name", "args": { ... } }
-
-If no tool is needed, simply respond with the text answer.
-
-IMPORTANT: If you use the 'generate_image' or 'search_images' tool, you MUST include the returned 'imageUrl' (or 'images' array) in your final response using Markdown image syntax: ![Generated Image](imageUrl) or for search results: ![Image 1](url1) ![Image 2](url2).
-
-NOTE: If the user asks for an image of a **specific real person, celebrity, or public figure** (e.g., "Virat Kohli", "Elon Musk"), expected behaviour is to FIND existing photos using the 'search_images' tool. The image generation model will likely refuse to generate real people due to safety filters. Only use 'generate_image' if the user explicitly asks for "art", a "painting", or a "drawing" of the person, or if the subject is fictional/generic.
-
-CRITICAL FALLBACK: If a tool returns "no results", "not found", or fails, OR if you believe you already know the answer from your general knowledge training:
-1. You MAY answer the user directly without using more tools.
-2. If the internal knowledge base (search_knowledge) has no info, state that briefly (e.g., "I couldn't find specific internal documents...") and then provide your best general answer. Do NOT stop at "I couldn't find information".
-3. If the user's query has a typo or is slightly different from a known entity (e.g., "Andhra Loyola Institute Of Engineering Technology" vs "Andhra Loyola Institute of Engineering and Technology"), ASSUME they meant the known entity and answer for it.
-4. **NEVER** ask the user for clarification if you have a reasonable guess. Just answer.
+    const systemInstruction = `
+IMPORTANT: If you use 'generate_image' or 'search_images', you MUST include the returned imageUrl or images array in your final text response using Markdown image syntax: ![Generated Image](imageUrl).
+CRITICAL FALLBACK: If a tool returns "no results" or fails, states that briefly and fallback to your general knowledge to answer. NEVER ask for clarification if you have a reasonable guess.
+NOTE: For real celebrities/public figures, ALWAYS use 'search_images' instead of 'generate_image' to avoid safety filters.
 `;
 
     // 3. Send Message
-    // Combine text prompt and images
     const messageParts = [
-        { text: toolsPrompt + "\nUser: " + message },
+        { text: systemInstruction + "\nUser: " + message },
         ...imageParts
     ];
 
     const result = await chat.sendMessage(messageParts);
-    const responseText = result.response.text();
-
-    // 4. Parse for Tool Calls
-    try {
-        const firstOpenBrace = responseText.indexOf('{');
-        if (firstOpenBrace !== -1) {
-            // Backtracking approach: Find the last '}', matches valid JSON against JSON.parse
-            // This handles nested objects and strings better than a simple counter.
-            let lastCloseBrace = responseText.lastIndexOf('}');
-
-            while (lastCloseBrace > firstOpenBrace) {
-                const potentialJsonString = responseText.substring(firstOpenBrace, lastCloseBrace + 1);
-                try {
-                    const potentialJson = JSON.parse(potentialJsonString);
-                    if (potentialJson.tool && toolRegistry[potentialJson.tool]) {
-                        return {
-                            type: 'tool_call',
-                            toolName: potentialJson.tool,
-                            toolArgs: potentialJson.args
-                        };
-                    }
-                    // If parse succeeds but no tool, it's valid JSON but not a tool call? 
-                    // We should probably stop here or continue? 
-                    // If it's valid JSON, it's likely the intended output.
-                    return { type: 'text', content: responseText }; // Fallback
-                } catch (jsonError) {
-                    // JSON parse failed, meaning the substring includes extra garbage or is incomplete.
-                    // Try the previous closing brace.
-                    lastCloseBrace = responseText.lastIndexOf('}', lastCloseBrace - 1);
-                }
-            }
+    const response = result.response;
+    
+    // 4. Native Tool Call Parsing
+    const functionCalls = response.functionCalls();
+    
+    if (functionCalls && functionCalls.length > 0) {
+        // Native tool call found
+        const call = functionCalls[0];
+        if (toolRegistry[call.name]) {
+            return {
+                type: 'tool_call',
+                toolName: call.name,
+                toolArgs: call.args
+            };
         }
-    } catch (e) {
-        // Not valid JSON, treat as text
     }
+
+    const responseText = response.text();
 
     return { type: 'text', content: responseText };
 }

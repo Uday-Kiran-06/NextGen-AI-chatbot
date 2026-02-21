@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       allowedOrigins: ['localhost:3000', '10.13.39.8:3000', '*.ngrok-free.app']
     },
+    optimizePackageImports: ['@phosphor-icons/react'],
   },
   turbopack: {
     root: __dirname,
