@@ -23,7 +23,7 @@ export const AuroraBackground = ({
                         `
             [--white-gradient:repeating-linear-gradient(100deg,var(--white)_0%,var(--white)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--white)_16%)]
             [--dark-gradient:repeating-linear-gradient(100deg,var(--black)_0%,var(--black)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--black)_16%)]
-            [--aurora:repeating-linear-gradient(100deg,var(--accent-primary)_10%,var(--accent-secondary)_15%,#3b82f6_20%,var(--violet-200)_25%,var(--blue-400)_30%)]
+            [--aurora:repeating-linear-gradient(100deg,var(--primary)_10%,var(--secondary)_15%,#1b4332_20%,#0f2e21_25%,#2d6a4f_30%)]
             [background-image:var(--dark-gradient),var(--aurora)]
             [background-size:300%,_200%]
             [background-position:50%_50%,50%_50%]

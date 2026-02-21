@@ -1,5 +1,6 @@
 import React from 'react';
-import { LogOut, Settings, User as UserIcon } from 'lucide-react';
+import { SignOut } from '@phosphor-icons/react/dist/csr/SignOut';
+import { GearSix } from '@phosphor-icons/react/dist/csr/GearSix';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,7 +27,7 @@ export const UserProfile = ({ user, isCollapsed, onLogout }: UserProfileProps) =
                     asChild
                 >
                     <a href="/login">
-                        <Settings size={18} />
+                        <GearSix size={18} weight="duotone" />
                         {!isCollapsed && <span>Login / Sign Up</span>}
                     </a>
                 </Button>
@@ -80,7 +81,7 @@ export const UserProfile = ({ user, isCollapsed, onLogout }: UserProfileProps) =
                                 onClick={onLogout}
                                 className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                             >
-                                <LogOut size={16} />
+                                <SignOut size={16} weight="bold" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>Sign Out</TooltipContent>

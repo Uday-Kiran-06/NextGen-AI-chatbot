@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { MessageSquarePlus, History, MoreVertical, Share, Edit2, Pin, Archive, Trash2 } from 'lucide-react';
+import { ClockCounterClockwise } from '@phosphor-icons/react/dist/csr/ClockCounterClockwise';
+import { DotsThreeVertical } from '@phosphor-icons/react/dist/csr/DotsThreeVertical';
+import { ShareNetwork } from '@phosphor-icons/react/dist/csr/ShareNetwork';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { PushPin } from '@phosphor-icons/react/dist/csr/PushPin';
+import { Archive } from '@phosphor-icons/react/dist/csr/Archive';
+import { Trash } from '@phosphor-icons/react/dist/csr/Trash';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Conversation, chatStore } from '@/lib/chat-store';
@@ -126,21 +132,24 @@ export const ChatList = ({
                                     <Tooltip delayDuration={500}>
                                         <TooltipTrigger asChild>
                                             <Button
-                                                variant={activeId === item.id ? "secondary" : "ghost"}
+                                                variant="ghost"
                                                 size="sm"
                                                 onClick={() => {
                                                     onSelectChat(item.id);
                                                     if (window.innerWidth < 768) onCloseMobile?.();
                                                 }}
                                                 className={cn(
-                                                    "w-full justify-start gap-3 h-10 font-normal relative overflow-hidden",
+                                                    "w-full justify-start gap-3 h-10 font-normal relative overflow-hidden transition-all",
+                                                    activeId === item.id 
+                                                        ? "bg-primary text-white shadow-md hover:bg-primary/90" 
+                                                        : "bg-white/5 text-gray-300 hover:bg-white/15 hover:text-white",
                                                     isCollapsed && "justify-center px-0"
                                                 )}
                                             >
                                                 {item.is_pinned ? (
-                                                    <Pin size={14} className="shrink-0 text-accent rotate-45" />
+                                                    <PushPin size={14} className="shrink-0 text-accent rotate-45" weight="fill" />
                                                 ) : (
-                                                    <History size={16} className="shrink-0 text-muted-foreground" />
+                                                    <ClockCounterClockwise size={16} className="shrink-0 text-muted-foreground" weight="duotone" />
                                                 )}
 
                                                 {!isCollapsed && (
@@ -162,29 +171,29 @@ export const ChatList = ({
                                                 size="icon"
                                                 className="h-8 w-8 absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover/item:opacity-100 transition-opacity focus:opacity-100"
                                             >
-                                                <MoreVertical size={14} />
+                                                <DotsThreeVertical size={14} weight="bold" />
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end" className="w-48">
                                             <DropdownMenuItem onClick={() => handleAction('share', item)}>
-                                                <Share className="mr-2 h-4 w-4" /> Share
+                                                <ShareNetwork className="mr-2 h-4 w-4" weight="bold" /> Share
                                             </DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => handleAction('rename', item)}>
-                                                <Edit2 className="mr-2 h-4 w-4" /> Rename
+                                                <PencilSimple className="mr-2 h-4 w-4" weight="bold" /> Rename
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem onClick={() => handleAction('pin', item)}>
-                                                <Pin className="mr-2 h-4 w-4" /> {item.is_pinned ? "Unpin" : "Pin"}
+                                                <PushPin className="mr-2 h-4 w-4" weight="bold" /> {item.is_pinned ? "Unpin" : "Pin"}
                                             </DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => handleAction('archive', item)}>
-                                                <Archive className="mr-2 h-4 w-4" /> Archive
+                                                <Archive className="mr-2 h-4 w-4" weight="bold" /> Archive
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem
                                                 onClick={() => handleAction('delete', item)}
                                                 className="text-red-500 focus:text-red-500 focus:bg-red-500/10"
                                             >
-                                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                                <Trash className="mr-2 h-4 w-4" weight="bold" /> Delete
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>

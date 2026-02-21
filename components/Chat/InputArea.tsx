@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon, Music } from 'lucide-react';
+import { PaperPlaneRight } from '@phosphor-icons/react/dist/csr/PaperPlaneRight';
+import { Microphone } from '@phosphor-icons/react/dist/csr/Microphone';
+import { Paperclip } from '@phosphor-icons/react/dist/csr/Paperclip';
+import { CircleNotch } from '@phosphor-icons/react/dist/csr/CircleNotch';
+import { X } from '@phosphor-icons/react/dist/csr/X';
+import { Image as ImageIcon } from '@phosphor-icons/react/dist/csr/Image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
@@ -160,7 +165,7 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                             className="h-6 w-6 rounded-full p-0 text-muted-foreground hover:text-white hover:bg-white/10 ml-2"
                             onClick={toggleRecording}
                         >
-                            <X size={14} />
+                            <X size={14} weight="bold" />
                         </Button>
                     </div>
                 </div>
@@ -175,14 +180,14 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                                 {f.mimeType.startsWith('image/') ? (
                                     <img src={f.preview} alt={f.name} className="w-full h-full object-cover" />
                                 ) : (
-                                    <ImageIcon size={24} className="text-muted-foreground" />
+                                    <ImageIcon size={24} className="text-muted-foreground" weight="duotone" />
                                 )}
                             </div>
                             <button
                                 onClick={() => removeFile(i)}
                                 className="absolute -top-2 -right-2 bg-destructive text-white rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
                             >
-                                <X size={12} />
+                                <X size={12} weight="bold" />
                             </button>
                         </div>
                     ))}
@@ -204,7 +209,7 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                                 onClick={() => fileInputRef.current?.click()}
                                 className="h-10 w-10 rounded-full text-muted-foreground hover:text-white hover:bg-white/10 shrink-0"
                             >
-                                <Paperclip size={20} />
+                                <Paperclip size={20} weight="bold" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>Attach files</TooltipContent>
@@ -245,7 +250,7 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                                     )}
                                     onClick={toggleRecording}
                                 >
-                                    <Mic size={20} />
+                                    <Microphone size={20} weight={isRecording ? "fill" : "bold"} />
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>Voice Input</TooltipContent>
@@ -258,11 +263,11 @@ export default function InputArea({ onSendMessage, isGenerating }: InputAreaProp
                         disabled={(!input.trim() && files.length === 0) || isGenerating}
                         size="icon"
                         className={cn(
-                            "h-10 w-10 rounded-full bg-gradient-to-tr from-accent to-violet-600 border border-white/10 shadow-lg transition-all hover:scale-105 hover:shadow-accent/25",
+                            "h-10 w-10 rounded-full bg-accent border border-white/10 shadow-lg transition-all hover:scale-105 hover:shadow-accent/25",
                             isGenerating && "opacity-80"
                         )}
                     >
-                        {isGenerating ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} className="ml-0.5" />}
+                        {isGenerating ? <CircleNotch size={18} className="animate-spin" weight="bold" /> : <PaperPlaneRight size={18} className="ml-0.5" weight="fill" />}
                     </Button>
                 </div>
             </div>

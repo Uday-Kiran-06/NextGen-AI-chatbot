@@ -1,27 +1,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { runAgentWorkflow, executeToolCall } from '@/lib/agent/workflow-engine';
-import { Cache } from '@/lib/cache';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
     try {
-        const { history, message, layers } = await req.json();
+        const { history, message, layers, conversationId } = await req.json();
 
-        // High-Performance Optimization: Check Cache for identical queries
-        // (Simplified key generation for demo - in prod use hash)
-        const cacheKey = `query:${message}`;
-        // Skip cache if there are images, as context differs
-        const cachedResponse = (!layers || layers.length === 0) ? Cache.get(cacheKey) : null;
-
-        if (cachedResponse) {
-            // Speed! Return cached response immediately.
-            return new NextResponse(new ReadableStream({
-                start(controller) {
-                    controller.enqueue(new TextEncoder().encode(cachedResponse));
-                    controller.close();
-                }
-            }));
-        }
+        // 1. Prepare agent variables
 
         // Agent Execution Loop
         // 1. Initial Plan/Thought
@@ -59,8 +45,6 @@ export async function POST(req: NextRequest) {
 
         if (response.type === 'text') {
             finalContent = response.content || "";
-            // Cache the final result for short duration
-            Cache.set(cacheKey, finalContent, 60);
         } else if (response.type === 'tool_call') {
             // Context: The agent wants to use a tool but we hit the depth limit
             finalContent = "I apologize, but I reached a complexity limit while processing your request with tools. Could you please provide more specific details?";
@@ -69,6 +53,20 @@ export async function POST(req: NextRequest) {
         // Fallback for empty content
         if (!finalContent.trim()) {
             finalContent = "I apologize, but I encountered an issue generating a response. Please try asking again.";
+        }
+
+        // --- BACKEND SECURE DB SYNC ---
+        // Insert both user message and final AI message securely via serverless backend,
+        // preventing optimistic UI desync issues on the frontend.
+        if (conversationId && !conversationId.startsWith('guest-')) {
+            const supabase = await createClient();
+            
+            // Note: Since message could contain image attachments in frontend, we should grab the original 'message' content
+            // passed to generateAIResponse representing the full user node.
+            await supabase.from('messages').insert([
+                { chat_id: conversationId, role: 'user', content: message },
+                { chat_id: conversationId, role: 'model', content: finalContent }
+            ]);
         }
 
         // Stream the result back

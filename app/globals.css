@@ -4,41 +4,41 @@
 
 @layer base {
   :root {
-    /* Obsidian Theme Palette */
-    --background: 240 10% 3.9%;   /* #0a0a0a */
-    --foreground: 0 0% 98%;       /* #fafafa */
+    /* Option 2: Deep Emerald & Ivory */
+    --background: 157 27% 6%;     /* Very Dark Forest Green/Charcoal #0B1310 */
+    --foreground: 210 20% 96%;    /* Soft Ivory/Off-White #F3F4F6 */
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 157 27% 6%;
+    --card-foreground: 210 20% 96%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 157 27% 6%;
+    --popover-foreground: 210 20% 96%;
 
-    --primary: 263 70% 50%;       /* Vivid Violet */
-    --primary-foreground: 210 40% 98%;
+    --primary: 155 42% 18%;       /* Rich Emerald #1B4332 */
+    --primary-foreground: 210 20% 96%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 162 25% 15%;     /* Darker Emerald/Grey */
+    --secondary-foreground: 210 20% 96%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 162 25% 15%;
+    --muted-foreground: 155 10% 60%;
 
-    --accent: 263 70% 50%;
-    --accent-foreground: 0 0% 98%;
-    --accent-glow: rgba(124, 58, 237, 0.25); /* Glow color */
+    --accent: 152 46% 24%;        /* Bright Emerald Focus #2D6A4F */
+    --accent-foreground: 210 20% 96%;
+    --accent-glow: hsl(152 46% 24% / 0.35); /* Emerald Glow */
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 20% 96%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 263 70% 50%;
+    --border: 162 25% 15%;
+    --input: 162 25% 15%;
+    --ring: 152 46% 24%;          /* Emerald Ring */
 
     --radius: 0.75rem;
 
-    /* Glassmorphism */
-    --glass-bg: rgba(10, 10, 10, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    /* Glassmorphism tuned for Deep Emerald */
+    --glass-bg: rgba(11, 19, 16, 0.7);
+    --glass-border: rgba(243, 244, 246, 0.05);
   }
 }
 
@@ -55,7 +55,7 @@
   .glass-panel {
     @apply bg-black/60 backdrop-blur-xl border border-white/5 shadow-2xl;
   }
-  
+
   .glass-button {
     @apply bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-300;
   }
@@ -64,7 +64,7 @@
   .glow-text {
     text-shadow: 0 0 20px var(--accent-glow);
   }
-  
+
   .glow-box {
     box-shadow: 0 0 40px -10px var(--accent-glow);
   }
@@ -73,9 +73,25 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

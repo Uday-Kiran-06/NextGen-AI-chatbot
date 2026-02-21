@@ -2,6 +2,30 @@ import { createClient } from '@/lib/supabase/client';
 
 const supabase = createClient();
 
+// Timeout guard: races a promise against a timer.
+// Prevents the UI from freezing when Supabase is unreachable.
+const AUTH_TIMEOUT_MS = 5000; // 5 seconds — balanced for slow-but-reachable servers
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+    return Promise.race([
+        promise,
+        new Promise<T>((_, reject) =>
+            setTimeout(() => reject(new Error(`Supabase auth timed out after ${ms}ms`)), ms)
+        ),
+    ]);
+}
+
+// Centralized auth check with timeout guard
+async function getAuthUser() {
+    try {
+        const { data } = await withTimeout(supabase.auth.getUser(), AUTH_TIMEOUT_MS);
+        return data?.user ?? null;
+    } catch (e) {
+        console.warn('[Auth] Failed or timed out, defaulting to guest mode:', e);
+        return null;
+    }
+}
+
 export interface Conversation {
     id: string;
     user_id: string;
@@ -22,25 +46,48 @@ export interface Message {
 // Guest Mode Helper
 const isGuest = (id: string) => id.startsWith('guest-');
 
-// In-Memory Storage for Guest Session
-let guestConversations: Conversation[] = [];
-let guestMessages: Record<string, Message[]> = {};
+// LocalStorage Helpers for Guest Session
+const getGuestConversations = (): Conversation[] => {
+    if (typeof window === 'undefined') return [];
+    try {
+        const stored = localStorage.getItem('guest_conversations');
+        return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+        return [];
+    }
+};
+
+const setGuestConversations = (conversations: Conversation[]) => {
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('guest_conversations', JSON.stringify(conversations));
+    }
+};
+
+const getGuestMessages = (): Record<string, Message[]> => {
+    if (typeof window === 'undefined') return {};
+    try {
+        const stored = localStorage.getItem('guest_messages');
+        return stored ? JSON.parse(stored) : {};
+    } catch (e) {
+        return {};
+    }
+};
+
+const setGuestMessages = (messages: Record<string, Message[]>) => {
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('guest_messages', JSON.stringify(messages));
+    }
+};
 
 export const chatStore = {
     // Fetch all conversations
     async getConversations() {
-        let user = null;
-        try {
-            const { data } = await supabase.auth.getUser();
-            user = data?.user;
-        } catch (e) {
-            console.warn('Auth check failed in getConversations, defaulting to guest mode:', e);
-        }
+        const user = await getAuthUser();
 
         try {
-            // Guest Mode: Return in-memory conversations
+            // Guest Mode: Return localStorage conversations
             if (!user) {
-                return guestConversations
+                return getGuestConversations()
                     .filter(c => !c.is_archived)
                     .sort((a, b) => {
                         // Sort by pinned (true first), then date (newest first)
@@ -69,16 +116,10 @@ export const chatStore = {
 
     // Create a new conversation
     async createConversation(title: string) {
-        let user = null;
-        try {
-            const { data } = await supabase.auth.getUser();
-            user = data?.user;
-        } catch (e) {
-            console.warn('Auth check failed in createConversation, defaulting to guest:', e);
-        }
+        const user = await getAuthUser();
 
         try {
-            // Guest Mode: Create and store in memory
+            // Guest Mode: Create and store in localStorage
             if (!user) {
                 const newConvo: Conversation = {
                     id: `guest-${Date.now()}`,
@@ -88,7 +129,9 @@ export const chatStore = {
                     is_pinned: false,
                     is_archived: false
                 };
-                guestConversations.unshift(newConvo); // Add to beginning
+                const guestConvos = getGuestConversations();
+                guestConvos.unshift(newConvo); // Add to beginning
+                setGuestConversations(guestConvos);
                 return newConvo;
             }
 
@@ -108,9 +151,10 @@ export const chatStore = {
 
     // Fetch messages for a specific conversation
     async getMessages(conversationId: string) {
-        // Guest Mode: Retrieve from memory
+        // Guest Mode: Retrieve from localStorage
         if (isGuest(conversationId)) {
-            return guestMessages[conversationId] || [];
+            const guestMsgs = getGuestMessages();
+            return guestMsgs[conversationId] || [];
         }
 
         try {
@@ -130,7 +174,7 @@ export const chatStore = {
 
     // Add a message to a conversation
     async addMessage(conversationId: string, role: 'user' | 'model', content: string) {
-        // Guest Mode: Store in memory
+        // Guest Mode: Store in localStorage
         if (isGuest(conversationId)) {
             const newMsg: Message = {
                 id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -140,27 +184,25 @@ export const chatStore = {
                 created_at: new Date().toISOString()
             };
 
-            if (!guestMessages[conversationId]) {
-                guestMessages[conversationId] = [];
+            const guestMsgs = getGuestMessages();
+            if (!guestMsgs[conversationId]) {
+                guestMsgs[conversationId] = [];
             }
-            guestMessages[conversationId].push(newMsg);
+            guestMsgs[conversationId].push(newMsg);
+            setGuestMessages(guestMsgs);
 
             return newMsg;
         }
 
-        try {
-            const { data, error } = await supabase
-                .from('messages')
-                .insert([{ chat_id: conversationId, role, content }])
-                .select()
-                .single();
-
-            if (error) throw error;
-            return data as Message;
-        } catch (error) {
-            console.error('Error adding message:', error);
-            return null;
-        }
+        // For Authenticated Users, message saving is now handled securely by the backend API 
+        // route (app/api/chat/route.ts) to prevent optimistic UI desyncs. We return a stub here.
+        return {
+            id: `server-pending-${Date.now()}`,
+            chat_id: conversationId,
+            role,
+            content,
+            created_at: new Date().toISOString()
+        } as Message;
     },
 
     // Create conversation AND add first message (helper)
@@ -176,8 +218,12 @@ export const chatStore = {
 
     async deleteConversation(id: string) {
         if (isGuest(id)) {
-            guestConversations = guestConversations.filter(c => c.id !== id);
-            delete guestMessages[id];
+            const guestConvos = getGuestConversations().filter(c => c.id !== id);
+            setGuestConversations(guestConvos);
+            
+            const guestMsgs = getGuestMessages();
+            delete guestMsgs[id];
+            setGuestMessages(guestMsgs);
             return true;
         }
         try {
@@ -192,8 +238,12 @@ export const chatStore = {
 
     async renameConversation(id: string, newTitle: string) {
         if (isGuest(id)) {
-            const convo = guestConversations.find(c => c.id === id);
-            if (convo) convo.title = newTitle;
+            const guestConvos = getGuestConversations();
+            const convo = guestConvos.find(c => c.id === id);
+            if (convo) {
+                convo.title = newTitle;
+                setGuestConversations(guestConvos);
+            }
             return true;
         }
         try {
@@ -208,8 +258,12 @@ export const chatStore = {
 
     async togglePin(id: string, isPinned: boolean) {
         if (isGuest(id)) {
-            const convo = guestConversations.find(c => c.id === id);
-            if (convo) convo.is_pinned = isPinned;
+            const guestConvos = getGuestConversations();
+            const convo = guestConvos.find(c => c.id === id);
+            if (convo) {
+                convo.is_pinned = isPinned;
+                setGuestConversations(guestConvos);
+            }
             return true;
         }
         try {
@@ -225,8 +279,12 @@ export const chatStore = {
 
     async toggleArchive(id: string, isArchived: boolean) {
         if (isGuest(id)) {
-            const convo = guestConversations.find(c => c.id === id);
-            if (convo) convo.is_archived = isArchived;
+            const guestConvos = getGuestConversations();
+            const convo = guestConvos.find(c => c.id === id);
+            if (convo) {
+                convo.is_archived = isArchived;
+                setGuestConversations(guestConvos);
+            }
             return true;
         }
         try {

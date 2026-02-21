@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Home, ArrowLeft } from 'lucide-react';
+import { House } from '@phosphor-icons/react/dist/csr/House';
+import { ArrowLeft } from '@phosphor-icons/react/dist/csr/ArrowLeft';
 import { AuroraBackground } from '@/components/ui/AuroraBackground';
 
 export default function NotFound() {
@@ -34,7 +35,7 @@ export default function NotFound() {
                             href="/"
                             className="w-full bg-white/10 hover:bg-white/20 border border-white/10 text-white font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 group"
                         >
-                            <Home size={18} className="group-hover:scale-110 transition-transform" />
+                            <House size={18} className="group-hover:scale-110 transition-transform" weight="bold" />
                             Return Home
                         </Link>
 
@@ -42,7 +43,7 @@ export default function NotFound() {
                             onClick={() => window.history.back()}
                             className="w-full bg-transparent hover:bg-white/5 text-gray-400 hover:text-white py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
                         >
-                            <ArrowLeft size={18} />
+                            <ArrowLeft size={18} weight="bold" />
                             Go Back
                         </button>
                     </div>
