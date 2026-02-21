@@ -123,7 +123,7 @@ export const ChatList = ({
                                     onBlur={(e) => handleRenameSubmit(e, item.id)}
                                     // eslint-disable-next-line jsx-a11y/no-autofocus
                                     autoFocus
-                                    className="h-8 text-sm"
+                                    className="h-8 text-sm bg-black/60 text-white border-accent/50 placeholder:text-white/50 focus:border-accent focus:ring-accent/30"
                                 />
                             </form>
                         ) : (
