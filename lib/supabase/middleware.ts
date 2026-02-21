@@ -46,7 +46,13 @@ export async function updateSession(request: NextRequest) {
     // If this is not done, you may be causing the browser and server to go out
     // of sync and terminate the user's session prematurely!
 
-    await supabase.auth.getUser()
+    // Wrap in try/catch: if Supabase is unreachable (paused project, network issues,
+    // or stale tokens), we silently continue rather than crashing the middleware.
+    try {
+        await supabase.auth.getUser()
+    } catch (error) {
+        console.warn('[Supabase Middleware] Failed to refresh session:', error)
+    }
 
     return response
 }

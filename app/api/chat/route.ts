@@ -70,10 +70,9 @@ export async function POST(req: NextRequest) {
         return new NextResponse(stream);
 
     } catch (error: any) {
-        // Improved logging to catch Error objects which stringify to {}
         console.error('Error processing chat:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
         return NextResponse.json(
-            { error: error.message || String(error) || 'Internal Server Error' },
+            { error: 'Something went wrong. Please try again later.' },
             { status: 500 }
         );
     }

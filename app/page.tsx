@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Sidebar from '@/components/Sidebar/Sidebar';
 import ChatInterface from '@/components/Chat/ChatInterface';
-import { AuroraBackground } from '@/components/UI/AuroraBackground';
+import { AuroraBackground } from '@/components/ui/AuroraBackground';
 
 export default function Home() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);

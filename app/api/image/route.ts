@@ -8,9 +8,14 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
         }
 
+        const apiKey = process.env.POLLINATIONS_API_KEY;
+        if (!apiKey) {
+            console.error('Missing POLLINATIONS_API_KEY in environment variables');
+            return NextResponse.json({ error: 'Image generation is not configured' }, { status: 500 });
+        }
+
         const encodedPrompt = encodeURIComponent(prompt.slice(0, 500));
         const seed = Math.floor(Math.random() * 1000000);
-        const apiKey = 'sk_mEWxPjZizTEUPa1FsEFasSWkowb0Yzlt';
         const keyParam = `&key=${apiKey}`;
 
         // Construct the URL with nologo=true and the secure API key

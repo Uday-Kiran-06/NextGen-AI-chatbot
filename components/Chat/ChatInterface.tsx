@@ -7,10 +7,11 @@ import { Share2, Sparkles, Zap, Image as ImageIcon, Code, PenTool, Menu } from '
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { chatStore, Message as DBMessage } from '@/lib/chat-store';
+import { Button } from '@/components/ui/button';
 
 interface Message {
     id: string;
-    role: 'user' | 'model';
+    role: 'user' | 'model' | 'tool';
     content: string;
 }
 
@@ -67,10 +68,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             }
         }
 
-        // Save User Message to DB is handled by caller or assumed done
-
         // --- DIRECT IMAGE GENERATION COMMAND (/image) ---
-        // Bypasses Gemini API to save quota or work offline
         if (userInput.trim().toLowerCase().startsWith('/image')) {
             try {
                 const prompt = userInput.replace(/^\/image\s*/i, '').trim() || "random abstract art";
@@ -92,15 +90,12 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
 
                     const data = await response.json();
                     imageUrl = data.imageUrl;
-                    console.log('Secure image URL received:', imageUrl);
 
                 } catch (apiError) {
                     console.error('Secure image generation failed, falling back to client-side:', apiError);
-
-                    // Fallback to client-side generation (may have watermark)
+                    // Fallback using direct poll URL (for demo purposes if API fails)
                     const encodedPrompt = encodeURIComponent(prompt.slice(0, 500));
                     const seed = Math.floor(Math.random() * 1000000);
-                    // Fallback: Use client-side generation with hardcoded key
                     const apiKey = 'sk_mEWxPjZizTEUPa1FsEFasSWkowb0Yzlt';
                     imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true&key=${apiKey}`;
                 }
@@ -123,7 +118,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             } finally {
                 setIsGenerating(false);
             }
-            return; // Exit function, do not call Gemini
+            return;
         }
 
         try {
@@ -146,7 +141,6 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     console.error("Non-JSON Server Error:", errorText);
                     throw new Error(`Server Error (${response.status}): ${response.statusText}`);
                 }
-                console.error("Server Error:", errorData);
                 throw new Error(errorData.error || 'Network response was not ok');
             }
 
@@ -191,7 +185,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
         const imageFiles = files.filter(f => f.mimeType.startsWith('image/'));
         const otherFiles = files.filter(f => !f.mimeType.startsWith('image/'));
 
-        // Inline Images (Markdown)
+        // Inline Images
         if (imageFiles.length > 0) {
             imageFiles.forEach(file => {
                 messageContent += `![Image](${file.preview})\n\n`;
@@ -218,7 +212,6 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
         const newMessages = [...messages, userMessage];
         setMessages(newMessages);
 
-        // Save User Message to DB (Optimization: could be moved into generateAIResponse if we pass the message obj)
         if (conversationId) {
             chatStore.addMessage(conversationId, 'user', userMessage.content);
         }
@@ -227,81 +220,68 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
     };
 
     const handleEditMessage = async (id: string, newContent: string) => {
-        // 1. Find the index of the message being edited
         const messageIndex = messages.findIndex(m => m.id === id);
         if (messageIndex === -1) return;
 
-        // 2. Truncate history: Keep messages UP TO the edited one
         const truncatedHistory = messages.slice(0, messageIndex);
-
-        // 3. Create the updated user message
         const updatedMessage = {
             ...messages[messageIndex],
             content: newContent
         };
 
-        // 4. Update state: New history + updated message. 
-        // effectively removing all subsequent messages.
         const newMessages = [...truncatedHistory, updatedMessage];
         setMessages(newMessages);
 
-        // TODO: Database Cleanup
-        // Ideally, we should also delete messages in the DB that came after this timestamp
-        // to keep the saved state consistent with the UI. 
-        // For now, we focus on the UI flow.
         if (conversationId) {
-            // Update the edited message in DB
-            // await chatStore.updateMessage(...)
-            // Delete subsequent messages
-            // await chatStore.deleteMessagesAfter(...)
+            // Future DB cleanup logic here
         }
 
-        // 5. Trigger regeneration
-        // Note: We pass 'truncatedHistory' as the context, and newContent as the 'latest input'
         await generateAIResponse(truncatedHistory, newContent, []);
     };
 
     return (
         <div className="flex-1 flex flex-col h-full relative z-0 overflow-hidden">
-            {/* Mobile Header */}
-            {/* Mobile Header - Sticky, Capsule, Floating */}
+            {/* Mobile Header - Sticky, Capsule */}
             <div className="md:hidden absolute top-4 left-4 right-4 z-50 flex items-center justify-between px-4 py-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full shadow-lg">
-                <button
+                <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={onOpenSidebar}
-                    className="p-1 text-gray-300 hover:text-white transition-colors"
+                    className="text-gray-300 hover:text-white"
                 >
                     <Menu size={20} />
-                </button>
-                <div className="font-bold text-sm text-transparent bg-clip-text bg-gradient-to-r from-accent-primary to-accent-secondary">
+                </Button>
+                <div className="font-bold text-sm text-transparent bg-clip-text bg-gradient-to-r from-accent to-violet-500">
                     NextGen AI
                 </div>
-                <div className="w-5" /> {/* Placeholder for balance */}
+                <div className="w-9" /> {/* Placeholder for balance */}
             </div>
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 md:p-8 scrollbar-hide pt-20 md:pt-4">
-                <div className="max-w-4xl mx-auto space-y-6 h-full flex flex-col">
+                <div className="max-w-4xl mx-auto space-y-8 h-full flex flex-col">
 
                     {/* Welcome View */}
                     {messages.length === 0 && (
-                        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 min-h-[50vh]">
+                        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-12 min-h-[50vh]">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, ease: "easeOut" }}
-                                className="relative"
+                                className="relative group cursor-default"
                             >
-                                <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-accent-primary to-accent-secondary blur-2xl opacity-20 animate-pulse-slow" />
-                                <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/50 relative z-10">
+                                <div className="absolute -inset-8 rounded-full bg-gradient-to-r from-accent to-violet-600 blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-1000 animate-pulse-slow" />
+                                <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/40 relative z-10 tracking-tight">
                                     NextGen AI
                                 </h1>
-                                <p className="text-gray-400 mt-4 text-lg max-w-md mx-auto">
-                                    Your advanced assistant for analysis, creativity, and development.
+                                <p className="text-muted-foreground mt-4 text-lg max-w-md mx-auto">
+                                    Your advanced cognitive assistant. <br />
+                                    <span className="text-sm">Powered by Gemini 2.0</span>
                                 </p>
                             </motion.div>
 
                             <motion.div
-                                className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl px-4"
+                                className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl px-4"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3, duration: 0.8 }}
@@ -310,10 +290,10 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                     <button
                                         key={i}
                                         onClick={() => handleSendMessage(item.prompt, [])}
-                                        className="flex flex-col items-center gap-3 p-4 rounded-2xl glass-panel border-white/5 hover:border-white/10 hover:bg-white/5 transition-all group"
+                                        className="flex flex-col items-center gap-4 p-6 rounded-2xl glass-panel border-white/5 hover:border-accent/50 hover:bg-white/5 hover:scale-105 transition-all group duration-300"
                                     >
-                                        <div className={`p-3 rounded-full bg-white/5 ${item.color} group-hover:bg-white/10 transition-colors`}>
-                                            <item.icon size={20} />
+                                        <div className={`p-4 rounded-full bg-white/5 ${item.color} group-hover:bg-white/10 group-hover:shadow-[0_0_15px_-5px_currentColor] transition-all`}>
+                                            <item.icon size={24} />
                                         </div>
                                         <span className="text-sm font-medium text-gray-300 group-hover:text-white">{item.label}</span>
                                     </button>
@@ -336,10 +316,14 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-2 text-gray-400 ml-12"
+                            className="flex items-center gap-3 text-muted-foreground ml-12"
                         >
-                            <Sparkles size={16} className="animate-spin-slow text-accent-primary" />
-                            <span className="text-xs font-medium animate-pulse">Thinking...</span>
+                            <div className="flex gap-1">
+                                <span className="w-2 h-2 rounded-full bg-accent animate-bounce [animation-delay:-0.3s]" />
+                                <span className="w-2 h-2 rounded-full bg-accent animate-bounce [animation-delay:-0.15s]" />
+                                <span className="w-2 h-2 rounded-full bg-accent animate-bounce" />
+                            </div>
+                            <span className="text-xs font-medium tracking-wide">Computing...</span>
                         </motion.div>
                     )}
 
@@ -348,29 +332,9 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             </div>
 
             {/* Input Area */}
-            <div className="p-4 md:p-6 bg-gradient-to-t from-background via-background/80 to-transparent z-10">
-                <div className="max-w-4xl mx-auto">
-                    {/* Share Button (moved near input or keep in header? Let's add a small floating action or just keep input) */}
-                    {/* Actually, let's add a Share button to the top right of the chat area, or maybe near the input helper text */}
-
+            <div className="p-4 md:p-6 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent z-10 w-full backdrop-blur-sm">
+                <div className="max-w-4xl mx-auto w-full">
                     <InputArea onSendMessage={handleSendMessage} isGenerating={isGenerating} />
-                    <div className="flex justify-center items-center gap-4 mt-3">
-                        <p className="text-[10px] text-gray-500">
-                            AI can make mistakes. Please verify important information.
-                        </p>
-                        {messages.length > 0 && (
-                            <button
-                                onClick={() => {
-                                    const text = messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
-                                    navigator.clipboard.writeText(text);
-                                    alert('Conversation copied to clipboard!');
-                                }}
-                                className="text-[10px] text-accent-secondary hover:text-accent-primary flex items-center gap-1 transition-colors"
-                            >
-                                <Share2 size={10} /> Share
-                            </button>
-                        )}
-                    </div>
                 </div>
             </div>
         </div>

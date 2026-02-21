@@ -23,15 +23,16 @@ registerTool({
         expression: z.string().describe('The mathematical expression to evaluate, e.g., "2 * 45 + 10"'),
     }),
     execute: async ({ expression }) => {
-        // Safety: In a real app, use a safer math parser like mathjs. 
-        // For this demo, we'll keep it simple but restricted.
         try {
-            // Basic sanitization
+            // Strict sanitization: only allow digits, operators, parentheses, dots, and spaces
             if (/[^0-9+\-*/(). ]/.test(expression)) {
-                return "Error: Invalid characters in expression.";
+                return { error: "Invalid characters in expression." };
             }
-            // eslint-disable-next-line no-eval
-            const result = eval(expression);
+            // Safe evaluation using Function constructor (no access to scope)
+            const result = new Function(`"use strict"; return (${expression})`)();
+            if (typeof result !== 'number' || !isFinite(result)) {
+                return { error: 'Expression did not produce a valid number.' };
+            }
             return { result };
         } catch (e) {
             return { error: 'Failed to evaluate expression' };
@@ -47,9 +48,12 @@ registerTool({
         prompt: z.string().describe('The detailed visual description of the image to generate'),
     }),
     execute: async ({ prompt }) => {
+        const apiKey = process.env.POLLINATIONS_API_KEY;
+        if (!apiKey) {
+            return { error: 'Image generation is not configured.' };
+        }
         const encodedPrompt = encodeURIComponent(prompt.slice(0, 500));
         const seed = Math.floor(Math.random() * 1000000);
-        const apiKey = 'sk_mEWxPjZizTEUPa1FsEFasSWkowb0Yzlt';
         const keyParam = `&key=${apiKey}`;
         const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true${keyParam}`;
         return { imageUrl, info: "Image generated successfully. Embed this URL in markdown." };

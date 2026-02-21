@@ -1,16 +1,26 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download } from 'lucide-react';
+import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download, Terminal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
-import { useState, useRef, useEffect } from 'react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface MessageBubbleProps {
     message: {
         id: string;
-        role: 'user' | 'model';
+        role: 'user' | 'model' | 'tool';
         content: string;
     };
     isLast?: boolean;
@@ -56,40 +66,49 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.4, type: 'spring', bounce: 0.3 }}
             className={cn(
-                "flex w-full mb-6",
+                "flex w-full mb-6 group/message",
                 isUser ? "justify-end" : "justify-start"
             )}
         >
             <div className={cn(
-                "flex max-w-[85%] md:max-w-[75%] gap-4 group",
+                "flex max-w-[90%] md:max-w-[80%] gap-4",
                 isUser ? "flex-row-reverse" : "flex-row"
             )}>
                 {/* Avatar */}
-                <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg mt-1",
-                    isUser ? "bg-accent-primary text-white" : "bg-gradient-to-br from-cyan-500 to-blue-600 text-white"
+                <Avatar className={cn(
+                    "h-8 w-8 mt-1 shadow-lg ring-2 ring-white/10",
+                    isUser ? "ring-accent" : "ring-purple-500/50"
                 )}>
-                    {isUser ? <User size={16} /> : <Bot size={18} />}
-                </div>
+                    <AvatarFallback className={cn(
+                        "text-xs font-bold",
+                        isUser ? "bg-accent text-white" : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
+                    )}>
+                        {isUser ? <User size={14} /> : <Bot size={16} />}
+                    </AvatarFallback>
+                </Avatar>
 
                 {/* Bubble Container */}
-                <div className={cn("flex flex-col gap-1 min-w-0", isUser ? "items-end" : "items-start")}>
-                    <div className={cn("flex items-end gap-2 group/bubble", isUser ? "flex-row-reverse" : "flex-row")}>
+                <div className={cn("flex flex-col gap-1 min-w-0 max-w-full", isUser ? "items-end" : "items-start")}>
 
+                    {/* Role Label */}
+                    <span className="text-[10px] text-muted-foreground ml-1 uppercase tracking-wider font-semibold opacity-0 group-hover/message:opacity-100 transition-opacity">
+                        {isUser ? "You" : "NextGen AI"}
+                    </span>
 
+                    <div className={cn(
+                        "relative overflow-hidden transition-all duration-300",
+                        isUser
+                            ? "rounded-2xl rounded-tr-sm bg-accent text-white shadow-[0_0_15px_-3px_var(--accent)]"
+                            : "rounded-2xl rounded-tl-sm bg-[#1a1a1a]/80 backdrop-blur-md border border-white/10 text-gray-100 shadow-xl",
+                        isEditing ? "w-full min-w-[300px]" : "min-w-[60px]"
+                    )}>
 
-                        <div className={cn(
-                            "p-4 rounded-2xl shadow-md min-w-[60px] relative overflow-hidden",
-                            isUser
-                                ? "bg-accent-primary text-white rounded-tr-sm"
-                                : "glass-panel text-gray-100 rounded-tl-sm border-white/10 bg-white/5",
-                            isEditing ? "w-full min-w-[300px]" : ""
-                        )}>
-                            {/* Shimmer Effect for User */}
-                            {isUser && !isEditing && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
-                            )}
+                        {/* Shimmer Effect for User */}
+                        {isUser && !isEditing && (
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] animate-[shimmer_3s_infinite]" />
+                        )}
 
+                        <div className="p-4">
                             {isEditing ? (
                                 <div className="flex flex-col gap-2 w-full">
                                     <textarea
@@ -100,101 +119,53 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                                             e.target.style.height = 'auto';
                                             e.target.style.height = e.target.scrollHeight + 'px';
                                         }}
-                                        className="w-full bg-black/20 text-white p-2 rounded-md outline-none resize-none min-h-[60px]"
+                                        className="w-full bg-black/20 text-white p-3 rounded-xl outline-none resize-none min-h-[80px] text-sm leading-relaxed"
                                     />
                                     <div className="flex justify-end gap-2">
-                                        <button onClick={handleCancelEdit} className="p-1 hover:bg-white/10 rounded text-gray-300 hover:text-white">
-                                            <X size={16} />
-                                        </button>
-                                        <button onClick={handleSaveEdit} className="p-1 hover:bg-green-500/20 rounded text-green-400 hover:text-green-300">
-                                            <Send size={16} />
-                                        </button>
+                                        <Button size="sm" variant="ghost" onClick={handleCancelEdit} className="h-8 w-8 p-0">
+                                            <X size={14} />
+                                        </Button>
+                                        <Button size="sm" variant="default" onClick={handleSaveEdit} className="h-8 gap-2 bg-white/10 hover:bg-white/20">
+                                            <Send size={12} /> Save
+                                        </Button>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="prose prose-invert prose-sm max-w-none leading-relaxed break-words">
+                                <div className={cn("prose prose-invert prose-sm max-w-none leading-relaxed break-words safe-html")}>
                                     <ReactMarkdown
-                                        urlTransform={(value) => value}
                                         components={{
-                                            img: ({ node, ...props }) => {
-                                                if (!props.src) return null;
-                                                const [error, setError] = useState(false);
-                                                const [isDownloading, setIsDownloading] = useState(false);
-                                                const [isLoading, setIsLoading] = useState(true);
-
-                                                const handleDownload = async (e: React.MouseEvent) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    if (!props.src) return;
-
-                                                    try {
-                                                        setIsDownloading(true);
-                                                        const response = await fetch(String(props.src));
-                                                        const blob = await response.blob();
-                                                        const url = window.URL.createObjectURL(blob);
-                                                        const a = document.createElement('a');
-                                                        a.href = url;
-                                                        a.download = `generated-image-${Date.now()}.jpg`;
-                                                        document.body.appendChild(a);
-                                                        a.click();
-                                                        window.URL.revokeObjectURL(url);
-                                                        document.body.removeChild(a);
-                                                    } catch (err) {
-                                                        console.error("Failed to download image:", err);
-                                                    } finally {
-                                                        setIsDownloading(false);
-                                                    }
-                                                };
-
-                                                if (error) {
-                                                    return (
-                                                        <span className="p-4 rounded-xl border border-white/10 bg-white/5 text-gray-400 text-sm flex items-center gap-2 w-full">
-                                                            <X size={16} />
-                                                            <span>Failed to load image. content may have expired.</span>
-                                                        </span>
-                                                    );
-                                                }
-
-                                                return (
-                                                    <span className="relative group inline-block max-w-full min-h-[100px] min-w-[200px]">
-                                                        {isLoading && (
-                                                            <span className="absolute inset-0 flex items-center justify-center bg-white/5 rounded-xl border border-white/10">
-                                                                <span className="flex flex-col items-center gap-2">
-                                                                    <span className="w-6 h-6 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
-                                                                    <span className="text-xs text-gray-400">Generating...</span>
-                                                                </span>
-                                                            </span>
-                                                        )}
-                                                        <img
-                                                            {...props}
-                                                            className={cn(
-                                                                "rounded-xl max-w-full !max-h-[300px] w-auto my-2 border border-white/10 object-contain block transition-opacity duration-300",
-                                                                isLoading ? "opacity-0" : "opacity-100"
-                                                            )}
-                                                            style={{ maxHeight: '300px', width: 'auto' }}
-                                                            onLoad={() => setIsLoading(false)}
-                                                            onError={() => {
-                                                                setIsLoading(false);
-                                                                setError(true);
-                                                            }}
-                                                        />
-                                                        {!isLoading && (
+                                            code({ node, inline, className, children, ...props }: any) {
+                                                const match = /language-(\w+)/.exec(className || '');
+                                                return !inline && match ? (
+                                                    <div className="relative group/code my-4 rounded-lg overflow-hidden border border-white/10 shadow-2xl bg-[#1e1e1e]">
+                                                        <div className="flex items-center justify-between px-4 py-1.5 bg-white/5 border-b border-white/5">
+                                                            <div className="flex items-center gap-2">
+                                                                <Terminal size={12} className="text-muted-foreground" />
+                                                                <span className="text-xs text-muted-foreground font-mono">{match[1]}</span>
+                                                            </div>
                                                             <button
-                                                                onClick={handleDownload}
-                                                                disabled={isDownloading}
-                                                                className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
-                                                                title="Download Image"
+                                                                onClick={() => navigator.clipboard.writeText(String(children))}
+                                                                className="text-xs text-muted-foreground hover:text-white flex items-center gap-1 transition-colors"
                                                             >
-                                                                {isDownloading ? (
-                                                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                                ) : (
-                                                                    <Download size={16} />
-                                                                )}
+                                                                <Copy size={12} /> Copy
                                                             </button>
-                                                        )}
-                                                    </span>
-                                                );
-                                            }
+                                                        </div>
+                                                        <SyntaxHighlighter
+                                                            style={vscDarkPlus}
+                                                            language={match[1]}
+                                                            PreTag="div"
+                                                            customStyle={{ margin: 0, padding: '1.5rem', background: 'transparent' }}
+                                                            {...props}
+                                                        >
+                                                            {String(children).replace(/\n$/, '')}
+                                                        </SyntaxHighlighter>
+                                                    </div>
+                                                ) : (
+                                                    <code className={cn("bg-white/10 text-pink-300 px-1.5 py-0.5 rounded-md font-mono text-xs", className)} {...props}>
+                                                        {children}
+                                                    </code>
+                                                )
+                                            },
                                         }}
                                     >
                                         {message.content}
@@ -204,44 +175,29 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                         </div>
                     </div>
 
-                    {/* Actions (Model and User) */}
+                    {/* Actions Row */}
                     <div
                         className={cn(
-                            "flex items-center gap-2 mt-1 px-1 select-none",
+                            "flex items-center gap-1 px-1 opacity-0 group-hover/message:opacity-100 transition-opacity duration-200",
                             isUser ? "justify-end" : "justify-start"
                         )}
                     >
                         {!isUser && (
                             <>
-                                <button className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors" title="Helpful">
-                                    <ThumbsUp size={14} />
-                                </button>
-                                <button className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors" title="Not Helpful">
-                                    <ThumbsDown size={14} />
-                                </button>
+                                <ActionBtn icon={ThumbsUp} label="Helpful" />
+                                <ActionBtn icon={ThumbsDown} label="Not Helpful" />
                             </>
                         )}
-
-                        {/* Copy Button (Both) */}
                         {!isEditing && (
-                            <button
+                            <ActionBtn
+                                icon={isCopied ? Check : Copy}
+                                label={isCopied ? "Copied!" : "Copy"}
                                 onClick={handleCopy}
-                                className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors"
-                                title="Copy"
-                            >
-                                {isCopied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-                            </button>
+                                active={isCopied}
+                            />
                         )}
-
-                        {/* Edit Button (User Only) */}
                         {isUser && !isEditing && (
-                            <button
-                                onClick={() => setIsEditing(true)}
-                                className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors"
-                                title="Edit"
-                            >
-                                <Pencil size={14} />
-                            </button>
+                            <ActionBtn icon={Pencil} label="Edit" onClick={() => setIsEditing(true)} />
                         )}
                     </div>
                 </div>
@@ -249,3 +205,22 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
         </motion.div>
     );
 }
+
+const ActionBtn = ({ icon: Icon, label, onClick, active }: any) => (
+    <TooltipProvider>
+        <Tooltip delayDuration={300}>
+            <TooltipTrigger asChild>
+                <button
+                    onClick={onClick}
+                    className={cn(
+                        "p-1.5 rounded-lg text-muted-foreground hover:text-white hover:bg-white/10 transition-all",
+                        active && "text-green-400 hover:text-green-300"
+                    )}
+                >
+                    <Icon size={14} />
+                </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="text-[10px]">{label}</TooltipContent>
+        </Tooltip>
+    </TooltipProvider>
+);

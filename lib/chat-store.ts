@@ -13,8 +13,8 @@ export interface Conversation {
 
 export interface Message {
     id: string;
-    conversation_id: string;
-    role: 'user' | 'model';
+    chat_id: string;
+    role: 'user' | 'model' | 'tool';
     content: string;
     created_at: string;
 }
@@ -50,10 +50,9 @@ export const chatStore = {
                     });
             }
 
-            console.log('Fetching conversations safely...'); // Debug log
             const { data, error } = await supabase
-                .from('conversations')
-                .select('id, user_id, title, created_at') // Explicitly select columns to avoid "column does not exist" error
+                .from('chats')
+                .select('id, user_id, title, created_at, is_pinned, is_archived') // Explicitly select columns to avoid "column does not exist" error
                 .eq('user_id', user.id)
                 .is('is_archived', false) // Enabled
                 .order('is_pinned', { ascending: false }) // Enabled
@@ -94,9 +93,9 @@ export const chatStore = {
             }
 
             const { data, error } = await supabase
-                .from('conversations')
+                .from('chats')
                 .insert([{ user_id: user.id, title }])
-                .select('id, user_id, title, created_at')
+                .select('id, user_id, title, created_at, is_pinned, is_archived')
                 .single();
 
             if (error) throw error;
@@ -118,7 +117,7 @@ export const chatStore = {
             const { data, error } = await supabase
                 .from('messages')
                 .select('*')
-                .eq('conversation_id', conversationId)
+                .eq('chat_id', conversationId)
                 .order('created_at', { ascending: true });
 
             if (error) throw error;
@@ -135,7 +134,7 @@ export const chatStore = {
         if (isGuest(conversationId)) {
             const newMsg: Message = {
                 id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                conversation_id: conversationId,
+                chat_id: conversationId,
                 role,
                 content,
                 created_at: new Date().toISOString()
@@ -152,7 +151,7 @@ export const chatStore = {
         try {
             const { data, error } = await supabase
                 .from('messages')
-                .insert([{ conversation_id: conversationId, role, content }])
+                .insert([{ chat_id: conversationId, role, content }])
                 .select()
                 .single();
 
