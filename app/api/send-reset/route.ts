@@ -19,6 +19,11 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !RESEND_API_KEY) {
 
 export async function POST(req: NextRequest) {
     try {
+        if (!RESEND_API_KEY) {
+            console.error('RESEND_API_KEY is missing. Cannot send email.');
+            return NextResponse.json({ error: 'Email service is unavailable' }, { status: 500 });
+        }
+
         const resend = new Resend(RESEND_API_KEY);
 
         const body = await req.json();

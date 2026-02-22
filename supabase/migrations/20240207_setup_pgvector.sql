@@ -13,7 +13,8 @@ create table documents (
 create or replace function match_documents (
   query_embedding vector(768),
   match_threshold float,
-  match_count int
+  match_count int,
+  filter_conversation_id text default null
 )
 returns table (
   id bigint,
@@ -31,7 +32,8 @@ begin
     documents.metadata,
     1 - (documents.embedding <=> query_embedding) as similarity
   from documents
-  where 1 - (documents.embedding <=> query_embedding) > match_threshold
+  where (1 - (documents.embedding <=> query_embedding) > match_threshold)
+    and (filter_conversation_id is null or (documents.metadata->>'conversationId') = filter_conversation_id)
   order by documents.embedding <=> query_embedding
   limit match_count;
 end;

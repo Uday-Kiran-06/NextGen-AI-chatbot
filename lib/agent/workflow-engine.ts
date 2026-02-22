@@ -1,5 +1,5 @@
 import { toolRegistry } from './registry';
-import { model } from '@/lib/gemini';
+import { getDynamicModel } from '@/lib/gemini';
 
 interface AgentResponse {
     type: 'text' | 'tool_call' | 'error';
@@ -8,10 +8,11 @@ interface AgentResponse {
     toolArgs?: any;
 }
 
-export async function runAgentWorkflow(history: any[], message: string, images: any[] = []) {
-    // 1. Prepare Context (High-Performance Context Pruning could go here)
-    // For now, we take the last 10 messages for speed
-    let recentHistory = history.slice(-10).map(msg => ({
+export async function runAgentWorkflow(history: any[], message: string, images: any[] = [], persona?: string, modelId?: string) {
+    // 1. Prepare Context (High-Performance Context Pruning)
+    // Take a larger slice but filter for relevance or alternating structure.
+    // For now, take last 14 messages, but make sure we maintain conversation flow
+    let recentHistory = history.slice(-14).map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.content }],
     }));
@@ -21,6 +22,20 @@ export async function runAgentWorkflow(history: any[], message: string, images: 
         recentHistory.shift();
     }
 
+    // Gemini API Requirement: Roles must alternate (user -> model -> user)
+    // We filter out consecutive duplicate roles by combining their text
+    const cleanHistory: any[] = [];
+    for (const msg of recentHistory) {
+        if (cleanHistory.length === 0 || cleanHistory[cleanHistory.length - 1].role !== msg.role) {
+            cleanHistory.push(msg);
+        } else {
+            // Append text to the previous message of the same role
+            cleanHistory[cleanHistory.length - 1].parts[0].text += `\n\n${msg.parts[0].text}`;
+        }
+    }
+    recentHistory = cleanHistory;
+
+
     // Convert images to Gemini format
     const imageParts = images.map(img => ({
         inlineData: {
@@ -29,7 +44,8 @@ export async function runAgentWorkflow(history: any[], message: string, images: 
         }
     }));
 
-    const chat = model.startChat({
+    const dynamicModel = getDynamicModel(modelId || 'gemini-1.5-flash');
+    const chat = dynamicModel.startChat({
         history: recentHistory,
         generationConfig: {
             maxOutputTokens: 1000,
@@ -37,30 +53,23 @@ export async function runAgentWorkflow(history: any[], message: string, images: 
     });
 
     // 2. Initial Prompt with Tool Instructions
-    // In a real high-performance setup, we would fine-tune or use specific tool-use models.
-    // Here we use a system-prompt injection technique for standard Gemini Pro.
     const toolsPrompt = `
-You are an advanced AI assistant with access to the following tools:
+You are an advanced AI assistant with access to tools. 
+
+If you need to use a tool, you MUST respond ONLY with a JSON object. Do not include any other text BEFORE or AFTER the JSON.
+Format: { "tool": "tool_name", "args": { ... } }
+
+Available Tools:
 ${Object.values(toolRegistry).map(t => `- ${t.name}: ${t.description}`).join('\n')}
 
-If you need to use a tool, respond ONLY with a JSON object in this format:
-{ "tool": "tool_name", "args": { ... } }
+- If no tool is needed, respond with a direct text answer.
+- If search_knowledge returns nothing, use your general knowledge but mention the search was empty.
+- Always use Markdown lists (\`- \` or \`1. \`) for structured info.
 
-If no tool is needed, simply respond with the text answer.
-
-IMPORTANT: If you use the 'generate_image' or 'search_images' tool, you MUST include the returned 'imageUrl' (or 'images' array) in your final response using Markdown image syntax: ![Generated Image](imageUrl) or for search results: ![Image 1](url1) ![Image 2](url2).
-
-NOTE: If the user asks for an image of a **specific real person, celebrity, or public figure** (e.g., "Virat Kohli", "Elon Musk"), expected behaviour is to FIND existing photos using the 'search_images' tool. The image generation model will likely refuse to generate real people due to safety filters. Only use 'generate_image' if the user explicitly asks for "art", a "painting", or a "drawing" of the person, or if the subject is fictional/generic.
-
-CRITICAL FALLBACK: If a tool returns "no results", "not found", or fails, OR if you believe you already know the answer from your general knowledge training:
-1. You MAY answer the user directly without using more tools.
-2. If the internal knowledge base (search_knowledge) has no info, state that briefly (e.g., "I couldn't find specific internal documents...") and then provide your best general answer. Do NOT stop at "I couldn't find information".
-3. If the user's query has a typo or is slightly different from a known entity (e.g., "Andhra Loyola Institute Of Engineering Technology" vs "Andhra Loyola Institute of Engineering and Technology"), ASSUME they meant the known entity and answer for it.
-4. **NEVER** ask the user for clarification if you have a reasonable guess. Just answer.
+${persona ? `\n--- PERSONA ---\n${persona}\n---------------` : ''}
 `;
 
     // 3. Send Message
-    // Combine text prompt and images
     const messageParts = [
         { text: toolsPrompt + "\nUser: " + message },
         ...imageParts
@@ -69,39 +78,34 @@ CRITICAL FALLBACK: If a tool returns "no results", "not found", or fails, OR if 
     const result = await chat.sendMessage(messageParts);
     const responseText = result.response.text();
 
-    // 4. Parse for Tool Calls
+    // 4. Robust JSON Parsing (Handles Markdown blocks, preamble, and noise)
     try {
-        const firstOpenBrace = responseText.indexOf('{');
-        if (firstOpenBrace !== -1) {
-            // Backtracking approach: Find the last '}', matches valid JSON against JSON.parse
-            // This handles nested objects and strings better than a simple counter.
-            let lastCloseBrace = responseText.lastIndexOf('}');
+        // Find the first opening brace and the last closing brace to extract the JSON object
+        const firstBrace = responseText.indexOf('{');
+        const lastBrace = responseText.lastIndexOf('}');
 
-            while (lastCloseBrace > firstOpenBrace) {
-                const potentialJsonString = responseText.substring(firstOpenBrace, lastCloseBrace + 1);
-                try {
-                    const potentialJson = JSON.parse(potentialJsonString);
-                    if (potentialJson.tool && toolRegistry[potentialJson.tool]) {
-                        return {
-                            type: 'tool_call',
-                            toolName: potentialJson.tool,
-                            toolArgs: potentialJson.args
-                        };
-                    }
-                    // If parse succeeds but no tool, it's valid JSON but not a tool call? 
-                    // We should probably stop here or continue? 
-                    // If it's valid JSON, it's likely the intended output.
-                    return { type: 'text', content: responseText }; // Fallback
-                } catch (jsonError) {
-                    // JSON parse failed, meaning the substring includes extra garbage or is incomplete.
-                    // Try the previous closing brace.
-                    lastCloseBrace = responseText.lastIndexOf('}', lastCloseBrace - 1);
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            const potentialJsonStr = responseText.substring(firstBrace, lastBrace + 1);
+            const parsed = JSON.parse(potentialJsonStr);
+
+            if (parsed.tool && typeof parsed.tool === 'string') {
+                // Verify the tool actually exists in the registry to prevent hallucinated tools
+                if (toolRegistry[parsed.tool]) {
+                    return {
+                        type: 'tool_call',
+                        toolName: parsed.tool,
+                        toolArgs: parsed.args || {}
+                    };
+                } else {
+                    console.warn(`[Agent] Hallucinated tool call detected: ${parsed.tool}`);
                 }
             }
         }
     } catch (e) {
-        // Not valid JSON, treat as text
+        console.warn(`[Agent] Failed to parse potential tool call: ${e}`);
+        // Fall through to text if parsing fails (it might just be a normal text response with a brace in it)
     }
+
 
     return { type: 'text', content: responseText };
 }

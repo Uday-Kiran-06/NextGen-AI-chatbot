@@ -7,16 +7,39 @@ if (!apiKey) {
     console.error("Missing GEMINI_API_KEY in environment variables");
 }
 
-const genAI = new GoogleGenerativeAI(apiKey || '');
+export const genAI = new GoogleGenerativeAI(apiKey || '');
 
-export const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
-    generationConfig: {
-        maxOutputTokens: 2048,
-        temperature: 0.7,
-    }
-});
+// Default fallback model
+export const model = genAI.getGenerativeModel(
+    { model: 'gemini-1.5-flash-latest' },
+    { apiVersion: 'v1' }
+);
 
-export const visionModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+// Dynamic builder based on requested ID
+export const getDynamicModel = (modelId: string) => {
+    // Standardize model IDs if necessary
+    let id = modelId || 'gemini-1.5-flash-latest';
+    if (id === 'gemini-1.5-flash') id = 'gemini-1.5-flash-latest';
+    if (id === 'gemini-1.5-pro') id = 'gemini-1.5-pro-latest';
 
-export const embeddingModel = genAI.getGenerativeModel({ model: 'text-embedding-004' });
+    return genAI.getGenerativeModel(
+        {
+            model: id,
+            generationConfig: {
+                maxOutputTokens: 2048,
+                temperature: 0.7,
+            }
+        },
+        { apiVersion: 'v1' }
+    );
+};
+
+export const visionModel = genAI.getGenerativeModel(
+    { model: 'gemini-1.5-flash-latest' },
+    { apiVersion: 'v1' }
+);
+
+export const embeddingModel = genAI.getGenerativeModel(
+    { model: 'text-embedding-004' },
+    { apiVersion: 'v1' }
+);

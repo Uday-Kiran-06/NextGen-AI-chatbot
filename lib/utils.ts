@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getFriendlyErrorMessage(error: any): string {
     const msg = error?.message || String(error);
-    
+
     if (msg.includes('503')) {
         return "I'm receiving a lot of messages right now. Please give me a moment to catch up!";
     } else if (msg.includes('429')) {
@@ -19,6 +19,17 @@ export function getFriendlyErrorMessage(error: any): string {
     } else if (msg.includes('Failed to fetch') || msg.includes('Network request failed')) {
         return "I can't seem to reach the internet. Please check your connection.";
     }
-    
+
+
     return 'Something went wrong. Please try again later.';
+}
+
+export function vibrate(pattern: number | number[] = 10) {
+    if (typeof window !== 'undefined' && navigator.vibrate) {
+        try {
+            navigator.vibrate(pattern);
+        } catch (e) {
+            // Ignore vibration errors
+        }
+    }
 }

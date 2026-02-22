@@ -8,10 +8,11 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                background: "var(--background)",
-                foreground: "var(--foreground)",
+                background: "rgb(var(--background) / <alpha-value>)",
+                foreground: "rgb(var(--foreground) / <alpha-value>)",
                 "accent-primary": "var(--accent-primary)",
                 "accent-secondary": "var(--accent-secondary)",
+
                 "glass-bg": "var(--glass-bg)",
                 "glass-border": "var(--glass-border)",
             },

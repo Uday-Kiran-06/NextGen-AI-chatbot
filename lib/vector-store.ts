@@ -29,7 +29,7 @@ export async function embedText(text: string): Promise<number[]> {
  */
 export async function addDocument(content: string, metadata: Record<string, any> = {}): Promise<Document | null> {
     try {
-        const supabase = await createAdminClient();
+        const supabase = createAdminClient();
         const embedding = await embedText(content);
 
         const { data, error } = await supabase
@@ -58,16 +58,17 @@ export async function addDocument(content: string, metadata: Record<string, any>
  * Searches for documents similar to the query string.
  * Uses the 'match_documents' RPC function in Supabase.
  */
-export async function searchDocuments(query: string, matchCount: number = 5): Promise<Document[]> {
+export async function searchDocuments(query: string, matchCount: number = 5, conversationId?: string): Promise<Document[]> {
     try {
-        const supabase = await createAdminClient();
+        const supabase = createAdminClient();
         const queryEmbedding = await embedText(query);
 
         // RPC call might need explicit casting in some setups, but usually fine
         const { data: documents, error } = await supabase.rpc('match_documents', {
             query_embedding: queryEmbedding,
             match_threshold: 0.5, // Adjust threshold as needed
-            match_count: matchCount
+            match_count: matchCount,
+            filter_conversation_id: conversationId
         });
 
         if (error) {

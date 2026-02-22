@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import Sidebar from '@/components/Sidebar/Sidebar';
 import ChatInterface from '@/components/Chat/ChatInterface';
-import { AuroraBackground } from '@/components/UI/AuroraBackground';
 
 export default function Home() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
@@ -16,22 +15,21 @@ export default function Home() {
   };
 
   return (
-    <AuroraBackground>
-      <div className="flex h-[100dvh] w-full gap-4 p-0 md:p-4 relative z-10 overflow-hidden">
-        <Sidebar
-          activeId={activeConversationId}
-          onSelectChat={setActiveConversationId}
-          onNewChat={() => setActiveConversationId(null)}
-          refreshKey={sidebarRefreshKey}
-          isOpen={isMobileSidebarOpen}
-          onClose={() => setIsMobileSidebarOpen(false)}
-        />
-        <ChatInterface
-          conversationId={activeConversationId}
-          onConversationCreated={handleConversationCreated}
-          onOpenSidebar={() => setIsMobileSidebarOpen(true)}
-        />
-      </div>
-    </AuroraBackground>
+    <div className="flex h-[100dvh] w-full gap-4 p-0 md:p-4 bg-background relative z-10 overflow-hidden">
+      <Sidebar
+        activeId={activeConversationId}
+        onSelectChat={setActiveConversationId}
+        onNewChat={() => setActiveConversationId(null)}
+        refreshKey={sidebarRefreshKey}
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
+      />
+      <ChatInterface
+        conversationId={activeConversationId}
+        onConversationCreated={handleConversationCreated}
+        onOpenSidebar={() => setIsMobileSidebarOpen(true)}
+        onNewChat={() => setActiveConversationId(null)}
+      />
+    </div>
   );
 }

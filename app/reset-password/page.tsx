@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { Sparkles, Lock, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { AuroraBackground } from '@/components/UI/AuroraBackground';
 
 export default function ResetPasswordPage() {
     const [password, setPassword] = useState('');
@@ -46,7 +45,7 @@ export default function ResetPasswordPage() {
     };
 
     return (
-        <AuroraBackground>
+        <div className="bg-background">
             <div className="flex min-h-screen items-center justify-center p-4 relative z-10">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -128,6 +127,6 @@ export default function ResetPasswordPage() {
                     </form>
                 </motion.div>
             </div>
-        </AuroraBackground>
+        </div>
     );
 }

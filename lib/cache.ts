@@ -12,6 +12,9 @@ export class Cache {
     }
 
     static set(key: string, value: any, ttlSeconds: number = 60) {
+        if (this.store.size > 100) {
+            this.cleanup();
+        }
         this.store.set(key, {
             value,
             expiry: Date.now() + ttlSeconds * 1000

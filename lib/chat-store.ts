@@ -24,7 +24,7 @@ const isGuest = (id: string) => id.startsWith('guest-');
 
 // In-Memory Storage for Guest Session
 let guestConversations: Conversation[] = [];
-let guestMessages: Record<string, Message[]> = {};
+const guestMessages: Record<string, Message[]> = {};
 
 export const chatStore = {
     // Fetch all conversations

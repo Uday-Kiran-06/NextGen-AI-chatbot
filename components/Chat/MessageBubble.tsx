@@ -2,10 +2,71 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download, Volume2, RefreshCw, Sparkles } from 'lucide-react';
+import { cn, vibrate } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { useState, useRef, useEffect } from 'react';
+import MermaidDiagram from './MermaidDiagram';
+import { toast } from 'sonner';
+import ImageViewer from './ImageViewer';
+
+const CodeBlock = ({ inline, className, children, onOpenArtifact, ...props }: any) => {
+    const match = /language-(\w+)/.exec(className || '');
+    const language = match ? match[1] : '';
+    const codeString = String(children).replace(/\n$/, '');
+    const [isCopied, setIsCopied] = useState(false);
+
+    const PREVIEW_LANGS = ['html', 'css', 'javascript', 'js', 'jsx', 'typescript', 'ts', 'tsx', 'svg'];
+    const showPreview = !inline && PREVIEW_LANGS.includes(language.toLowerCase());
+
+    if (!inline && language === 'mermaid') {
+        return <MermaidDiagram code={codeString} />;
+    }
+
+    if (!inline && match) {
+        return (
+            <div className="relative rounded-lg overflow-hidden my-4 bg-gray-900 border border-gray-800 shadow-xl group/code">
+                <div className="flex items-center justify-between px-4 py-1.5 bg-gray-950/80 border-b border-gray-800">
+                    <div className="flex items-center gap-3">
+                        <span className="text-xs font-mono text-gray-400 capitalize">{language}</span>
+                        {showPreview && (
+                            <button
+                                onClick={() => onOpenArtifact?.(codeString, language)}
+                                className="flex items-center gap-1.5 text-[10px] font-bold text-accent-primary hover:text-accent-secondary transition-colors px-2 py-0.5 rounded bg-accent-primary/5 border border-accent-primary/20"
+                            >
+                                <Bot size={12} /> Open Preview
+                            </button>
+                        )}
+                    </div>
+                    <button
+                        onClick={() => {
+                            navigator.clipboard.writeText(codeString);
+                            setIsCopied(true);
+                            vibrate(10);
+                            toast.success('Code copied to clipboard');
+                            setTimeout(() => setIsCopied(false), 2000);
+                        }}
+                        className="text-gray-400 hover:text-white transition-colors p-1 rounded-md hover:bg-white/10"
+                        title="Copy code"
+                        aria-label="Copy code block"
+                    >
+                        {isCopied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                    </button>
+                </div>
+                <div className="p-4 overflow-x-auto bg-gray-100 dark:bg-[#0d1117] text-sm text-gray-800 dark:text-gray-300 font-mono leading-relaxed" style={{ scrollbarWidth: 'thin', scrollbarColor: '#30363d transparent' }}>
+                    <code className={className} {...props}>
+                        {children}
+                    </code>
+                </div>
+            </div>
+        );
+    }
+    return (
+        <code className={cn("bg-black/10 dark:bg-white/10 rounded px-1.5 py-0.5 text-[0.9em] font-mono text-accent-secondary", className)} {...props}>
+            {children}
+        </code>
+    );
+};
 
 interface MessageBubbleProps {
     message: {
@@ -15,13 +76,16 @@ interface MessageBubbleProps {
     };
     isLast?: boolean;
     onEdit?: (id: string, newContent: string) => void;
+    onRegenerate?: () => void;
+    onOpenArtifact?: (code: string, lang: string) => void;
 }
 
-export default function MessageBubble({ message, isLast, onEdit }: MessageBubbleProps) {
+const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpenArtifact }: MessageBubbleProps) => {
     const isUser = message.role === 'user';
     const [isCopied, setIsCopied] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState(message.content);
+    const [isPlaying, setIsPlaying] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -32,10 +96,32 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
         }
     }, [isEditing]);
 
+    useEffect(() => {
+        return () => {
+            if (isPlaying) window.speechSynthesis.cancel();
+        };
+    }, [isPlaying]);
+
     const handleCopy = async () => {
         await navigator.clipboard.writeText(message.content);
         setIsCopied(true);
+        vibrate(10);
         setTimeout(() => setIsCopied(false), 2000);
+    };
+
+    const handleReadAloud = () => {
+        if (!window.speechSynthesis) return;
+
+        if (isPlaying) {
+            window.speechSynthesis.cancel();
+            setIsPlaying(false);
+            return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(message.content);
+        utterance.onend = () => setIsPlaying(false);
+        setIsPlaying(true);
+        window.speechSynthesis.speak(utterance);
     };
 
     const handleSaveEdit = () => {
@@ -52,40 +138,51 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 15, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.4, type: 'spring', bounce: 0.3 }}
+            transition={{
+                duration: 0.5,
+                ease: [0.19, 1, 0.22, 1], // Custom cubic bezier for a more "premium" feel
+                delay: 0.05
+            }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(_, info) => {
+                if (Math.abs(info.offset.x) > 60) {
+                    handleCopy();
+                }
+            }}
             className={cn(
-                "flex w-full mb-6",
+                "flex w-full mb-8 relative touch-pan-y", // Added touch-pan-y for better scroll handling
                 isUser ? "justify-end" : "justify-start"
             )}
         >
             <div className={cn(
-                "flex max-w-[85%] md:max-w-[75%] gap-4 group",
+                "flex max-w-[85%] md:max-w-[85%] gap-4 group w-full",
                 isUser ? "flex-row-reverse" : "flex-row"
             )}>
-                {/* Avatar */}
                 <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg mt-1",
-                    isUser ? "bg-accent-primary text-white" : "bg-gradient-to-br from-cyan-500 to-blue-600 text-white"
+                    isUser ? "bg-accent-primary text-white" : "bg-transparent text-accent-secondary"
                 )}>
-                    {isUser ? <User size={16} /> : <Bot size={18} />}
+                    {isUser ? <User size={16} /> : <Sparkles size={20} />}
                 </div>
 
                 {/* Bubble Container */}
-                <div className={cn("flex flex-col gap-1 min-w-0", isUser ? "items-end" : "items-start")}>
-                    <div className={cn("flex items-end gap-2 group/bubble", isUser ? "flex-row-reverse" : "flex-row")}>
+                <div className={cn("flex flex-col gap-1 min-w-0 flex-1 md:flex-initial", isUser ? "items-end" : "items-start")}>
+                    <div className={cn("flex items-end gap-2 group/bubble w-full", isUser ? "flex-row-reverse" : "flex-row")}>
 
                         <div className={cn(
-                            "p-4 rounded-2xl shadow-md min-w-[60px] relative overflow-hidden",
+                            "relative overflow-hidden w-full",
                             isUser
-                                ? "bg-accent-primary text-white rounded-tr-sm"
-                                : "glass-panel text-gray-100 rounded-tl-sm border-white/10 bg-white/5",
+                                ? "p-4 rounded-2xl shadow-md bg-accent-primary text-white rounded-tr-sm min-w-[60px]"
+                                : "py-2 text-foreground", // Removed bubble styling for AI
                             isEditing ? "w-full min-w-[300px]" : ""
                         )}>
                             {/* Shimmer Effect for User */}
                             {isUser && !isEditing && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] animate-[shimmer_3s_infinite]" />
                             )}
 
                             {isEditing ? (
@@ -98,30 +195,42 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                                             e.target.style.height = 'auto';
                                             e.target.style.height = e.target.scrollHeight + 'px';
                                         }}
-                                        className="w-full bg-black/20 text-white p-2 rounded-md outline-none resize-none min-h-[60px]"
+                                        className="w-full bg-black/5 dark:bg-black/20 text-foreground p-2 rounded-md outline-none resize-none min-h-[60px]"
                                     />
                                     <div className="flex justify-end gap-2">
-                                        <button onClick={handleCancelEdit} className="p-1 hover:bg-white/10 rounded text-gray-300 hover:text-white">
+                                        <button onClick={handleCancelEdit} className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-foreground hover:scale-110 active:scale-95 transition-all">
                                             <X size={16} />
                                         </button>
-                                        <button onClick={handleSaveEdit} className="p-1 hover:bg-green-500/20 rounded text-green-400 hover:text-green-300">
+                                        <button onClick={handleSaveEdit} className="p-1.5 hover:bg-green-500/10 rounded-lg text-green-600 dark:text-green-400 hover:scale-110 active:scale-95 transition-all shadow-sm">
                                             <Send size={16} />
                                         </button>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="prose prose-invert prose-sm max-w-none leading-relaxed break-words">
+                                <div className="prose prose-sm md:prose-[15px] max-w-none break-words 
+                                    text-foreground/90 
+                                    prose-p:leading-7 prose-p:mb-4 last:prose-p:mb-0
+                                    prose-headings:text-foreground prose-headings:font-bold prose-headings:mb-4 prose-headings:mt-6
+                                    prose-strong:font-bold prose-strong:text-foreground
+                                    prose-em:italic prose-em:text-foreground/80
+                                    prose-a:text-accent-primary prose-a:no-underline hover:prose-a:underline
+                                    prose-ul:list-disc prose-ul:pl-6 prose-ul:my-4 prose-ul:marker:text-foreground/60
+                                    prose-ol:list-decimal prose-ol:pl-6 prose-ol:my-4 prose-ol:marker:text-foreground/80 prose-ol:marker:font-bold
+                                    prose-li:my-1 prose-li:leading-7 prose-li:pl-1
+                                    prose-blockquote:border-l-4 prose-blockquote:border-accent-primary prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-foreground/80 prose-blockquote:bg-black/5 dark:prose-blockquote:bg-white/5 prose-blockquote:py-2 prose-blockquote:my-4 prose-blockquote:rounded-r-lg
+                                ">
                                     <ReactMarkdown
                                         urlTransform={(value) => value}
                                         components={{
+                                            code: (props: any) => <CodeBlock {...props} onOpenArtifact={onOpenArtifact} />,
                                             // Custom Paragraph to handle Image Galleries
-                                            p: ({ children }) => {
-                                                // Check if children are mostly images
+                                            p: ({ node, children }) => {
+                                                // Check if children are mostly images using AST node type to survive minification
                                                 const childrenArray = React.Children.toArray(children);
                                                 const imageChildren = childrenArray.filter(
                                                     (child: any) =>
                                                         React.isValidElement(child) &&
-                                                        (child.type === 'img' || (child.type as any)?.name === 'ImageAttachment')
+                                                        (child as any).props?.node?.tagName === 'img'
                                                 );
 
                                                 const hasImages = imageChildren.length > 0;
@@ -132,7 +241,7 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
 
                                                     // Remap children to inject variant prop
                                                     const content = childrenArray.map((child: any) => {
-                                                        if (React.isValidElement(child) && (child.type === 'img' || (child.type as any)?.name === 'ImageAttachment')) {
+                                                        if (React.isValidElement(child) && (child as any).props?.node?.tagName === 'img') {
                                                             return React.cloneElement(child, { variant } as any);
                                                         }
                                                         return child;
@@ -149,11 +258,12 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                                                     // Single image - use div to avoid p > div nesting issue
                                                     return <div className="mb-2 last:mb-0 w-full">{content}</div>;
                                                 }
-                                                return <p className="mb-2 last:mb-0">{children}</p>;
+                                                // Return a div instead of p to avoid any hydration errors if nested divs sneak in
+                                                return <div className="mb-4 last:mb-0 leading-7">{children}</div>;
                                             },
 
-                                            img: ({ node, ...props }) => {
-                                                return <ImageAttachment src={(props.src as string) || ''} alt={(props.alt as string) || ''} />;
+                                            img: ({ node, ...props }: any) => {
+                                                return <ImageAttachment src={props.src || ''} alt={props.alt || ''} variant={props.variant || 'single'} />;
                                             }
                                         }}
                                     >
@@ -167,16 +277,25 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                     {/* Actions (Model and User) */}
                     <div
                         className={cn(
-                            "flex items-center gap-2 mt-1 px-1 select-none",
+                            "flex items-center gap-2 mt-1 px-1 select-none transition-opacity duration-200",
+                            "opacity-100 md:opacity-0 md:group-hover:opacity-100", // Persistent on mobile, hover on desktop
                             isUser ? "justify-end" : "justify-start"
                         )}
                     >
                         {!isUser && (
                             <>
-                                <button className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors" title="Helpful">
+                                <button onClick={handleReadAloud} className={cn("p-1.5 hover:bg-glass-shimmer rounded-lg hover:scale-110 active:scale-95 transition-all duration-200", isPlaying ? "text-accent-primary" : "text-gray-500 dark:text-gray-300 hover:text-accent-primary")} title="Read Aloud" aria-label="Read message aloud">
+                                    <Volume2 size={14} />
+                                </button>
+                                {isLast && onRegenerate && (
+                                    <button onClick={onRegenerate} className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:scale-110 active:scale-95 transition-all duration-200" title="Regenerate" aria-label="Regenerate message">
+                                        <RefreshCw size={14} />
+                                    </button>
+                                )}
+                                <button className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:scale-110 active:scale-95 transition-all duration-200" title="Helpful" aria-label="Rate message as helpful">
                                     <ThumbsUp size={14} />
                                 </button>
-                                <button className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors" title="Not Helpful">
+                                <button className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:scale-110 active:scale-95 transition-all duration-200" title="Not Helpful" aria-label="Rate message as not helpful">
                                     <ThumbsDown size={14} />
                                 </button>
                             </>
@@ -186,10 +305,11 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                         {!isEditing && (
                             <button
                                 onClick={handleCopy}
-                                className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors"
+                                className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:scale-110 active:scale-95 transition-all duration-200"
                                 title="Copy"
+                                aria-label="Copy message text"
                             >
-                                {isCopied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                                {isCopied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
                             </button>
                         )}
 
@@ -197,18 +317,21 @@ export default function MessageBubble({ message, isLast, onEdit }: MessageBubble
                         {isUser && !isEditing && (
                             <button
                                 onClick={() => setIsEditing(true)}
-                                className="p-1.5 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-colors"
+                                className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:scale-110 active:scale-95 transition-all duration-200"
                                 title="Edit"
+                                aria-label="Edit your message"
                             >
                                 <Pencil size={14} />
                             </button>
                         )}
                     </div>
                 </div>
-            </div >
+            </div>
         </motion.div >
     );
-}
+});
+
+MessageBubble.displayName = 'MessageBubble';
 
 function ImageAttachment({ src, alt, variant = 'single' }: { src: string, alt: string, variant?: 'single' | 'grid' }) {
     const [error, setError] = useState(false);
@@ -290,39 +413,28 @@ function ImageAttachment({ src, alt, variant = 'single' }: { src: string, alt: s
                 )}
             </span>
 
-            {/* Lightbox Portal */}
-            {isLightboxOpen && (
-                <div
-                    className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
-                    onClick={() => setIsLightboxOpen(false)}
-                >
-                    <button
-                        onClick={() => setIsLightboxOpen(false)}
-                        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-[101]"
-                    >
-                        <X size={24} />
-                    </button>
-
-                    <button
-                        onClick={handleDownload}
-                        className="absolute bottom-8 right-8 flex items-center gap-2 px-4 py-2 bg-accent-primary hover:bg-accent-primary/80 text-white rounded-full transition-colors z-[101]"
-                    >
-                        {isDownloading ? (
-                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        ) : (
-                            <Download size={18} />
-                        )}
-                        <span>Download</span>
-                    </button>
-
-                    <img
-                        src={src}
-                        alt={alt}
-                        className="max-w-full max-h-full object-contain shadow-2xl rounded-sm pointer-events-auto"
-                        onClick={(e) => e.stopPropagation()} // Prevent close when clicking image
-                    />
-                </div>
-            )}
+            {/* Immersive Image Viewer */}
+            <ImageViewer
+                src={src}
+                alt={alt}
+                isOpen={isLightboxOpen}
+                onClose={() => setIsLightboxOpen(false)}
+            />
         </>
     );
 }
+
+export const MessageSkeleton = () => (
+    <div className="flex w-full mb-8 justify-start">
+        <div className="flex max-w-[85%] gap-4 w-full flex-row">
+            <div className="w-8 h-8 rounded-full bg-white/5 animate-skeleton shrink-0 mt-1" />
+            <div className="flex flex-col gap-2 flex-1">
+                <div className="h-4 bg-white/5 rounded-lg w-3/4 animate-skeleton" />
+                <div className="h-4 bg-white/5 rounded-lg w-1/2 animate-skeleton" />
+                <div className="h-4 bg-white/5 rounded-lg w-2/3 animate-skeleton" />
+            </div>
+        </div>
+    </div>
+);
+
+export default MessageBubble;
