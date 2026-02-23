@@ -30,8 +30,9 @@ const QUICK_PROMPTS = [
 ];
 
 const MODELS = [
-    { id: 'gemini-1.5-flash-latest', label: 'Flash', icon: Zap, desc: 'Fast & efficient' },
-    { id: 'gemini-1.5-pro-latest', label: 'Pro', icon: Sparkles, desc: 'Deep reasoning' },
+    { id: 'gemini-2.5-flash', label: 'Flash 2.5', icon: Zap, desc: 'Fast & efficient' },
+    { id: 'gemini-2.5-pro', label: 'Pro 2.5', icon: Sparkles, desc: 'Deep reasoning' },
+    { id: 'gemini-3-flash-preview', label: 'G3 Preview', icon: Sparkles, desc: 'Next-gen frontier model' },
 ];
 
 interface ChatInterfaceProps {
@@ -45,7 +46,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isGenerating, setIsGenerating] = useState(false);
     const [agentAction, setAgentAction] = useState<string | null>(null);
-    const [modelId, setModelId] = useState('gemini-1.5-flash-latest');
+    const [modelId, setModelId] = useState('gemini-2.5-flash');
     const activeModel = MODELS.find(m => m.id === modelId) || MODELS[0];
     const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
