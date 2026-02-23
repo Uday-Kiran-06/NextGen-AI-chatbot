@@ -11,16 +11,16 @@ export const genAI = new GoogleGenerativeAI(apiKey || '');
 
 // Default fallback model
 export const model = genAI.getGenerativeModel(
-    { model: 'gemini-1.5-flash-latest' },
+    { model: 'gemini-1.5-flash' },
     { apiVersion: 'v1' }
 );
 
 // Dynamic builder based on requested ID
 export const getDynamicModel = (modelId: string) => {
     // Standardize model IDs if necessary
-    let id = modelId || 'gemini-1.5-flash-latest';
-    if (id === 'gemini-1.5-flash') id = 'gemini-1.5-flash-latest';
-    if (id === 'gemini-1.5-pro') id = 'gemini-1.5-pro-latest';
+    let id = modelId || 'gemini-1.5-flash';
+    if (id === 'gemini-1.5-flash') id = 'gemini-1.5-flash';
+    if (id === 'gemini-1.5-pro') id = 'gemini-1.5-pro';
 
     return genAI.getGenerativeModel(
         {
@@ -35,7 +35,7 @@ export const getDynamicModel = (modelId: string) => {
 };
 
 export const visionModel = genAI.getGenerativeModel(
-    { model: 'gemini-1.5-flash-latest' },
+    { model: 'gemini-1.5-flash' },
     { apiVersion: 'v1' }
 );
 
