@@ -15,6 +15,9 @@ const config: Config = {
 
                 "glass-bg": "var(--glass-bg)",
                 "glass-border": "var(--glass-border)",
+
+                "sidebar-bg": "var(--sidebar-bg)",
+                "sidebar-hover": "var(--sidebar-hover)",
             },
             animation: {
                 "aurora": "aurora 60s linear infinite",

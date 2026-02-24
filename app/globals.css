@@ -14,6 +14,10 @@
   --glass-shimmer: rgba(255, 255, 255, 0.1);
   --glass-blur: 16px;
 
+  /* Sidebar Tokens */
+  --sidebar-bg: #171717a8;
+  --sidebar-hover: rgba(255, 255, 255, 0.05);
+
   /* Accent Colors - Vibe Driven */
   --accent-primary: #7c3aed;
   /* Violet */
@@ -36,6 +40,8 @@
   --glass-bg: rgba(0, 0, 0, 0.05);
   --glass-border: rgba(0, 0, 0, 0.1);
   --glass-shimmer: rgba(0, 0, 0, 0.15);
+  --sidebar-bg: #c4c3c3;
+  --sidebar-hover: rgba(0, 0, 0, 0.05);
   --accent-primary: #6d28d9;
   --accent-secondary: #be185d;
   --accent-glow: rgba(109, 40, 217, 0.2);

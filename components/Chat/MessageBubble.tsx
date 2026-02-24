@@ -6,67 +6,9 @@ import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download
 import { cn, vibrate } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { useState, useRef, useEffect } from 'react';
-import MermaidDiagram from './MermaidDiagram';
 import { toast } from 'sonner';
-import ImageViewer from './ImageViewer';
-
-const CodeBlock = ({ inline, className, children, onOpenArtifact, ...props }: any) => {
-    const match = /language-(\w+)/.exec(className || '');
-    const language = match ? match[1] : '';
-    const codeString = String(children).replace(/\n$/, '');
-    const [isCopied, setIsCopied] = useState(false);
-
-    const PREVIEW_LANGS = ['html', 'css', 'javascript', 'js', 'jsx', 'typescript', 'ts', 'tsx', 'svg'];
-    const showPreview = !inline && PREVIEW_LANGS.includes(language.toLowerCase());
-
-    if (!inline && language === 'mermaid') {
-        return <MermaidDiagram code={codeString} />;
-    }
-
-    if (!inline && match) {
-        return (
-            <div className="relative rounded-lg overflow-hidden my-4 bg-gray-900 border border-gray-800 shadow-xl group/code">
-                <div className="flex items-center justify-between px-4 py-1.5 bg-gray-950/80 border-b border-gray-800">
-                    <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono text-gray-400 capitalize">{language}</span>
-                        {showPreview && (
-                            <button
-                                onClick={() => onOpenArtifact?.(codeString, language)}
-                                className="flex items-center gap-1.5 text-[10px] font-bold text-accent-primary hover:text-accent-secondary transition-colors px-2 py-0.5 rounded bg-accent-primary/5 border border-accent-primary/20"
-                            >
-                                <Bot size={12} /> Open Preview
-                            </button>
-                        )}
-                    </div>
-                    <button
-                        onClick={() => {
-                            navigator.clipboard.writeText(codeString);
-                            setIsCopied(true);
-                            vibrate(10);
-                            toast.success('Code copied to clipboard');
-                            setTimeout(() => setIsCopied(false), 2000);
-                        }}
-                        className="text-gray-400 hover:text-white transition-colors p-1 rounded-md hover:bg-white/10"
-                        title="Copy code"
-                        aria-label="Copy code block"
-                    >
-                        {isCopied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-                    </button>
-                </div>
-                <div className="p-4 overflow-x-auto bg-gray-100 dark:bg-[#0d1117] text-sm text-gray-800 dark:text-gray-300 font-mono leading-relaxed" style={{ scrollbarWidth: 'thin', scrollbarColor: '#30363d transparent' }}>
-                    <code className={className} {...props}>
-                        {children}
-                    </code>
-                </div>
-            </div>
-        );
-    }
-    return (
-        <code className={cn("bg-black/10 dark:bg-white/10 rounded px-1.5 py-0.5 text-[0.9em] font-mono text-accent-secondary", className)} {...props}>
-            {children}
-        </code>
-    );
-};
+import CodeBlock from './CodeBlock';
+import ImageAttachment from './ImageAttachment';
 
 interface MessageBubbleProps {
     message: {
@@ -330,99 +272,6 @@ const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpe
         </motion.div >
     );
 });
-
-MessageBubble.displayName = 'MessageBubble';
-
-function ImageAttachment({ src, alt, variant = 'single' }: { src: string, alt: string, variant?: 'single' | 'grid' }) {
-    const [error, setError] = useState(false);
-    const [isDownloading, setIsDownloading] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-
-    const handleDownload = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!src) return;
-
-        try {
-            setIsDownloading(true);
-            const response = await fetch(src);
-            const blob = await response.blob() as Blob;
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `image-${Date.now()}.jpg`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        } catch (err) {
-            console.error("Failed to download image:", err);
-        } finally {
-            setIsDownloading(false);
-        }
-    };
-
-    if (error) {
-        return (
-            <span className="p-4 rounded-xl border border-white/10 bg-white/5 text-gray-400 text-sm flex items-center gap-2 w-full h-full min-h-[100px] justify-center">
-                <X size={16} />
-                <span>Failed to load image</span>
-            </span>
-        );
-    }
-
-    const isGrid = variant === 'grid';
-
-    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-
-    return (
-        <>
-            <span
-                onClick={() => setIsLightboxOpen(true)}
-                className={cn(
-                    "relative group block overflow-hidden rounded-xl border border-white/10 bg-black/20 shrink-0 cursor-zoom-in snap-center",
-                    isGrid ? "w-[200px] h-[200px]" : "w-full max-w-full h-auto min-h-[200px]"
-                )}
-            >
-                {isLoading && (
-                    <span className="absolute inset-0 flex items-center justify-center bg-white/5 min-h-[200px]">
-                        <span className="w-6 h-6 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
-                    </span>
-                )}
-                <img
-                    src={src}
-                    alt={alt}
-                    className={cn(
-                        "transition-opacity duration-300 transition-transform",
-                        isGrid ? "w-full h-full object-cover hover:scale-105" : "w-full h-auto block max-h-[300px] object-contain", // Changed max-h-[500px] to max-h-[300px]
-                        isLoading ? "opacity-0" : "opacity-100"
-                    )}
-                    onLoad={() => setIsLoading(false)}
-                    onError={() => {
-                        setIsLoading(false);
-                        setError(true);
-                    }}
-                />
-                {!isLoading && (
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
-                        {/* Visual hint only, click handles open */}
-                        <div className="bg-black/60 text-white rounded-full p-2 backdrop-blur-sm">
-                            <Download size={18} />
-                        </div>
-                    </div>
-                )}
-            </span>
-
-            {/* Immersive Image Viewer */}
-            <ImageViewer
-                src={src}
-                alt={alt}
-                isOpen={isLightboxOpen}
-                onClose={() => setIsLightboxOpen(false)}
-            />
-        </>
-    );
-}
 
 export const MessageSkeleton = () => (
     <div className="flex w-full mb-8 justify-start">

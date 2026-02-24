@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
                 try {
                     // 1. Initial Planned Action
-                    sendChunk("__AGENT_ACTION__:Initializing workflow...");
+                    sendChunk("__AGENT_ACTION__:Initializing workflow...\n");
 
                     let response = await runAgentWorkflow(history, message, layers, persona, modelId);
 
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
                         if (toolName === 'generate_image') statusText = `Generating image for "${toolArgs.prompt}"...`;
                         if (toolName === 'calculate') statusText = `Calculating: ${toolArgs.expression}`;
 
-                        sendChunk(`__AGENT_ACTION__:${statusText}`);
+                        sendChunk(`__AGENT_ACTION__:${statusText}\n`);
 
                         // Execute Tool
                         const toolResult = await executeToolCall(toolName!, toolArgs);
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
                         workingHistory.push({ role: 'user', content: `Tool Result for ${toolName}: ${JSON.stringify(toolResult)}` });
 
                         // Re-run Agent
-                        sendChunk(`__AGENT_ACTION__:Analyzing results from ${toolName}...`);
+                        sendChunk(`__AGENT_ACTION__:Analyzing results from ${toolName}...\n`);
                         response = await runAgentWorkflow(workingHistory, "Continue based on the tool result.", [], persona, modelId);
                         depth++;
                     }

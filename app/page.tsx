@@ -15,7 +15,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-[100dvh] w-full gap-4 p-0 md:p-4 bg-background relative z-10 overflow-hidden">
+    <div className="flex h-[100dvh] w-full bg-background relative z-10 overflow-hidden">
       <Sidebar
         activeId={activeConversationId}
         onSelectChat={setActiveConversationId}
