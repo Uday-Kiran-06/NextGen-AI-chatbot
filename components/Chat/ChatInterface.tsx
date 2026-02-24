@@ -183,24 +183,9 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             </motion.div>
 
             {/* ChatMessages Area */}
-            <motion.div
+            <div
                 ref={chatContainerRef}
-                drag="y"
-                dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={0.4}
-                onDrag={(_, info) => {
-                    if (chatContainerRef.current && chatContainerRef.current.scrollTop <= 0) {
-                        setPullDistance(info.offset.y);
-                    }
-                }}
-                onDragEnd={() => {
-                    if (pullDistance > 120) {
-                        onNewChat?.();
-                        vibrate([10, 50, 10]);
-                    }
-                    setPullDistance(0);
-                }}
-                className="flex-1 overflow-y-auto p-4 md:p-8 scrollbar-hide pt-20 md:pt-4 relative touch-pan-y"
+                className="flex-1 overflow-y-auto p-4 md:p-8 pt-20 md:pt-4 relative touch-pan-y"
                 onScroll={handleScroll}
             >
                 {/* Pull to New Chat Indicator */}
@@ -288,7 +273,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                         </motion.button>
                     )}
                 </AnimatePresence>
-            </motion.div>
+            </div>
 
             {/* Input Area */}
             <div className="p-4 md:p-6 bg-gradient-to-t from-background via-background/80 to-transparent z-10">
