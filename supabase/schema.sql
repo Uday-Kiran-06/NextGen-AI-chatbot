@@ -22,11 +22,11 @@ create policy "Public profiles are viewable by everyone."
 
 create policy "Users can insert their own profile."
   on profiles for insert
-  with check ( auth.uid() = id );
+  with check ( (select auth.uid()) = id );
 
 create policy "Users can update own profile."
   on profiles for update
-  using ( auth.uid() = id );
+  using ( (select auth.uid()) = id );
 
 -- Function to handle new user signup
 create or replace function public.handle_new_user()
@@ -67,19 +67,19 @@ alter table public.chats enable row level security;
 -- Policies
 create policy "Users can view their own chats."
   on chats for select
-  using ( auth.uid() = user_id );
+  using ( (select auth.uid()) = user_id );
 
 create policy "Users can create their own chats."
   on chats for insert
-  with check ( auth.uid() = user_id );
+  with check ( (select auth.uid()) = user_id );
 
 create policy "Users can update their own chats."
   on chats for update
-  using ( auth.uid() = user_id );
+  using ( (select auth.uid()) = user_id );
 
 create policy "Users can delete their own chats."
   on chats for delete
-  using ( auth.uid() = user_id );
+  using ( (select auth.uid()) = user_id );
 
 
 -- 3. MESSAGES TABLE
@@ -102,7 +102,7 @@ create policy "Users can view messages in their chats."
     exists (
       select 1 from chats
       where chats.id = messages.chat_id
-      and chats.user_id = auth.uid()
+      and chats.user_id = (select auth.uid())
     )
   );
 
@@ -112,7 +112,7 @@ create policy "Users can insert messages in their chats."
     exists (
       select 1 from chats
       where chats.id = messages.chat_id
-      and chats.user_id = auth.uid()
+      and chats.user_id = (select auth.uid())
     )
   );
 

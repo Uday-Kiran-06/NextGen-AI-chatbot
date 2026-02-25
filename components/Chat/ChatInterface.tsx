@@ -28,9 +28,9 @@ interface ChatMessage {
 
 
 const MODELS = [
-    { id: 'gemini-2.5-flash', label: 'Flash 2.5', icon: Zap, desc: 'Fast & efficient' },
-    { id: 'gemini-2.5-pro', label: 'Pro 2.5', icon: Sparkles, desc: 'Deep reasoning' },
-    { id: 'gemini-3-flash-preview', label: 'G3 Preview', icon: Sparkles, desc: 'Next-gen frontier model' },
+    { id: 'gemini-2.5-flash', label: 'Gemini 2.5', icon: Zap, desc: 'Fast & efficient' },
+    { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro', icon: Sparkles, desc: 'Deep reasoning' },
+    { id: 'gemini-3-flash-preview', label: 'Gemini 3 Preview', icon: Sparkles, desc: 'Next-gen frontier model' },
     { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', icon: Zap, desc: 'Powerful Open Source' },
     { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7b', icon: Zap, desc: 'High-speed efficiency' },
 ];

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runAgentWorkflow, executeToolCall } from '@/lib/agent/workflow-engine';
+import { createClient } from '@/lib/supabase/server';
 import { Cache } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic';
@@ -8,6 +9,11 @@ export const maxDuration = 60;
 export async function POST(req: NextRequest) {
     try {
         const { history, message, layers, persona, modelId } = await req.json();
+
+        // Identify User for RAG Context
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        const userId = user?.id;
 
         // High-Performance Optimization: Context-Aware Cache
         // Include history length to prevent serving cached first-turn answers on follow-up questions
@@ -40,7 +46,7 @@ export async function POST(req: NextRequest) {
                     // 1. Initial Planned Action
                     sendChunk("__AGENT_ACTION__:Initializing workflow...\n");
 
-                    let response = await runAgentWorkflow(history, message, layers, persona, modelId);
+                    let response = await runAgentWorkflow(history, message, layers, persona, modelId, userId);
 
                     // 2. Agent Execution Loop with Tool Streaming
                     const workingHistory = [...history];
@@ -60,7 +66,7 @@ export async function POST(req: NextRequest) {
                         sendChunk(`__AGENT_ACTION__:${statusText}\n`);
 
                         // Execute Tool
-                        const toolResult = await executeToolCall(toolName!, toolArgs);
+                        const toolResult = await executeToolCall(toolName!, toolArgs, userId);
 
                         // Feed back to history
                         workingHistory.push({ role: 'model', content: `Requesting tool: ${toolName}` });
@@ -68,7 +74,7 @@ export async function POST(req: NextRequest) {
 
                         // Re-run Agent
                         sendChunk(`__AGENT_ACTION__:Analyzing results from ${toolName}...\n`);
-                        response = await runAgentWorkflow(workingHistory, "Continue based on the tool result.", [], persona, modelId);
+                        response = await runAgentWorkflow(workingHistory, "Continue based on the tool result.", [], persona, modelId, userId);
                         depth++;
                     }
 

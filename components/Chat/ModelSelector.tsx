@@ -4,9 +4,9 @@ import { Zap, Sparkles, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const MODELS = [
-    { id: 'gemini-2.5-flash', label: 'Flash 2.5', icon: Zap, desc: 'Fast & efficient' },
-    { id: 'gemini-2.5-pro', label: 'Pro 2.5', icon: Sparkles, desc: 'Deep reasoning' },
-    { id: 'gemini-3-flash-preview', label: 'G3 Preview', icon: Sparkles, desc: 'Next-gen frontier model' },
+    { id: 'gemini-2.5-flash', label: 'Gemini 2.5', icon: Zap, desc: 'Fast & efficient' },
+    { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro', icon: Sparkles, desc: 'Deep reasoning' },
+    { id: 'gemini-3-flash-preview', label: 'Gemini 3 Preview', icon: Sparkles, desc: 'Next-gen frontier model' },
     { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', icon: Zap, desc: 'Powerful Open Source' },
     { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7b', icon: Zap, desc: 'High-speed efficiency' },
 ];
@@ -26,11 +26,12 @@ export default function ModelSelector({ modelId, onModelChange, isOpen, setIsOpe
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-3 text-gray-400 hover:text-accent-primary transition-all duration-300 rounded-full hover:bg-white/5 hover:scale-110 active:scale-95"
+                className="px-3 py-2 text-gray-400 hover:text-accent-primary transition-all duration-300 rounded-xl hover:bg-white/5 hover:scale-105 active:scale-95 flex items-center gap-2"
                 title="Switch Model"
                 aria-label="Switch AI Model"
             >
-                <activeModel.icon size={20} />
+                <activeModel.icon size={18} />
+                <span className="hidden md:block text-xs font-semibold tracking-wide whitespace-nowrap">{activeModel.label}</span>
             </button>
 
             <AnimatePresence>

@@ -4,6 +4,7 @@ import { embeddingModel } from './gemini';
 
 export interface Document {
     id?: number;
+    user_id?: string;
     content: string;
     metadata: Record<string, any>;
     similarity?: number;
@@ -27,7 +28,7 @@ export async function embedText(text: string): Promise<number[]> {
  * Adds a document to the vector store.
  * Generates an embedding for the content and stores it in the 'documents' table.
  */
-export async function addDocument(content: string, metadata: Record<string, any> = {}): Promise<Document | null> {
+export async function addDocument(content: string, metadata: Record<string, any> = {}, userId?: string): Promise<Document | null> {
     try {
         const supabase = createAdminClient();
         const embedding = await embedText(content);
@@ -37,7 +38,8 @@ export async function addDocument(content: string, metadata: Record<string, any>
             .insert({
                 content,
                 metadata,
-                embedding
+                embedding,
+                user_id: userId
             })
             .select()
             .single();
@@ -58,7 +60,7 @@ export async function addDocument(content: string, metadata: Record<string, any>
  * Searches for documents similar to the query string.
  * Uses the 'match_documents' RPC function in Supabase.
  */
-export async function searchDocuments(query: string, matchCount: number = 5, conversationId?: string): Promise<Document[]> {
+export async function searchDocuments(query: string, matchCount: number = 5, conversationId?: string, userId?: string): Promise<Document[]> {
     try {
         const supabase = createAdminClient();
         const queryEmbedding = await embedText(query);
@@ -68,7 +70,8 @@ export async function searchDocuments(query: string, matchCount: number = 5, con
             query_embedding: queryEmbedding,
             match_threshold: 0.5, // Adjust threshold as needed
             match_count: matchCount,
-            filter_conversation_id: conversationId
+            filter_conversation_id: conversationId,
+            filter_user_id: userId
         });
 
         if (error) {

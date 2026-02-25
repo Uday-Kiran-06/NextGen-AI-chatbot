@@ -10,7 +10,7 @@ interface AgentResponse {
     toolArgs?: any;
 }
 
-export async function runAgentWorkflow(history: any[], message: string, images: any[] = [], persona?: string, modelId?: string) {
+export async function runAgentWorkflow(history: any[], message: string, images: any[] = [], persona?: string, modelId?: string, userId?: string) {
     // 0. Tier-1 Rules Engine (Instant Response)
     // Only apply for simple text messages without images
     if (images.length === 0) {
@@ -140,10 +140,10 @@ ${persona ? `\n--- PERSONA ---\n${persona}\n---------------` : ''}
     return { type: 'text', content: responseText };
 }
 
-export async function executeToolCall(toolName: string, args: any) {
+export async function executeToolCall(toolName: string, args: any, userId?: string) {
     const tool = toolRegistry[toolName];
     if (!tool) throw new Error(`Tool ${toolName} not found`);
 
-    console.log(`[Agent] Executing ${toolName} with`, args);
-    return await tool.execute(args);
+    console.log(`[Agent] Executing ${toolName} with`, args, "for user", userId);
+    return await tool.execute(args, { userId });
 }

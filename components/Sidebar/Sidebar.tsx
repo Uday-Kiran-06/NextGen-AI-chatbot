@@ -181,11 +181,18 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setIsCollapsed(!isCollapsed)}
-                        className="hidden md:flex p-2 text-gray-500 dark:text-gray-400 hover:text-foreground hover:bg-sidebar-hover rounded-lg transition-colors cursor-pointer"
+                        className="hidden md:flex p-2 text-gray-500 dark:text-gray-400 hover:text-foreground hover:bg-sidebar-hover rounded-lg transition-colors cursor-pointer group relative w-9 h-9 items-center justify-center"
                         title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
                         suppressHydrationWarning
                     >
-                        {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                        {isCollapsed ? (
+                            <>
+                                <Sparkles size={20} className="absolute text-foreground/70 transition-opacity duration-300 group-hover:opacity-0" />
+                                <ChevronRight size={20} className="absolute opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                            </>
+                        ) : (
+                            <ChevronLeft size={20} />
+                        )}
                     </button>
                     {!isCollapsed && (
                         <div className="flex items-center gap-2 px-1">
@@ -249,58 +256,55 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
 
             <div className="flex-1 overflow-y-auto px-2 space-y-2 scrollbar-hide py-2">
                 {/* Grouped History Items */}
-                {filteredHistory.length > 0 ? (
-                    Object.entries(conversationGroups).map(([groupName, groupItems]) => (
-                        groupItems.length > 0 && (
-                            <div key={groupName} className="mb-4">
-                                {!isCollapsed && (
+                {!isCollapsed && (
+                    filteredHistory.length > 0 ? (
+                        Object.entries(conversationGroups).map(([groupName, groupItems]) => (
+                            groupItems.length > 0 && (
+                                <div key={groupName} className="mb-4">
                                     <h3 className="text-[10px] font-bold text-gray-500 px-4 mb-2 uppercase tracking-[0.2em]">
                                         {groupName}
                                     </h3>
-                                )}
-                                <div className="space-y-1">
-                                    {groupItems.map((item) => (
-                                        <ChatListItem
-                                            key={item.id}
-                                            item={item}
-                                            activeId={activeId}
-                                            isCollapsed={isCollapsed}
-                                            onSelectChat={onSelectChat}
-                                            onClose={onClose}
-                                            handleRenameSubmit={handleRenameSubmit}
-                                            editingId={editingId}
-                                            editTitle={editTitle}
-                                            setEditTitle={setEditTitle}
-                                            setEditingId={setEditingId}
-                                            activeMenuId={activeMenuId}
-                                            setActiveMenuId={setActiveMenuId}
-                                            handleAction={handleAction}
-                                        />
-                                    ))}
+                                    <div className="space-y-1">
+                                        {groupItems.map((item) => (
+                                            <ChatListItem
+                                                key={item.id}
+                                                item={item}
+                                                activeId={activeId}
+                                                isCollapsed={isCollapsed}
+                                                onSelectChat={onSelectChat}
+                                                onClose={onClose}
+                                                handleRenameSubmit={handleRenameSubmit}
+                                                editingId={editingId}
+                                                editTitle={editTitle}
+                                                setEditTitle={setEditTitle}
+                                                setEditingId={setEditingId}
+                                                activeMenuId={activeMenuId}
+                                                setActiveMenuId={setActiveMenuId}
+                                                handleAction={handleAction}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )
-                    ))
-                ) : loading ? (
-                    // Skeleton Loaders
-                    Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className={cn(
-                            "w-full p-3 rounded-xl flex items-center gap-3 animate-pulse bg-glass-bg/50 my-1",
-                            isCollapsed ? "justify-center" : "justify-start"
-                        )}>
-                            <div className="w-5 h-5 rounded-md bg-white/10 shrink-0" />
-                            {!isCollapsed && (
+                            )
+                        ))
+                    ) : loading ? (
+                        // Skeleton Loaders
+                        Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className={cn(
+                                "w-full p-3 rounded-xl flex items-center gap-3 animate-pulse bg-glass-bg/50 my-1 justify-start"
+                            )}>
+                                <div className="w-5 h-5 rounded-md bg-white/10 shrink-0" />
                                 <div className="flex-1 space-y-2">
                                     <div className="h-3 bg-white/10 rounded w-full" />
                                 </div>
-                            )}
+                            </div>
+                        ))
+                    ) : (
+                        <div className="px-4 py-12 flex flex-col items-center justify-center text-foreground/40">
+                            <History size={32} className="mb-3 opacity-30 text-foreground" />
+                            <span className="text-xs font-medium text-center text-foreground bg-foreground/5 px-3 py-1.5 rounded-full border border-foreground/10 shadow-lg">No conversations yet</span>
                         </div>
-                    ))
-                ) : (
-                    !isCollapsed && <div className="px-4 py-12 flex flex-col items-center justify-center text-foreground/40">
-                        <History size={32} className="mb-3 opacity-30 text-foreground" />
-                        <span className="text-xs font-medium text-center text-foreground bg-foreground/5 px-3 py-1.5 rounded-full border border-foreground/10 shadow-lg">No conversations yet</span>
-                    </div>
+                    )
                 )}
             </div>
 

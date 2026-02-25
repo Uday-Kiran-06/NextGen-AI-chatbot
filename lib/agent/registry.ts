@@ -6,7 +6,7 @@ export interface Tool {
     name: string;
     description: string;
     parameters: z.ZodObject<any>;
-    execute: (args: any) => Promise<any>;
+    execute: (args: any, context?: { userId?: string }) => Promise<any>;
 }
 
 export const toolRegistry: Record<string, Tool> = {};
@@ -32,7 +32,7 @@ registerTool({
             if (/[^0-9+\-*/(). ]/.test(expression)) {
                 return "Error: Invalid characters in expression.";
             }
-             
+
             const result = eval(expression);
             return { result };
         } catch (e) {
@@ -269,10 +269,10 @@ registerTool({
     parameters: z.object({
         query: z.string().describe('The search query for the knowledge base'),
     }),
-    execute: async ({ query }) => {
+    execute: async ({ query }, context) => {
         try {
             // using top-level import
-            const documents = await vectorStore.searchDocuments(query);
+            const documents = await vectorStore.searchDocuments(query, 5, undefined, context?.userId);
             if (documents.length === 0) {
                 return { result: "No relevant documents found in the knowledge base." };
             }
@@ -294,11 +294,11 @@ registerTool({
         content: z.string().describe('The content to store in the knowledge base'),
         topic: z.string().optional().describe('Optional topic or category metadata'),
     }),
-    execute: async ({ content, topic }) => {
+    execute: async ({ content, topic }, context) => {
         try {
             // using top-level import
             const metadata = topic ? { topic } : {};
-            const doc = await vectorStore.addDocument(content, metadata);
+            const doc = await vectorStore.addDocument(content, metadata, context?.userId);
             if (doc) {
                 return { result: `Successfully added information to knowledge base (ID: ${doc.id}).` };
             }
