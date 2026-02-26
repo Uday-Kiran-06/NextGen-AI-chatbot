@@ -173,13 +173,6 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                         {activeModel?.label || 'Gemini'}
                     </div>
                 </div>
-                <button
-                    onClick={onNewChat}
-                    className="p-2 -mr-2 text-foreground opacity-70 hover:opacity-100 hover:scale-110 active:scale-95 transition-all rounded-xl hover:bg-white/5"
-                    aria-label="New Chat"
-                >
-                    <MessageSquarePlus size={18} />
-                </button>
             </motion.div>
 
             {/* ChatMessages Area */}
