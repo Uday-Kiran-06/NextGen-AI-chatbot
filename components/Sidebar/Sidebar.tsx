@@ -142,8 +142,28 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
         setConversations(data);
     };
 
+    const [matchedMessageConvoIds, setMatchedMessageConvoIds] = useState<string[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+
+    useEffect(() => {
+        if (!searchTerm.trim()) {
+            setMatchedMessageConvoIds([]);
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setIsSearching(true);
+            const ids = await chatStore.searchConversations(searchTerm);
+            setMatchedMessageConvoIds(ids);
+            setIsSearching(false);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
     const filteredHistory = conversations.filter(item =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase())
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        matchedMessageConvoIds.includes(item.id)
     );
 
     const groupConversations = (items: Conversation[]) => {
@@ -230,10 +250,14 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
             <div className={cn("mb-4", isCollapsed ? "px-2" : "px-4")}>
                 {!isCollapsed ? (
                     <div className="relative">
-                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        {isSearching ? (
+                            <Sparkles size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-accent-primary animate-pulse" />
+                        ) : (
+                            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        )}
                         <input
                             type="text"
-                            placeholder="Search chats..."
+                            placeholder="Search chats & messages..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full bg-glass-bg border border-glass-border rounded-xl py-2 pl-9 pr-3 text-sm text-foreground placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"

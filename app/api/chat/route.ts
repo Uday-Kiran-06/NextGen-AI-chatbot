@@ -8,7 +8,13 @@ export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
     try {
-        const { history, message, layers, persona, modelId } = await req.json();
+        const payload = await req.json();
+        let { history, message, layers, persona, modelId, useWebSearch } = payload;
+
+        // Smart Context Truncation: Keep only the last 20 turns
+        if (Array.isArray(history) && history.length > 20) {
+            history = history.slice(-20);
+        }
 
         // Identify User for RAG Context
         const supabase = await createClient();
@@ -46,7 +52,7 @@ export async function POST(req: NextRequest) {
                     // 1. Initial Planned Action
                     sendChunk("__AGENT_ACTION__:Initializing workflow...\n");
 
-                    let response = await runAgentWorkflow(history, message, layers, persona, modelId, userId);
+                    let response = await runAgentWorkflow(history, message, layers, persona, modelId, userId, useWebSearch);
 
                     // 2. Agent Execution Loop with Tool Streaming
                     const workingHistory = [...history];
@@ -62,6 +68,7 @@ export async function POST(req: NextRequest) {
                         if (toolName === 'search_knowledge') statusText = `Searching internal documents for info...`;
                         if (toolName === 'generate_image') statusText = `Generating image for "${toolArgs.prompt}"...`;
                         if (toolName === 'calculate') statusText = `Calculating: ${toolArgs.expression}`;
+                        if (toolName === 'duckduckgo_search') statusText = `DuckDuckGo: searching "${toolArgs.query}"...`;
 
                         sendChunk(`__AGENT_ACTION__:${statusText}\n`);
 
@@ -74,7 +81,7 @@ export async function POST(req: NextRequest) {
 
                         // Re-run Agent
                         sendChunk(`__AGENT_ACTION__:Analyzing results from ${toolName}...\n`);
-                        response = await runAgentWorkflow(workingHistory, "Continue based on the tool result.", [], persona, modelId, userId);
+                        response = await runAgentWorkflow(workingHistory, "Continue based on the tool result.", [], persona, modelId, userId, useWebSearch);
                         depth++;
                     }
 

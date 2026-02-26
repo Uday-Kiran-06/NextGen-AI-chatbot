@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download, Volume2, RefreshCw, Sparkles } from 'lucide-react';
 import { cn, vibrate } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import CodeBlock from './CodeBlock';
@@ -160,8 +161,10 @@ const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpe
                                     prose-ol:list-decimal prose-ol:pl-6 prose-ol:my-4 prose-ol:marker:text-foreground/80 prose-ol:marker:font-bold
                                     prose-li:my-1 prose-li:leading-7 prose-li:pl-1
                                     prose-blockquote:border-l-4 prose-blockquote:border-accent-primary prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-foreground/80 prose-blockquote:bg-black/5 dark:prose-blockquote:bg-white/5 prose-blockquote:py-2 prose-blockquote:my-4 prose-blockquote:rounded-r-lg
+                                    prose-table:w-full prose-table:my-4 prose-table:border-collapse prose-th:border prose-th:border-gray-300 dark:prose-th:border-gray-700 prose-th:px-4 prose-th:py-2 prose-th:bg-black/5 dark:prose-th:bg-white/5 prose-td:border prose-td:border-gray-300 dark:prose-td:border-gray-700 prose-td:px-4 prose-td:py-2
                                 ">
                                     <ReactMarkdown
+                                        remarkPlugins={[remarkGfm]}
                                         urlTransform={(value) => value}
                                         components={{
                                             code: (props: any) => <CodeBlock {...props} onOpenArtifact={onOpenArtifact} />,

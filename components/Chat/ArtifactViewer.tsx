@@ -21,6 +21,77 @@ export default function ArtifactViewer({ isOpen, onClose, code, language }: Arti
             return URL.createObjectURL(blob);
         }
 
+        if (language === 'javascript' || language === 'js' || language === 'typescript' || language === 'ts') {
+            const jsCodeEncoded = encodeURIComponent(code);
+            const fullHtml = `
+                <!DOCTYPE html>
+                <html>
+                    <body style="background: #1e1e1e; color: #d4d4d4; font-family: monospace; padding: 1rem;">
+                        <div id="output" style="white-space: pre-wrap;"></div>
+                        <script>
+                            const output = document.getElementById('output');
+                            const originalLog = console.log;
+                            console.log = function(...args) {
+                                originalLog(...args);
+                                const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+                                output.innerHTML += '> ' + msg + '\\n';
+                            };
+                            const originalError = console.error;
+                            console.error = function(...args) {
+                                originalError(...args);
+                                const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+                                output.innerHTML += '<span style="color: #f87171;">> ' + msg + '</span>\\n';
+                            };
+                            try {
+                                const codeToRun = decodeURIComponent("${jsCodeEncoded}");
+                                // Very basic transpilation for TS by stripping typings could go here, but for now just eval JS
+                                eval(codeToRun);
+                            } catch (e) {
+                                console.error(e);
+                            }
+                        </script>
+                    </body>
+                </html>
+            `;
+            const blob = new Blob([fullHtml], { type: 'text/html' });
+            return URL.createObjectURL(blob);
+        }
+
+        if (language === 'python' || language === 'py') {
+            const pyCodeEncoded = encodeURIComponent(code);
+            const fullHtml = `
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+                    </head>
+                    <body style="background: #1e1e1e; color: #d4d4d4; font-family: monospace; padding: 1rem;">
+                        <div id="output" style="white-space: pre-wrap; color: #60a5fa;">[ Sandbox ] Loading Python runtime (Pyodide)...\\n</div>
+                        <script>
+                            async function main() {
+                                try {
+                                    let pyodide = await loadPyodide();
+                                    const outputDiv = document.getElementById('output');
+                                    outputDiv.innerHTML = '<span style="color: #34d399;">[ Sandbox ] Python runtime ready.\\n</span>'; 
+                                    
+                                    pyodide.setStdout({ batched: (msg) => outputDiv.innerHTML += msg + '\\n' });
+                                    pyodide.setStderr({ batched: (msg) => outputDiv.innerHTML += '<span style="color: #f87171;">' + msg + '</span>\\n' });
+                                    
+                                    const code = decodeURIComponent("${pyCodeEncoded}");
+                                    await pyodide.runPythonAsync(code);
+                                } catch (e) {
+                                    document.getElementById('output').innerHTML += '<span style="color: #f87171;">' + e + '</span>\\n';
+                                }
+                            }
+                            main();
+                        </script>
+                    </body>
+                </html>
+            `;
+            const blob = new Blob([fullHtml], { type: 'text/html' });
+            return URL.createObjectURL(blob);
+        }
+
         // Wrap snippets in a proper HTML doc with Tailwind support
         const fullHtml = `
             <!DOCTYPE html>

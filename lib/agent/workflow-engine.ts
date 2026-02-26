@@ -2,6 +2,7 @@ import { toolRegistry } from './registry';
 import { getDynamicModel } from '@/lib/gemini';
 import { checkRules } from '@/lib/rules';
 import { callGroq } from '@/lib/groq';
+import { callOllama } from '@/lib/ollama';
 
 interface AgentResponse {
     type: 'text' | 'tool_call' | 'error';
@@ -10,7 +11,7 @@ interface AgentResponse {
     toolArgs?: any;
 }
 
-export async function runAgentWorkflow(history: any[], message: string, images: any[] = [], persona?: string, modelId?: string, userId?: string) {
+export async function runAgentWorkflow(history: any[], message: string, images: any[] = [], persona?: string, modelId?: string, userId?: string, useWebSearch?: boolean) {
     // 0. Tier-1 Rules Engine (Instant Response)
     // Only apply for simple text messages without images
     if (images.length === 0) {
@@ -22,28 +23,34 @@ export async function runAgentWorkflow(history: any[], message: string, images: 
 
     // 1. Prepare Context & Route
     const isGroq = modelId?.startsWith('llama') || modelId?.startsWith('mixtral');
+    const isOllama = modelId?.startsWith('ollama');
     const now = new Date();
     const dateTimeContext = `Current Date and Time: ${now.toLocaleString()} (${Intl.DateTimeFormat().resolvedOptions().timeZone})\n`;
 
-    if (isGroq) {
+    if (isGroq || isOllama) {
         // Groq / OpenAI Format
-        const groqMessages = history.map(msg => ({
+        const formatMessages = history.map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.content
         }));
 
         // Add Persona and Date/Time as system message
-        const systemPrompt = (persona ? `PERSONA: ${persona}\n` : '') + dateTimeContext;
-        groqMessages.unshift({ role: 'system', content: systemPrompt });
+        const systemPrompt = (persona ? `PERSONA: ${persona}\n` : '') + dateTimeContext + (useWebSearch ? "\nUSER REQUESTED WEB SEARCH: You MUST use the `duckduckgo_search` or `read_page` tool to gather real-time information before responding." : "");
+        formatMessages.unshift({ role: 'system', content: systemPrompt });
 
-        groqMessages.push({ role: 'user', content: message });
+        formatMessages.push({ role: 'user', content: message });
 
         try {
-            const content = await callGroq(groqMessages, modelId);
+            let content = "";
+            if (isOllama) {
+                content = await callOllama(formatMessages, modelId!);
+            } else {
+                content = await callGroq(formatMessages, modelId);
+            }
             return { type: 'text', content };
         } catch (error: any) {
-            console.error('[Groq Workflow Error]:', error);
-            return { type: 'text', content: `Error from Groq: ${error.message}` };
+            console.error('[OpenSource Workflow Error]:', error);
+            return { type: 'text', content: `Error from Model Provider: ${error.message}` };
         }
     }
 
@@ -102,6 +109,7 @@ ${Object.values(toolRegistry).map(t => `- ${t.name}: ${t.description}`).join('\n
 - If search_knowledge returns nothing, use your general knowledge but mention the search was empty.
 - Always use Markdown lists (\`- \` or \`1. \`) for structured info.
 
+${useWebSearch ? "\nCRITICAL: USER EXPLICITLY REQUESTED WEB SEARCH. You MUST use the `duckduckgo_search` or `web_search` or `read_page` tool to gather real-time data before providing your final answer.\n" : ""}
 ${persona ? `\n--- PERSONA ---\n${persona}\n---------------` : ''}
 `;
 

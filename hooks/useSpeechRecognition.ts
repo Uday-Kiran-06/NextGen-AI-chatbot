@@ -1,26 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { vibrate } from '@/lib/utils';
 
 interface UseSpeechRecognitionProps {
     onResult: (result: string) => void;
+    onSilence?: () => void;
 }
 
-export function useSpeechRecognition({ onResult }: UseSpeechRecognitionProps) {
+export function useSpeechRecognition({ onResult, onSilence }: UseSpeechRecognitionProps) {
     const [isRecording, setIsRecording] = useState(false);
     const [interimTranscript, setInterimTranscript] = useState('');
+    const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         return () => {
             if (typeof window !== 'undefined' && (window as any).recognitionInstance) {
                 (window as any).recognitionInstance.stop();
             }
+            if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         };
     }, []);
 
     const stopRecording = () => {
         setIsRecording(false);
         setInterimTranscript('');
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         if (typeof window !== 'undefined' && (window as any).recognitionInstance) {
             (window as any).recognitionInstance.stop();
         }
@@ -75,11 +79,20 @@ export function useSpeechRecognition({ onResult }: UseSpeechRecognitionProps) {
                     onResult(finalTranscript);
                 }
                 setInterimTranscript(interim);
+
+                // Continuous Mode Silence Detection
+                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+                if (onSilence) {
+                    silenceTimerRef.current = setTimeout(() => {
+                        onSilence();
+                    }, 2500); // Trigger send after 2.5s of silence
+                }
             };
 
             recognition.onerror = (event: any) => {
                 console.error("Speech recognition error", event.error);
                 setIsRecording(false);
+                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
             };
 
             recognition.start();

@@ -7,9 +7,10 @@ interface ShortcutOptions {
     onToggleSidebar?: () => void;
     onFocusInput?: () => void;
     onToggleTheme?: () => void;
+    onStopGeneration?: () => void;
 }
 
-export function useShortcuts({ onNewChat, onToggleSidebar, onFocusInput, onToggleTheme }: ShortcutOptions) {
+export function useShortcuts({ onNewChat, onToggleSidebar, onFocusInput, onToggleTheme, onStopGeneration }: ShortcutOptions) {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             const isCmd = event.metaKey || event.ctrlKey;
@@ -40,9 +41,15 @@ export function useShortcuts({ onNewChat, onToggleSidebar, onFocusInput, onToggl
                 event.preventDefault();
                 onToggleTheme?.();
             }
+
+            // Escape: Stop Generation
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                onStopGeneration?.();
+            }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [onNewChat, onToggleSidebar, onFocusInput, onToggleTheme]);
+    }, [onNewChat, onToggleSidebar, onFocusInput, onToggleTheme, onStopGeneration]);
 }

@@ -173,6 +173,45 @@ export const chatStore = {
         return convo;
     },
 
+    async deleteMessages(messageIds: string[]) {
+        if (!messageIds || messageIds.length === 0) return true;
+        let isGuestMode = messageIds.some(id => isGuest(id) || id.startsWith('msg-'));
+        if (isGuestMode) {
+            for (const convoId in guestMessages) {
+                guestMessages[convoId] = guestMessages[convoId].filter(m => !messageIds.includes(m.id));
+            }
+            return true;
+        }
+
+        try {
+            const { error } = await supabase.from('messages').delete().in('id', messageIds);
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('Error deleting messages:', error);
+            return false;
+        }
+    },
+
+    async updateMessage(messageId: string, newContent: string) {
+        if (isGuest(messageId) || messageId.startsWith('msg-')) {
+            for (const convoId in guestMessages) {
+                const msg = guestMessages[convoId].find(m => m.id === messageId);
+                if (msg) msg.content = newContent;
+            }
+            return true;
+        }
+
+        try {
+            const { error } = await supabase.from('messages').update({ content: newContent }).eq('id', messageId);
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('Error updating message:', error);
+            return false;
+        }
+    },
+
     // --- Enhanced Management Features ---
 
     async deleteConversation(id: string) {
@@ -238,6 +277,22 @@ export const chatStore = {
         } catch (error) {
             console.error('Error archiving conversation:', error);
             return false;
+        }
+    },
+
+    async searchConversations(query: string): Promise<string[]> {
+        if (!query.trim()) return [];
+        try {
+            const { data, error } = await supabase
+                .from('messages')
+                .select('conversation_id')
+                .ilike('content', `%${query}%`);
+
+            if (error) throw error;
+            return [...new Set(data.map(m => m.conversation_id))] as string[];
+        } catch (error) {
+            console.error('Error searching messages:', error);
+            return [];
         }
     }
 };

@@ -41,7 +41,7 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
         loadMessages();
     }, [conversationId]);
 
-    const generateAIResponse = async (history: ChatMessage[], userInput: string, files: FileAttachment[] = []) => {
+    const generateAIResponse = async (history: ChatMessage[], userInput: string, files: FileAttachment[] = [], useWebSearch: boolean = false) => {
         setIsGenerating(true);
         let currentConvoId = conversationId;
 
@@ -52,6 +52,19 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
                 currentConvoId = newConvo.id;
                 await chatStore.addMessage(currentConvoId, 'user', userInput);
                 onConversationCreated(newConvo.id);
+
+                // Fire and forget smart title generation
+                fetch('/api/generate-title', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userInput, modelId })
+                }).then(res => res.json()).then(data => {
+                    if (data.title && currentConvoId) {
+                        chatStore.renameConversation(currentConvoId, data.title).then(() => {
+                            // This is handled by a refresh event loop in layout, but typically triggers an update implicitly next cycle
+                        });
+                    }
+                }).catch(err => console.error("Failed to generate title:", err));
             }
         }
 
@@ -114,7 +127,8 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
                     message: userInput,
                     layers: files,
                     persona: localStorage.getItem('nextgen_persona') || 'Standard AI',
-                    modelId
+                    modelId,
+                    useWebSearch
                 }),
                 signal: abortControllerRef.current.signal
             });
@@ -193,7 +207,7 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
         }
     };
 
-    const handleSendMessage = async (text: string, files: FileAttachment[]) => {
+    const handleSendMessage = async (text: string, files: FileAttachment[], useWebSearch: boolean = false) => {
         const tempId = Date.now().toString();
         let messageContent = '';
         const imageFiles = files.filter(f => f.mimeType.startsWith('image/'));
@@ -246,17 +260,26 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
             }
         }
 
-        await generateAIResponse(newChatMessages, userChatMessage.content, imageFiles);
+        await generateAIResponse(newChatMessages, userChatMessage.content, imageFiles, useWebSearch);
     };
 
     const handleEditMessage = async (id: string, newContent: string) => {
         const messageIndex = messages.findIndex(m => m.id === id);
         if (messageIndex === -1) return;
 
+        const messagesToDelete = messages.slice(messageIndex + 1).map(m => m.id);
+
         const truncatedHistory = messages.slice(0, messageIndex);
         const updatedChatMessage = { ...messages[messageIndex], content: newContent };
         const newChatMessages = [...truncatedHistory, updatedChatMessage];
         setMessages(newChatMessages);
+
+        if (conversationId) {
+            await chatStore.updateMessage(id, newContent);
+            if (messagesToDelete.length > 0) {
+                await chatStore.deleteMessages(messagesToDelete);
+            }
+        }
 
         await generateAIResponse(truncatedHistory, newContent, []);
     };
@@ -274,10 +297,16 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
 
         if (lastUserChatMessageIndex === -1) return;
 
+        const messagesToDelete = messages.slice(lastUserChatMessageIndex + 1).map(m => m.id);
         const truncatedHistory = messages.slice(0, lastUserChatMessageIndex);
         const lastUserInput = messages[lastUserChatMessageIndex].content;
 
         setMessages(messages.slice(0, lastUserChatMessageIndex + 1));
+
+        if (conversationId && messagesToDelete.length > 0) {
+            await chatStore.deleteMessages(messagesToDelete);
+        }
+
         await generateAIResponse(truncatedHistory, lastUserInput, []);
     };
 

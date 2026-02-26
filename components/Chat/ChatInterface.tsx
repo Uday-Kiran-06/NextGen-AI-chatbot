@@ -33,6 +33,7 @@ const MODELS = [
     { id: 'gemini-3-flash-preview', label: 'Gemini 3 Preview', icon: Sparkles, desc: 'Next-gen frontier model' },
     { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', icon: Zap, desc: 'Powerful Open Source' },
     { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7b', icon: Zap, desc: 'High-speed efficiency' },
+    { id: 'ollama-llama3', label: 'Local (Ollama)', icon: Zap, desc: 'Private localhost:11434' },
 ];
 
 interface ChatInterfaceProps {
@@ -89,7 +90,8 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             const textarea = document.querySelector('textarea');
             textarea?.focus();
         },
-        onToggleTheme: () => setTheme(theme === 'dark' ? 'light' : 'dark')
+        onToggleTheme: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
+        onStopGeneration: handleStopGeneration
     });
 
     // Load initial model from localStorage

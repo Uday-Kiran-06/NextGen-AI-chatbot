@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon, ChevronDown, Sparkles, Check, Zap, PenTool, Square } from 'lucide-react';
+import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon, ChevronDown, Sparkles, Check, Zap, PenTool, Square, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, vibrate } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -9,7 +9,7 @@ import { FileAttachment } from './types';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 interface InputAreaProps {
-    onSendMessage: (text: string, files: FileAttachment[]) => void;
+    onSendMessage: (text: string, files: FileAttachment[], useWebSearch?: boolean) => void;
     isGenerating: boolean;
     modelId: string;
     onModelChange: (modelId: string) => void;
@@ -27,12 +27,23 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
     const modelDropdownRef = useRef<HTMLDivElement>(null);
     const personaDropdownRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [autoSendTrigger, setAutoSendTrigger] = useState(0);
 
     const { isRecording, interimTranscript, toggleRecording, stopRecording } = useSpeechRecognition({
         onResult: (transcript) => {
             setInput((prev) => prev + (prev ? ' ' : '') + transcript);
+        },
+        onSilence: () => {
+            setAutoSendTrigger(prev => prev + 1);
         }
     });
+
+    // Auto-Send effect
+    useEffect(() => {
+        if (autoSendTrigger > 0) {
+            handleSend();
+        }
+    }, [autoSendTrigger]);
 
     // Auto-expand textarea
     useEffect(() => {
@@ -92,10 +103,12 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
         setFiles(files.filter((_, i) => i !== index));
     };
 
+    const [useWebSearch, setUseWebSearch] = useState(false);
+
     const handleSend = () => {
         if ((!input.trim() && files.length === 0) || isGenerating) return;
         vibrate(10);
-        onSendMessage(input, files);
+        onSendMessage(input, files, useWebSearch);
         setInput('');
         setFiles([]);
         if (isRecording) {
@@ -255,6 +268,17 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-1 pb-1 shrink-0">
+                    <button
+                        onClick={() => setUseWebSearch(!useWebSearch)}
+                        className={cn(
+                            "p-2 rounded-full transition-all duration-300",
+                            useWebSearch ? "bg-accent-primary/20 text-accent-primary" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                        )}
+                        title={useWebSearch ? "Web Search Enabled" : "Enable Web Search"}
+                    >
+                        <Globe size={18} className={cn(useWebSearch && "animate-pulse")} />
+                    </button>
+
                     <ModelSelector
                         modelId={modelId}
                         onModelChange={onModelChange}
