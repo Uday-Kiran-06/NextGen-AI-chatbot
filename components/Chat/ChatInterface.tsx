@@ -159,12 +159,12 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             >
                 <button
                     onClick={onOpenSidebar}
-                    className="p-2 -ml-2 text-foreground opacity-70 hover:opacity-100 hover:scale-110 active:scale-95 transition-all rounded-xl hover:bg-white/5"
+                    className="p-2 -ml-2 text-foreground opacity-70 hover:opacity-100 hover:scale-110 active:scale-95 transition-all rounded-xl hover:bg-white/5 relative z-10"
                     aria-label="Open Sidebar"
                 >
                     <Menu size={20} />
                 </button>
-                <div className="flex flex-col items-center">
+                <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
                     <div className="font-bold text-[13px] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-accent-primary to-accent-secondary">
                         NextGen AI
                     </div>
