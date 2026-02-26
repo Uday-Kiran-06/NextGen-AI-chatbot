@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import MessageBubble, { MessageSkeleton } from './MessageBubble';
 import InputArea from './InputArea';
 import WelcomeView from './WelcomeView';
-import { Share2, Sparkles, Zap, Image as ImageIcon, Code, PenTool, Menu, Download, ChevronDown, RefreshCw } from 'lucide-react';
+import { Share2, Sparkles, Zap, Image as ImageIcon, Code, PenTool, Menu, Download, ChevronDown, RefreshCw, MessageSquarePlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, vibrate } from '@/lib/utils';
 import { chatStore, Message as StoreMessage, Conversation } from '@/lib/chat-store';
@@ -178,7 +178,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     className="p-2 -mr-2 text-foreground opacity-70 hover:opacity-100 hover:scale-110 active:scale-95 transition-all rounded-xl hover:bg-white/5"
                     aria-label="New Chat"
                 >
-                    <Share2 size={18} />
+                    <MessageSquarePlus size={18} />
                 </button>
             </motion.div>
 
