@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { X, Download, ZoomIn, ZoomOut, Maximize, RotateCcw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ImageViewerProps {
@@ -14,11 +14,14 @@ export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerPr
     const [scale, setScale] = useState(1);
     const [isDownloading, setIsDownloading] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+    const initialDistance = useRef<number | null>(null);
+    const initialScale = useRef(1);
 
     // Reset zoom state when closing/opening
     useEffect(() => {
         if (!isOpen) {
             setScale(1);
+            initialDistance.current = null;
         }
     }, [isOpen]);
 
@@ -34,21 +37,6 @@ export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerPr
         };
     }, [isOpen]);
 
-    const handleZoomIn = (e?: React.MouseEvent) => {
-        e?.stopPropagation();
-        setScale(prev => Math.min(prev + 0.5, 5));
-    };
-
-    const handleZoomOut = (e?: React.MouseEvent) => {
-        e?.stopPropagation();
-        setScale(prev => Math.max(prev - 0.5, 1));
-    };
-
-    const handleReset = (e?: React.MouseEvent) => {
-        e?.stopPropagation();
-        setScale(1);
-    };
-
     const handleWheel = useCallback((e: WheelEvent) => {
         if (!isOpen) return;
         e.preventDefault();
@@ -59,13 +47,47 @@ export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerPr
         });
     }, [isOpen]);
 
+    const handleTouchStart = useCallback((e: TouchEvent) => {
+        if (e.touches.length === 2) {
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            const dist = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+            initialDistance.current = dist;
+            initialScale.current = scale;
+        }
+    }, [scale]);
+
+    const handleTouchMove = useCallback((e: TouchEvent) => {
+        if (e.touches.length === 2 && initialDistance.current !== null) {
+            e.preventDefault();
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            const dist = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+            const ratio = dist / initialDistance.current;
+            const newScale = initialScale.current * ratio;
+            setScale(Math.min(Math.max(newScale, 1), 5));
+        }
+    }, []);
+
+    const handleTouchEnd = useCallback(() => {
+        initialDistance.current = null;
+    }, []);
+
     useEffect(() => {
         const container = containerRef.current;
         if (container && isOpen) {
             container.addEventListener('wheel', handleWheel, { passive: false });
-            return () => container.removeEventListener('wheel', handleWheel);
+            container.addEventListener('touchstart', handleTouchStart);
+            container.addEventListener('touchmove', handleTouchMove, { passive: false });
+            container.addEventListener('touchend', handleTouchEnd);
+            return () => {
+                container.removeEventListener('wheel', handleWheel);
+                container.removeEventListener('touchstart', handleTouchStart);
+                container.removeEventListener('touchmove', handleTouchMove);
+                container.removeEventListener('touchend', handleTouchEnd);
+            };
         }
-    }, [isOpen, handleWheel]);
+    }, [isOpen, handleWheel, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
     const handleDownload = async () => {
         try {
@@ -114,9 +136,6 @@ export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerPr
                         </button>
 
                         <div className="flex items-center gap-3 pointer-events-auto">
-                            <span className="text-xs font-mono text-white/60 bg-white/5 py-1 px-2 rounded-lg border border-white/10">
-                                {Math.round(scale * 100)}%
-                            </span>
                             <button
                                 onClick={(e) => { e.stopPropagation(); handleDownload(); }}
                                 className={cn(
@@ -128,24 +147,6 @@ export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerPr
                             </button>
                         </div>
                     </div>
-
-                    {/* Floating Controls */}
-                    <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-2 p-1.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl z-50 shadow-2xl"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <button onClick={handleZoomOut} className="p-3 hover:bg-white/10 rounded-xl transition-colors text-white/80 hover:text-white" title="Zoom Out">
-                            <ZoomOut size={20} />
-                        </button>
-                        <button onClick={handleReset} className="p-3 hover:bg-white/10 rounded-xl transition-colors text-white/80 hover:text-white" title="Reset">
-                            <RotateCcw size={20} />
-                        </button>
-                        <button onClick={handleZoomIn} className="p-3 hover:bg-white/10 rounded-xl transition-colors text-white/80 hover:text-white" title="Zoom In">
-                            <ZoomIn size={20} />
-                        </button>
-                    </motion.div>
 
                     {/* Main Image Viewport */}
                     <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
