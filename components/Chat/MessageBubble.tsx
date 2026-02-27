@@ -6,6 +6,8 @@ import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download
 import { cn, vibrate } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import CodeBlock from './CodeBlock';
@@ -152,20 +154,13 @@ const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpe
                                 </div>
                             ) : (
                                 <div className="prose prose-sm md:prose-[15px] max-w-none break-words 
-                                    text-foreground/90 
-                                    prose-p:leading-7 prose-p:mb-4 last:prose-p:mb-0
-                                    prose-headings:text-foreground prose-headings:font-bold prose-headings:mb-4 prose-headings:mt-6
-                                    prose-strong:font-bold prose-strong:text-foreground
-                                    prose-em:italic prose-em:text-foreground/80
-                                    prose-a:text-accent-primary prose-a:no-underline hover:prose-a:underline
-                                    prose-ul:list-disc prose-ul:pl-6 prose-ul:my-4 prose-ul:marker:text-foreground/60
-                                    prose-ol:list-decimal prose-ol:pl-6 prose-ol:my-4 prose-ol:marker:text-foreground/80 prose-ol:marker:font-bold
-                                    prose-li:my-1 prose-li:leading-7 prose-li:pl-1
-                                    prose-blockquote:border-l-4 prose-blockquote:border-accent-primary prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-foreground/80 prose-blockquote:bg-black/5 dark:prose-blockquote:bg-white/5 prose-blockquote:py-2 prose-blockquote:my-4 prose-blockquote:rounded-r-lg
-                                    prose-table:w-full prose-table:my-4 prose-table:border-collapse prose-th:border prose-th:border-gray-300 dark:prose-th:border-gray-700 prose-th:px-4 prose-th:py-2 prose-th:bg-black/5 dark:prose-th:bg-white/5 prose-td:border prose-td:border-gray-300 dark:prose-td:border-gray-700 prose-td:px-4 prose-td:py-2
+                                    text-foreground/90 prose-zinc dark:prose-invert
+                                    prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0
+                                    prose-a:text-accent-primary hover:prose-a:text-accent-secondary
                                 ">
                                     <ReactMarkdown
-                                        remarkPlugins={[remarkGfm]}
+                                        remarkPlugins={[remarkGfm, remarkMath]}
+                                        rehypePlugins={[rehypeKatex]}
                                         urlTransform={(value) => value}
                                         components={{
                                             code: (props: any) => <CodeBlock {...props} onOpenArtifact={onOpenArtifact} />,

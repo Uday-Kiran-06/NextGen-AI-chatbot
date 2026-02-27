@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bot, Copy, Check } from 'lucide-react';
 import { cn, vibrate } from '@/lib/utils';
 import { toast } from 'sonner';
 import MermaidDiagram from './MermaidDiagram';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { codeToHtml } from 'shiki';
 
 interface CodeBlockProps {
     inline?: boolean;
@@ -19,6 +18,27 @@ export default function CodeBlock({ inline, className, children, onOpenArtifact,
     const codeString = String(children).replace(/\n$/, '');
     const [isCopied, setIsCopied] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [highlightedHtml, setHighlightedHtml] = useState<string>('');
+
+    useEffect(() => {
+        let isMounted = true;
+        async function highlight() {
+            try {
+                const html = await codeToHtml(codeString, {
+                    lang: language || 'text',
+                    theme: 'vsc-dark-plus'
+                });
+                if (isMounted) setHighlightedHtml(html);
+            } catch (error) {
+                console.error('Shiki highlighting error:', error);
+                if (isMounted) {
+                    setHighlightedHtml(`<pre class="shiki vsc-dark-plus" style="background-color:#1e1e1e;color:#d4d4d4" tabindex="0"><code>${codeString}</code></pre>`);
+                }
+            }
+        }
+        highlight();
+        return () => { isMounted = false; };
+    }, [codeString, language]);
 
     const PREVIEW_LANGS = ['html', 'css', 'javascript', 'js', 'jsx', 'typescript', 'ts', 'tsx', 'svg'];
     const showPreview = !inline && PREVIEW_LANGS.includes(language.toLowerCase());
@@ -60,17 +80,13 @@ export default function CodeBlock({ inline, className, children, onOpenArtifact,
                         {isCopied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
                     </button>
                 </div>
-                <div className={cn("relative bg-gray-100 dark:bg-[#0d1117] transition-all duration-300", !isExpanded && isLongCode ? "max-h-[350px] overflow-hidden" : "")}>
-                    <div className="overflow-x-auto p-4 text-sm text-gray-800 dark:text-gray-300 font-mono leading-relaxed pb-4" style={{ scrollbarWidth: 'thin', scrollbarColor: '#30363d transparent' }}>
-                        <SyntaxHighlighter
-                            language={language}
-                            style={vscDarkPlus}
-                            PreTag="div"
-                            customStyle={{ margin: 0, padding: 0, background: 'transparent' }}
-                            {...(props as any)}
-                        >
-                            {codeString}
-                        </SyntaxHighlighter>
+                <div className={cn("relative bg-[#1e1e1e] transition-all duration-300", !isExpanded && isLongCode ? "max-h-[350px] overflow-hidden" : "")}>
+                    <div className="overflow-x-auto p-4 text-sm font-mono leading-relaxed pb-4 [&>pre]:!bg-transparent [&>pre]:m-0 [&>pre]:p-0" style={{ scrollbarWidth: 'thin', scrollbarColor: '#30363d transparent' }}>
+                        {highlightedHtml ? (
+                            <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
+                        ) : (
+                            <pre className="text-gray-300"><code>{codeString}</code></pre>
+                        )}
                     </div>
 
                     {/* Expand Overlay */}
