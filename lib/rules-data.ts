@@ -891,7 +891,7 @@ _Assistant Professor, CSE AI & ML / Data Science_
 ![Ms. S. Prabhavathi](https://aliet.ac.in/storage/159/01K8WWA4WXN7R1MTWWZ7YDFNKP.png)`
     },
     {
-        keywords: ["darchana", "mrs. d.archana", "mrs darchana"],
+        keywords: ["darchana", "mrs. d.archana", "mrs darchana", "archana"],
         response: `**Mrs. D.Archana**
 _Assistant Professor, CSE AI & ML / Data Science_
 - Qualification: M.Tech
