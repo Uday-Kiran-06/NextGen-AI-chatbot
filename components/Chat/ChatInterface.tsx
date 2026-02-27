@@ -44,7 +44,7 @@ interface ChatInterfaceProps {
 }
 
 export default function ChatInterface({ conversationId, onConversationCreated, onOpenSidebar, onNewChat }: ChatInterfaceProps) {
-    const [modelId, setModelId] = useState('gemini-2.5-flash');
+    const [modelId, setModelId] = useState('llama-3.3-70b-versatile');
     const activeModel = MODELS.find(m => m.id === modelId) || MODELS[0];
     const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
