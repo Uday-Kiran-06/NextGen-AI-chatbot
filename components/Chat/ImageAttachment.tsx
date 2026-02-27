@@ -67,9 +67,11 @@ export default function ImageAttachment({ src, alt, variant = 'single' }: ImageA
                 <img
                     src={src}
                     alt={alt}
+                    loading="lazy"
+                    decoding="async"
                     className={cn(
-                        "transition-opacity duration-300 transition-transform",
-                        isGrid ? "w-full h-full object-cover hover:scale-105" : "w-full h-auto block max-h-[300px] object-contain",
+                        "transition-opacity duration-300 transition-transform transform-gpu",
+                        isGrid ? "w-full h-full object-cover md:hover:scale-105" : "w-full h-auto block max-h-[300px] object-contain",
                         isLoading ? "opacity-0" : "opacity-100"
                     )}
                     onLoad={() => setIsLoading(false)}
