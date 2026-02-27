@@ -81,23 +81,24 @@ const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpe
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 15, scale: 0.98 }}
+            layout="position"
+            initial={{ opacity: 0, y: 10, scale: 0.99 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{
-                duration: 0.5,
-                ease: [0.19, 1, 0.22, 1], // Custom cubic bezier for a more "premium" feel
-                delay: 0.05
+                duration: 0.4,
+                ease: [0.19, 1, 0.22, 1],
             }}
             drag="x"
+            dragDirectionLock
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
+            dragElastic={0.15}
             onDragEnd={(_, info) => {
                 if (Math.abs(info.offset.x) > 60) {
                     handleCopy();
                 }
             }}
             className={cn(
-                "flex w-full mb-8 relative touch-pan-y", // Added touch-pan-y for better scroll handling
+                "flex w-full mb-8 relative touch-pan-y transform-gpu backface-hidden",
                 isUser ? "justify-end" : "justify-start"
             )}
         >
@@ -125,7 +126,7 @@ const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpe
                         )}>
                             {/* Shimmer Effect for User */}
                             {isUser && !isEditing && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] animate-[shimmer_3s_infinite]" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] animate-[shimmer_5s_infinite] pointer-events-none" />
                             )}
 
                             {isEditing ? (

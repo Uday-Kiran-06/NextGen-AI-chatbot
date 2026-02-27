@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { X, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ImageViewer from './ImageViewer';
@@ -13,6 +13,14 @@ export default function ImageAttachment({ src, alt, variant = 'single' }: ImageA
     const [error, setError] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const imgRef = useRef<HTMLImageElement>(null);
+
+    // Immediate cache check to prevent flickering
+    React.useLayoutEffect(() => {
+        if (imgRef.current?.complete) {
+            setIsLoading(false);
+        }
+    }, [src]);
 
     const handleDownload = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -65,13 +73,14 @@ export default function ImageAttachment({ src, alt, variant = 'single' }: ImageA
                     </span>
                 )}
                 <img
+                    ref={imgRef}
                     src={src}
                     alt={alt}
                     loading="lazy"
                     decoding="async"
                     className={cn(
-                        "transition-opacity duration-300 transition-transform transform-gpu",
-                        isGrid ? "w-full h-full object-cover md:hover:scale-105" : "w-full h-auto block max-h-[300px] object-contain",
+                        "transition-opacity duration-200 transition-transform transform-gpu",
+                        isGrid ? "w-full h-full object-cover md:hover:scale-105" : "w-full h-auto block max-h-[350px] object-contain",
                         isLoading ? "opacity-0" : "opacity-100"
                     )}
                     onLoad={() => setIsLoading(false)}

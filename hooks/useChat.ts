@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { chatStore } from '@/lib/chat-store';
 import { FileAttachment } from '@/components/Chat/types';
 
@@ -20,12 +20,12 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
     const [agentAction, setAgentAction] = useState<string | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
 
-    const handleStopGeneration = () => {
+    const handleStopGeneration = useCallback(() => {
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
             abortControllerRef.current = null;
         }
-    };
+    }, []);
 
     // Load messages when conversationId changes
     useEffect(() => {
@@ -41,7 +41,7 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
         loadMessages();
     }, [conversationId]);
 
-    const generateAIResponse = async (history: ChatMessage[], userInput: string, files: FileAttachment[] = [], useWebSearch: boolean = false) => {
+    const generateAIResponse = useCallback(async (history: ChatMessage[], userInput: string, files: FileAttachment[] = [], useWebSearch: boolean = false) => {
         setIsGenerating(true);
         let currentConvoId = conversationId;
 
@@ -205,9 +205,9 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
             setAgentAction(null);
             abortControllerRef.current = null;
         }
-    };
+    }, [conversationId, modelId, onConversationCreated]);
 
-    const handleSendMessage = async (text: string, files: FileAttachment[], useWebSearch: boolean = false) => {
+    const handleSendMessage = useCallback(async (text: string, files: FileAttachment[], useWebSearch: boolean = false) => {
         const tempId = Date.now().toString();
         let messageContent = '';
         const imageFiles = files.filter(f => f.mimeType.startsWith('image/'));
@@ -229,8 +229,13 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
         }
 
         const userChatMessage: ChatMessage = { id: tempId, role: 'user', content: messageContent };
-        const newChatMessages = [...messages, userChatMessage];
-        setMessages(newChatMessages);
+
+        setMessages(prev => {
+            const newChatMessages = [...prev, userChatMessage];
+            // Side effect inside setMessages to ensure we have the latest messages array for the API call
+            // Actually, we'll use the functional update but we still need to trigger the AI response
+            return newChatMessages;
+        });
 
         if (conversationId) {
             chatStore.addMessage(conversationId, 'user', userChatMessage.content);
@@ -260,55 +265,60 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
             }
         }
 
-        await generateAIResponse(newChatMessages, userChatMessage.content, imageFiles, useWebSearch);
-    };
+        setMessages(prev => {
+            generateAIResponse(prev, userChatMessage.content, imageFiles, useWebSearch);
+            return prev;
+        });
+    }, [conversationId, generateAIResponse]);
 
-    const handleEditMessage = async (id: string, newContent: string) => {
-        const messageIndex = messages.findIndex(m => m.id === id);
-        if (messageIndex === -1) return;
+    const handleEditMessage = useCallback(async (id: string, newContent: string) => {
+        setMessages(prev => {
+            const messageIndex = prev.findIndex(m => m.id === id);
+            if (messageIndex === -1) return prev;
 
-        const messagesToDelete = messages.slice(messageIndex + 1).map(m => m.id);
+            const messagesToDelete = prev.slice(messageIndex + 1).map(m => m.id);
+            const truncatedHistory = prev.slice(0, messageIndex);
+            const updatedChatMessage = { ...prev[messageIndex], content: newContent };
+            const newChatMessages = [...truncatedHistory, updatedChatMessage];
 
-        const truncatedHistory = messages.slice(0, messageIndex);
-        const updatedChatMessage = { ...messages[messageIndex], content: newContent };
-        const newChatMessages = [...truncatedHistory, updatedChatMessage];
-        setMessages(newChatMessages);
-
-        if (conversationId) {
-            await chatStore.updateMessage(id, newContent);
-            if (messagesToDelete.length > 0) {
-                await chatStore.deleteMessages(messagesToDelete);
+            if (conversationId) {
+                chatStore.updateMessage(id, newContent);
+                if (messagesToDelete.length > 0) {
+                    chatStore.deleteMessages(messagesToDelete);
+                }
             }
-        }
 
-        await generateAIResponse(truncatedHistory, newContent, []);
-    };
+            generateAIResponse(truncatedHistory, newContent, []);
+            return newChatMessages;
+        });
+    }, [conversationId, generateAIResponse]);
 
-    const handleRegenerate = async () => {
-        if (messages.length < 2) return;
+    const handleRegenerate = useCallback(async () => {
+        setMessages(prev => {
+            if (prev.length < 2) return prev;
 
-        let lastUserChatMessageIndex = -1;
-        for (let i = messages.length - 1; i >= 0; i--) {
-            if (messages[i].role === 'user') {
-                lastUserChatMessageIndex = i;
-                break;
+            let lastUserChatMessageIndex = -1;
+            for (let i = prev.length - 1; i >= 0; i--) {
+                if (prev[i].role === 'user') {
+                    lastUserChatMessageIndex = i;
+                    break;
+                }
             }
-        }
 
-        if (lastUserChatMessageIndex === -1) return;
+            if (lastUserChatMessageIndex === -1) return prev;
 
-        const messagesToDelete = messages.slice(lastUserChatMessageIndex + 1).map(m => m.id);
-        const truncatedHistory = messages.slice(0, lastUserChatMessageIndex);
-        const lastUserInput = messages[lastUserChatMessageIndex].content;
+            const messagesToDelete = prev.slice(lastUserChatMessageIndex + 1).map(m => m.id);
+            const truncatedHistory = prev.slice(0, lastUserChatMessageIndex);
+            const lastUserInput = prev[lastUserChatMessageIndex].content;
 
-        setMessages(messages.slice(0, lastUserChatMessageIndex + 1));
+            if (conversationId && messagesToDelete.length > 0) {
+                chatStore.deleteMessages(messagesToDelete);
+            }
 
-        if (conversationId && messagesToDelete.length > 0) {
-            await chatStore.deleteMessages(messagesToDelete);
-        }
-
-        await generateAIResponse(truncatedHistory, lastUserInput, []);
-    };
+            generateAIResponse(truncatedHistory, lastUserInput, []);
+            return prev.slice(0, lastUserChatMessageIndex + 1);
+        });
+    }, [conversationId, generateAIResponse]);
 
     return {
         messages,
