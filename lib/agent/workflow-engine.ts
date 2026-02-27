@@ -108,6 +108,7 @@ ${Object.values(toolRegistry).map(t => `- ${t.name}: ${t.description}`).join('\n
 - If no tool is needed, respond with a direct text answer.
 - If search_knowledge returns nothing, use your general knowledge but mention the search was empty.
 - Always use Markdown lists (\`- \` or \`1. \`) for structured info.
+- Use emojis naturally to make your generated responses more attractive and readable!
 
 ${useWebSearch ? "\nCRITICAL: USER EXPLICITLY REQUESTED WEB SEARCH. You MUST use the `duckduckgo_search` or `web_search` or `read_page` tool to gather real-time data before providing your final answer.\n" : ""}
 ${persona ? `\n--- PERSONA ---\n${persona}\n---------------` : ''}
