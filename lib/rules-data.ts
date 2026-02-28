@@ -1026,7 +1026,7 @@ _Assistant Professor, CSE AI & ML / Data Science_
 *   Mrs. B. Susmitha`
     },
     {
-        keywords: ['cse ai ml faculty', 'ai ml faculty', 'ai ml teachers', 'cse ai ml hod', 'CSM'],
+        keywords: ['cse ai ml faculty', 'ai ml faculty', 'ai ml teachers', 'cse ai ml hod', 'CSM faculty'],
         response: `### 🤖 CSE (AI & ML) Faculty
 *   **Dr. K. Siva Rama Krishna**
 *   Dr. M. Chinna Rao
@@ -1047,7 +1047,7 @@ _Assistant Professor, CSE AI & ML / Data Science_
 *   Ms. S. Prabhavathi`
     },
     {
-        keywords: ['cse ds faculty', 'cse data science faculty', 'data science faculty', 'ds faculty', 'CSD'],
+        keywords: ['cse ds faculty', 'cse data science faculty', 'data science faculty', 'ds faculty', 'CSD faculty'],
         response: `### 📊 CSE (Data Science) Faculty
 *   **Dr. K. Siva Rama Krishna**
 *   Dr. M. Chinna Rao
