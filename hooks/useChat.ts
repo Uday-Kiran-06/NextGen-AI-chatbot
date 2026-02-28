@@ -99,7 +99,7 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
                 if (!imageUrl) throw new Error('Failed to generate image URL');
 
                 const aiChatMessageContent = `![Generated Image](${imageUrl})\n\n_Generated via direct command: "${prompt}"_`;
-                const aiChatMessageId = (Date.now() + 1).toString();
+                const aiChatMessageId = crypto.randomUUID();
                 setMessages(prev => [...prev, { id: aiChatMessageId, role: 'model', content: aiChatMessageContent }]);
 
                 if (currentConvoId) {
@@ -107,7 +107,7 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
                 }
             } catch (err) {
                 console.error("Image command failed", err);
-                setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: 'Sorry, I encountered an error generating the image.' }]);
+                setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', content: 'Sorry, I encountered an error generating the image.' }]);
             } finally {
                 setIsGenerating(false);
             }
@@ -149,7 +149,7 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
 
             if (!reader) throw new Error('No reader available');
 
-            aiChatMessageId = (Date.now() + 1).toString();
+            aiChatMessageId = crypto.randomUUID();
             setMessages(prev => [...prev, { id: aiChatMessageId, role: 'model', content: '' }]);
 
             while (true) {
@@ -199,7 +199,7 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
             console.error('Error generating response:', error);
             setAgentAction(null);
             const errorChatMessage = error.message || 'Sorry, I encountered an error. Please check your connection or API key.';
-            setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: `Error: ${errorChatMessage}` }]);
+            setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', content: `Error: ${errorChatMessage}` }]);
         } finally {
             setIsGenerating(false);
             setAgentAction(null);
@@ -208,7 +208,7 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
     }, [conversationId, modelId, onConversationCreated]);
 
     const handleSendMessage = useCallback(async (text: string, files: FileAttachment[], useWebSearch: boolean = false) => {
-        const tempId = Date.now().toString();
+        const tempId = crypto.randomUUID();
         let messageContent = '';
         const imageFiles = files.filter(f => f.mimeType.startsWith('image/'));
         const otherFiles = files.filter(f => !f.mimeType.startsWith('image/'));
@@ -230,12 +230,8 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
 
         const userChatMessage: ChatMessage = { id: tempId, role: 'user', content: messageContent };
 
-        setMessages(prev => {
-            const newChatMessages = [...prev, userChatMessage];
-            // Side effect inside setMessages to ensure we have the latest messages array for the API call
-            // Actually, we'll use the functional update but we still need to trigger the AI response
-            return newChatMessages;
-        });
+        const currentHistory = [...messages];
+        setMessages([...currentHistory, userChatMessage]);
 
         if (conversationId) {
             chatStore.addMessage(conversationId, 'user', userChatMessage.content);
@@ -259,66 +255,60 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
                     if (!uploadRes.ok) throw new Error(`Failed to process ${file.name}`);
                 }
             } catch (err: any) {
-                setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', content: `❌ Error uploading document: ${err.message}` }]);
+                setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', content: `❌ Error uploading document: ${err.message}` }]);
                 setIsGenerating(false);
                 return;
             }
         }
 
-        setMessages(prev => {
-            generateAIResponse(prev, userChatMessage.content, imageFiles, useWebSearch);
-            return prev;
-        });
-    }, [conversationId, generateAIResponse]);
+        generateAIResponse(currentHistory, userChatMessage.content, imageFiles, useWebSearch);
+    }, [messages, conversationId, generateAIResponse]);
 
     const handleEditMessage = useCallback(async (id: string, newContent: string) => {
-        setMessages(prev => {
-            const messageIndex = prev.findIndex(m => m.id === id);
-            if (messageIndex === -1) return prev;
+        const messageIndex = messages.findIndex(m => m.id === id);
+        if (messageIndex === -1) return;
 
-            const messagesToDelete = prev.slice(messageIndex + 1).map(m => m.id);
-            const truncatedHistory = prev.slice(0, messageIndex);
-            const updatedChatMessage = { ...prev[messageIndex], content: newContent };
-            const newChatMessages = [...truncatedHistory, updatedChatMessage];
+        const messagesToDelete = messages.slice(messageIndex + 1).map(m => m.id);
+        const truncatedHistory = messages.slice(0, messageIndex);
+        const updatedChatMessage = { ...messages[messageIndex], content: newContent };
+        const newChatMessages = [...truncatedHistory, updatedChatMessage];
 
-            if (conversationId) {
-                chatStore.updateMessage(id, newContent);
-                if (messagesToDelete.length > 0) {
-                    chatStore.deleteMessages(messagesToDelete);
-                }
-            }
+        setMessages(newChatMessages);
 
-            generateAIResponse(truncatedHistory, newContent, []);
-            return newChatMessages;
-        });
-    }, [conversationId, generateAIResponse]);
-
-    const handleRegenerate = useCallback(async () => {
-        setMessages(prev => {
-            if (prev.length < 2) return prev;
-
-            let lastUserChatMessageIndex = -1;
-            for (let i = prev.length - 1; i >= 0; i--) {
-                if (prev[i].role === 'user') {
-                    lastUserChatMessageIndex = i;
-                    break;
-                }
-            }
-
-            if (lastUserChatMessageIndex === -1) return prev;
-
-            const messagesToDelete = prev.slice(lastUserChatMessageIndex + 1).map(m => m.id);
-            const truncatedHistory = prev.slice(0, lastUserChatMessageIndex);
-            const lastUserInput = prev[lastUserChatMessageIndex].content;
-
-            if (conversationId && messagesToDelete.length > 0) {
+        if (conversationId) {
+            chatStore.updateMessage(id, newContent);
+            if (messagesToDelete.length > 0) {
                 chatStore.deleteMessages(messagesToDelete);
             }
+        }
 
-            generateAIResponse(truncatedHistory, lastUserInput, []);
-            return prev.slice(0, lastUserChatMessageIndex + 1);
-        });
-    }, [conversationId, generateAIResponse]);
+        generateAIResponse(truncatedHistory, newContent, []);
+    }, [messages, conversationId, generateAIResponse]);
+
+    const handleRegenerate = useCallback(async () => {
+        if (messages.length < 2) return;
+
+        let lastUserChatMessageIndex = -1;
+        for (let i = messages.length - 1; i >= 0; i--) {
+            if (messages[i].role === 'user') {
+                lastUserChatMessageIndex = i;
+                break;
+            }
+        }
+
+        if (lastUserChatMessageIndex === -1) return;
+
+        const messagesToDelete = messages.slice(lastUserChatMessageIndex + 1).map(m => m.id);
+        const truncatedHistory = messages.slice(0, lastUserChatMessageIndex);
+        const lastUserInput = messages[lastUserChatMessageIndex].content;
+
+        if (conversationId && messagesToDelete.length > 0) {
+            chatStore.deleteMessages(messagesToDelete);
+        }
+
+        setMessages(messages.slice(0, lastUserChatMessageIndex + 1));
+        generateAIResponse(truncatedHistory, lastUserInput, []);
+    }, [messages, conversationId, generateAIResponse]);
 
     return {
         messages,

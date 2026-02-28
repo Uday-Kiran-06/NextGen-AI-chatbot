@@ -914,29 +914,115 @@ _Assistant Professor, CSE AI & ML / Data Science_
     // --- Specific Departments ---
     {
         keywords: ['cse faculty', 'computer science faculty', 'cse hod', 'cse teachers'],
-        response: `### 💻 Computer Science & Engineering (CSE) Faculty\n*   **Dr. L. Kanya Kumari (HOD)**\n*   Dr. K. Siva Rama Krishna, Dr. K. Sireesha, Dr. K. Venkateswara Rao, Dr. Ch. Meher Babu, Dr. Y. Prakasa Rao, Dr. M. Sumender Roy\n*   Mr. M. Samuel Sandeep, Mr. V V R Manoj, Mr. K. Satish, Mr. K. Kishore Kumar, Mr. B. N. V. Basaveswara Rao, Mr. N. Naga Vijaya Varma, Mr. K. Srinivasa Rao\n*   Mrs. Y Karuna Manjusha, Mrs. Ch Pavani, Mrs. K. Neeharika, Mrs. P. Nancy Anurag, Mrs. K. Rajeswari, Mrs. K. Sravanthi, Mrs. A. Mary Lavanya, Mrs. N. V. L. Manaswini, Mrs. B. Alekhya, Mrs. M. Naga Usha, Mrs. K. Pushpavalli, Ms. A. Iswarya Gold, Mrs. V. Rama Lakshmi, Mrs. Y. B. Pramodini, Mrs. M. Havila, Mrs. N. Rohini Krishna Sai`
+        response: `### 💻 Computer Science & Engineering (CSE) Faculty
+*   **Dr. L. Kanya Kumari (HOD)**
+*   Dr. K. Siva Rama Krishna
+*   Dr. K. Sireesha
+*   Dr. K. Venkateswara Rao
+*   Dr. Ch. Meher Babu
+*   Dr. Y. Prakasa Rao
+*   Dr. M. Sumender Roy
+*   Mr. M. Samuel Sandeep
+*   Mr. V V R Manoj
+*   Mr. K. Satish
+*   Mr. K. Kishore Kumar
+*   Mr. B. N. V. Basaveswara Rao
+*   Mr. N. Naga Vijaya Varma
+*   Mr. K. Srinivasa Rao
+*   Mrs. Y Karuna Manjusha
+*   Mrs. Ch Pavani
+*   Mrs. K. Neeharika
+*   Mrs. P. Nancy Anurag
+*   Mrs. K. Rajeswari
+*   Mrs. K. Sravanthi
+*   Mrs. A. Mary Lavanya
+*   Mrs. N. V. L. Manaswini
+*   Mrs. B. Alekhya
+*   Mrs. M. Naga Usha
+*   Mrs. K. Pushpavalli
+*   Ms. A. Iswarya Gold
+*   Mrs. V. Rama Lakshmi
+*   Mrs. Y. B. Pramodini
+*   Mrs. M. Havila
+*   Mrs. N. Rohini Krishna Sai`
     },
     {
         keywords: ['it faculty', 'information technology faculty', 'it hod', 'it teachers'],
-        response: `### 🌐 Information Technology (IT) Faculty\n*   Dr. M. Chinna Rao, Dr. P. Sudheer\n*   Mr. V. Vidya Sagar, Mr. T. Kiran, Mr. K. Yaswanth\n*   Mrs. M. Kaladevi, Mrs. M. Suneela, Mrs. M. Kanthi Rekha, Ms. G. Sudha Rani, Mrs. K. Sravanthi`
+        response: `### 🌐 Information Technology (IT) Faculty
+*   Dr. M. Chinna Rao
+*   Dr. P. Sudheer
+*   Mr. V. Vidya Sagar
+*   Mr. T. Kiran
+*   Mr. K. Yaswanth
+*   Mrs. M. Kaladevi
+*   Mrs. M. Suneela
+*   Mrs. M. Kanthi Rekha
+*   Ms. G. Sudha Rani
+*   Mrs. K. Sravanthi`
     },
     {
         keywords: ['ece faculty', 'electronics faculty', 'ece hod', 'ece teachers'],
-        response: `### 📡 Electronics & Communication Engineering (ECE) Faculty\n*   Dr. K. Prasanthi Jasmine, Dr. Lakshmi Narayana Thalluri, Dr. S. Mallikharjuna Rao, Dr. K. Mariya Priyadarshini\n*   Mr. Mullapudi Rama Krishna, Mr. P. Bose Babu, Mr. G. Roopa Krishna Chandra, Mr. Gorapudi Ravi, Mr. Y. Pavan Kumar, Mr. Kanakala Appala Raju, Mr. Gayala Vijay Kumar, Mr. Merugamalli Rama Krishna, Mr. Kosuru Srinivasa Rao, Mr. Abdul Azeem, Mr. Mohammad Baig Mohammad, Mr. M. Ravi Kumar, Mr. N. Bujji Babu\n*   Mrs. B. Santhi Kiran, Mrs. T. Manogna`
+        response: `### 📡 Electronics & Communication Engineering (ECE) Faculty
+*   Dr. K. Prasanthi Jasmine
+*   Dr. Lakshmi Narayana Thalluri
+*   Dr. S. Mallikharjuna Rao
+*   Dr. K. Mariya Priyadarshini
+*   Mr. Mullapudi Rama Krishna
+*   Mr. P. Bose Babu
+*   Mr. G. Roopa Krishna Chandra
+*   Mr. Gorapudi Ravi
+*   Mr. Y. Pavan Kumar
+*   Mr. Kanakala Appala Raju
+*   Mr. Gayala Vijay Kumar
+*   Mr. Merugamalli Rama Krishna
+*   Mr. Kosuru Srinivasa Rao
+*   Mr. Abdul Azeem
+*   Mr. Mohammad Baig Mohammad
+*   Mr. M. Ravi Kumar
+*   Mr. N. Bujji Babu
+*   Mrs. B. Santhi Kiran
+*   Mrs. T. Manogna`
     },
     {
         keywords: ['eee faculty', 'electrical faculty', 'eee hod', 'eee teachers'],
-        response: `### ⚡ Electrical & Electronics Engineering (EEE) Faculty\n*   Dr. G. Naveen Kumar, Dr. M. Ajay Kumar, Dr. V. Anantha Lakshmi, Dr. G. Gantaiah Swamy\n*   Mr. L. Karunakar, Mr. T. Krishna Mohan, Mr. M. Rama Krishna, Mr. V. Brahmeswara Rao\n*   Ms. B. Sruthi, Ms. A. Chandhni Srilakshmi`
+        response: `### ⚡ Electrical & Electronics Engineering (EEE) Faculty
+*   Dr. G. Naveen Kumar
+*   Dr. M. Ajay Kumar
+*   Dr. V. Anantha Lakshmi
+*   Dr. G. Gantaiah Swamy
+*   Mr. L. Karunakar
+*   Mr. T. Krishna Mohan
+*   Mr. M. Rama Krishna
+*   Mr. V. Brahmeswara Rao
+*   Ms. B. Sruthi
+*   Ms. A. Chandhni Srilakshmi`
     },
     {
         keywords: ['civil faculty', 'civil hod', 'civil teachers'],
-        response: `### 🏗️ Civil Engineering Faculty\n*   Mr. K. Kiran Kumar, Mr. K. Mallikarjuna Rao, Mr. N. Abhilash, Mr. Nagaraju Chanumolu, Mr. V. Suryateja\n*   Mrs. A. Tejaswi, Mrs. V. Swathi Padmaja, Ms. G. Mahitha`
+        response: `### 🏗️ Civil Engineering Faculty
+*   Mr. K. Kiran Kumar
+*   Mr. K. Mallikarjuna Rao
+*   Mr. N. Abhilash
+*   Mr. Nagaraju Chanumolu
+*   Mr. V. Suryateja
+*   Mrs. A. Tejaswi
+*   Mrs. V. Swathi Padmaja
+*   Ms. G. Mahitha`
     },
     {
         keywords: ['mech faculty', 'mechanical faculty', 'mech hod', 'mechanical teachers'],
         response: `### ⚙️ Mechanical Engineering Faculty
-*   Dr. O. Mahesh, Dr. M. Geeta Rani, Dr. B. Sudheer Kumar, Dr. G. G. Srinivasu, Dr. T. Subba Reddy
-*   Mr. M. Sudhakar, Mr. Ch. Ranga Rao, Mr. M. Srinivasa Reddy, Mr. M. Teja Swarup, Mr. E. Durgesh, Mr. K. Uday Kiran
+*   Dr. O. Mahesh
+*   Dr. M. Geeta Rani
+*   Dr. B. Sudheer Kumar
+*   Dr. G. G. Srinivasu
+*   Dr. T. Subba Reddy
+*   Mr. M. Sudhakar
+*   Mr. Ch. Ranga Rao
+*   Mr. M. Srinivasa Reddy
+*   Mr. M. Teja Swarup
+*   Mr. E. Durgesh
+*   Mr. K. Uday Kiran
 *   Mrs. B. Susmitha`
     },
     {
@@ -944,32 +1030,81 @@ _Assistant Professor, CSE AI & ML / Data Science_
         response: `### 🤖 CSE (AI & ML) Faculty
 *   **Dr. K. Siva Rama Krishna**
 *   Dr. M. Chinna Rao
-*   Mr. Y.C. Ashok Kumar, Mr. B. Rajashekar Reddy, Mr. MD. Baig Mohammad, Mr. P. Jagadish, Mr. A. Naga Srinivasa Rao, Mr. S. Gopal, Mr. M. Winson
-*   Mrs. P. Nikhitha, Mrs. V. Munni, Mrs. B. Swathi, Mrs. D. Archana
-*   Ms. K. Reena, Ms. M. Mounika Aradhana, Ms. M. Beulah Rani, Ms. S. Prabhavathi`
+*   Mr. Y.C. Ashok Kumar
+*   Mr. B. Rajashekar Reddy
+*   Mr. MD. Baig Mohammad
+*   Mr. P. Jagadish
+*   Mr. A. Naga Srinivasa Rao
+*   Mr. S. Gopal
+*   Mr. M. Winson
+*   Mrs. P. Nikhitha
+*   Mrs. V. Munni
+*   Mrs. B. Swathi
+*   Mrs. D. Archana
+*   Ms. K. Reena
+*   Ms. M. Mounika Aradhana
+*   Ms. M. Beulah Rani
+*   Ms. S. Prabhavathi`
     },
     {
         keywords: ['cse ds faculty', 'cse data science faculty', 'data science faculty', 'ds faculty'],
         response: `### 📊 CSE (Data Science) Faculty
-*   Mr. P. Jagadish, Mr. S. Gopal
-*   Mrs. P. Nikhitha, Mrs. V. Munni
+*   **Dr. K. Siva Rama Krishna**
+*   Dr. M. Chinna Rao
+*   Mr. Y.C. Ashok Kumar
+*   Mr. B. Rajashekar Reddy
+*   Mr. MD. Baig Mohammad
+*   Mr. P. Jagadish
+*   Mr. A. Naga Srinivasa Rao
+*   Mr. S. Gopal
+*   Mr. M. Winson
+*   Mrs. P. Nikhitha
+*   Mrs. V. Munni
+*   Mrs. B. Swathi
+*   Mrs. D. Archana
+*   Ms. K. Reena
+*   Ms. M. Mounika Aradhana
+*   Ms. M. Beulah Rani
 *   Ms. S. Prabhavathi`
     },
     {
         keywords: ['mba faculty', 'mba teachers', 'mba hod', 'management faculty'],
         response: `### 📈 Master of Business Administration (MBA) Faculty
 *   **Dr. M. Vijay Kumar (HOD)**
-*   Dr. G. Lalitha Madhavi, Dr. K. Sattibabu, Dr. B. Shanti, Dr. M. Indira
+*   Dr. G. Lalitha Madhavi
+*   Dr. K. Sattibabu
+*   Dr. B. Shanti
+*   Dr. M. Indira
 *   Sk. Razia Begum`
     },
     {
         keywords: ['s&h faculty', 'science humanities faculty', 's&h teachers', 's&h hod'],
         response: `### 🧪 Science & Humanities (S&H) Faculty
 *   **Dr. Y. Sudhakar (HOD)**
-*   Dr. V. V. Prabhakar Rao, Dr. P. Sudha Rani, Dr. N. DyvaKrupa, Dr. Sr. Candy D'Cunha, Dr. Ch. Vijaya Lakshmi, Dr. T. Kalpana, Mr. P. Sugandha kumar
-*   Mr. Y. Rajesh (Physical Director), Mr. B. Ravi Shankar, Mr. A. Kalyan Kumar, Mr. T. Sujith
-*   Mrs. K. Swathi Kiran, Mrs. E. Kalavathi, Mrs. M. Archana, Mrs. S. Saritha, Mrs. B. Sailaja, Mrs. M. Vijaya Lakshmi
-*   Ms. S. P. V. N. D. Sumalatha, Ms. B. Sarath Kumari, Ms. K. Rajya Lakshmi, Ms. K. Leela Prasanna, Ms. K. Vasantha Lakshmi, Ms. B. TripuraSri Satvika, Ms. Parimala Jyothi`
+*   Dr. V. V. Prabhakar Rao
+*   Dr. P. Sudha Rani
+*   Dr. N. DyvaKrupa
+*   Dr. Sr. Candy D'Cunha
+*   Dr. Ch. Vijaya Lakshmi
+*   Dr. T. Kalpana
+*   Mr. P. Sugandha kumar
+*   Mr. Y. Rajesh (Physical Director)
+*   Mr. B. Ravi Shankar
+*   Mr. A. Kalyan Kumar
+*   Mr. T. Sujith
+*   Mrs. K. Swathi Kiran
+*   Mrs. E. Kalavathi
+*   Mrs. M. Archana
+*   Mrs. S. Saritha
+*   Mrs. B. Sailaja
+*   Mrs. M. Vijaya Lakshmi
+*   Ms. S. P. V. N. D. Sumalatha
+*   Ms. B. Sarath Kumari
+*   Ms. K. Rajya Lakshmi
+*   Ms. K. Leela Prasanna
+*   Ms. K. Vasantha Lakshmi
+*   Ms. B. TripuraSri Satvika
+*   Ms. Parimala Jyothi`
     },
 
     // --- Catch-all Faculty Rule (placed after specific departments so specifics match first) ---

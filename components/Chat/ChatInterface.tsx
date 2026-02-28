@@ -213,7 +213,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
 
                     {messages.map((msg, index) => (
                         <MessageBubble
-                            key={msg.id}
+                            key={`${msg.id}-${index}`}
                             message={msg}
                             isLast={index === messages.length - 1}
                             onEdit={handleEditMessage}
