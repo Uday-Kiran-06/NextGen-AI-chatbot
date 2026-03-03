@@ -156,7 +156,8 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
     };
 
     return (
-        <div className="p-4 md:p-6 pb-6 relative">
+        <div className="p-4 md:p-6 pb-6 relative w-full z-10">
+            <div className="absolute inset-0 top-[-40px] bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none -z-10" />
             {/* Voice Status Indicator */}
             <AnimatePresence>
                 {isRecording && (
@@ -221,18 +222,18 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
                 className={cn(
-                    "glass-panel rounded-[20px] md:rounded-2xl p-1 md:p-2 flex items-end gap-1 md:gap-2 relative transition-all duration-300",
-                    isDragging ? "ring-2 ring-accent-primary bg-accent-primary/5 scale-[1.01]" : "focus-within:ring-2 focus-within:ring-accent-primary/50"
+                    "glass-panel rounded-[20px] md:rounded-2xl p-1 md:p-2 flex items-end gap-1 md:gap-2 relative transition-all duration-500",
+                    isDragging ? "ring-2 ring-accent-primary bg-accent-primary/5 scale-[1.01]" : "focus-within:ring-2 focus-within:ring-accent-primary/60 focus-within:shadow-[0_8px_32px_rgba(0,0,0,0.12)] focus-within:shadow-accent-primary/20 focus-within:-translate-y-0.5"
                 )}
             >
                 {/* Attach Button */}
                 <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-3 text-gray-400 hover:text-accent-primary transition-all duration-300 rounded-full hover:bg-white/5 hover:scale-110 active:scale-95 shrink-0"
+                    className="p-3.5 md:p-3 text-gray-400 hover:text-accent-primary transition-all duration-300 rounded-full hover:bg-white/5 hover:scale-110 active:scale-95 shrink-0"
                     title="Attach Files"
                     aria-label="Attach Files from Computer"
                 >
-                    <Paperclip size={20} />
+                    <Paperclip size={20} className="md:w-[20px] md:h-[20px] w-[22px] h-[22px]" />
                 </button>
                 <input
                     type="file"
@@ -291,23 +292,23 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                         {input.trim() || files.length > 0 || isGenerating ? (
                             <motion.button
                                 key="send"
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
-                                transition={{ duration: 0.15 }}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                exit={{ opacity: 0, scale: 0.5, rotate: 10 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                whileHover={{ scale: 1.08 }}
+                                whileTap={{ scale: 0.9 }}
                                 onClick={isGenerating ? onStop : handleSend}
                                 className={cn(
-                                    "p-3 rounded-full transition-all duration-300",
+                                    "p-3.5 md:p-3 rounded-full transition-all duration-300",
                                     isGenerating
-                                        ? "bg-red-500/90 text-white shadow-lg shadow-red-500/20 hover:bg-red-600"
-                                        : "bg-accent-primary text-white shadow-lg shadow-accent-primary/20 hover:bg-accent-primary/90"
+                                        ? "bg-red-500 text-white shadow-lg shadow-red-500/40 hover:bg-red-600 hover:shadow-xl hover:shadow-red-500/60"
+                                        : "bg-accent-primary text-white shadow-lg shadow-accent-primary/40 hover:bg-accent-primary hover:shadow-xl hover:shadow-accent-primary/60"
                                 )}
                                 aria-label={isGenerating ? "Stop Generation" : "Send Message"}
                                 title={isGenerating ? "Stop Generation" : "Send"}
                             >
-                                {isGenerating ? <Square size={18} fill="currentColor" /> : <Send size={20} />}
+                                {isGenerating ? <Square size={20} fill="currentColor" className="animate-pulse" /> : <Send size={20} className="translate-x-[1px] translate-y-[-1px] md:w-[20px] md:h-[20px] w-[22px] h-[22px]" />}
                             </motion.button>
                         ) : (
                             <motion.button
@@ -318,7 +319,7 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                 transition={{ duration: 0.15 }}
                                 onClick={toggleRecording}
                                 className={cn(
-                                    "relative p-3 transition-all duration-300 rounded-full hover:scale-110 active:scale-95 shrink-0 z-10",
+                                    "relative p-3.5 md:p-3 transition-all duration-300 rounded-full hover:scale-110 active:scale-95 shrink-0 z-10",
                                     isRecording ? "bg-red-500 text-white shadow-lg shadow-red-500/40" : "text-gray-400 hover:text-accent-primary hover:bg-white/5"
                                 )}
                                 title={isRecording ? "Stop Recording" : "Voice Input"}
@@ -331,7 +332,7 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                         <span className="absolute -inset-2 rounded-full border border-red-500/50 animate-ping opacity-50" style={{ animationDuration: '2s', animationDelay: '0.2s' }} />
                                     </>
                                 )}
-                                <Mic size={20} className={cn("relative z-10", isRecording && "animate-pulse")} />
+                                <Mic size={20} className={cn("relative z-10 md:w-[20px] md:h-[20px] w-[22px] h-[22px]", isRecording && "animate-pulse")} />
                             </motion.button>
                         )}
                     </AnimatePresence>

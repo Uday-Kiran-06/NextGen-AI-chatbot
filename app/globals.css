@@ -54,6 +54,8 @@ body {
   background: var(--background);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  overscroll-behavior-y: none;
+  /* Prevent native pull-to-refresh on mobile */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
@@ -178,6 +180,20 @@ body {
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Shiki Syntax Highlighting Overrides */
+  .shiki {
+    background-color: transparent !important;
+    /* Let parent handle bg */
+  }
+
+  .shiki span {
+    color: var(--shiki-light, inherit);
+  }
+
+  .dark .shiki span {
+    color: var(--shiki-dark, inherit);
   }
 }
 

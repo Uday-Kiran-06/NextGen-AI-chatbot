@@ -157,7 +157,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     opacity: showHeader ? 1 : 0
                 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="md:hidden absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-3 right-3 z-50 flex items-center justify-between px-4 py-2.5 bg-sidebar-bg/80 backdrop-blur-xl border border-glass-border rounded-2xl shadow-lg ring-1 ring-white/10"
+                className="md:hidden absolute top-[calc(env(safe-area-inset-top,0px)+8px)] left-3 right-3 z-50 flex items-center justify-between px-4 py-2.5 bg-sidebar-bg/80 backdrop-blur-xl border border-glass-border rounded-2xl shadow-lg ring-1 ring-white/10"
             >
                 <button
                     onClick={onOpenSidebar}
@@ -216,6 +216,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                             key={`${msg.id}-${index}`}
                             message={msg}
                             isLast={index === messages.length - 1}
+                            isGenerating={isGenerating && index === messages.length - 1 && msg.role === 'model'}
                             onEdit={handleEditMessage}
                             onRegenerate={handleRegenerate}
                             onOpenArtifact={handleOpenArtifact}
@@ -263,6 +264,12 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                             onClick={scrollToBottom}
                             className="fixed bottom-32 left-1/2 -translate-x-1/2 px-4 py-2 bg-accent-primary text-white rounded-full shadow-2xl flex items-center gap-2 hover:scale-110 active:scale-95 transition-all z-20 group"
                         >
+                            {isGenerating && (
+                                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500 border-2 border-background"></span>
+                                </span>
+                            )}
                             <span className="text-xs font-bold tracking-wide">New Messages</span>
                             <ChevronDown size={14} className="group-hover:animate-bounce" />
                         </motion.button>

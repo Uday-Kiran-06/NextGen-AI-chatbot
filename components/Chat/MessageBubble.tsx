@@ -20,12 +20,13 @@ interface MessageBubbleProps {
         content: string;
     };
     isLast?: boolean;
+    isGenerating?: boolean;
     onEdit?: (id: string, newContent: string) => void;
     onRegenerate?: () => void;
     onOpenArtifact?: (code: string, lang: string) => void;
 }
 
-const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpenArtifact }: MessageBubbleProps) => {
+const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onRegenerate, onOpenArtifact }: MessageBubbleProps) => {
     const isUser = message.role === 'user';
     const [isCopied, setIsCopied] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -40,6 +41,50 @@ const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpe
             textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
         }
     }, [isEditing]);
+
+    const onOpenArtifactRef = useRef(onOpenArtifact);
+    useEffect(() => {
+        onOpenArtifactRef.current = onOpenArtifact;
+    }, [onOpenArtifact]);
+
+    const markdownComponents = React.useMemo(() => ({
+        code: (props: any) => <CodeBlock {...props} onOpenArtifact={(code: string, lang: string) => onOpenArtifactRef.current?.(code, lang)} />,
+        p: ({ node, children }: any) => {
+            const childrenArray = React.Children.toArray(children);
+            const imageChildren = childrenArray.filter(
+                (child: any) =>
+                    React.isValidElement(child) &&
+                    (child as any).props?.node?.tagName === 'img'
+            );
+
+            const hasImages = imageChildren.length > 0;
+
+            if (hasImages) {
+                const variant = imageChildren.length === 1 ? 'single' : 'grid';
+
+                const content = childrenArray.map((child: any) => {
+                    if (React.isValidElement(child) && (child as any).props?.node?.tagName === 'img') {
+                        return React.cloneElement(child, { variant } as any);
+                    }
+                    return child;
+                });
+
+                if (variant === 'grid') {
+                    return (
+                        <div className="flex gap-2 my-2 w-full overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent snap-x">
+                            {content}
+                        </div>
+                    );
+                }
+
+                return <div className="mb-2 last:mb-0 w-full">{content}</div>;
+            }
+            return <div className="mb-4 last:mb-0 leading-7">{children}</div>;
+        },
+        img: ({ node, ...props }: any) => {
+            return <ImageAttachment src={props.src || ''} alt={props.alt || ''} variant={props.variant || 'single'} />;
+        }
+    }), []);
 
     useEffect(() => {
         return () => {
@@ -84,11 +129,12 @@ const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpe
     return (
         <motion.div
             layout="position"
-            initial={{ opacity: 0, y: 10, scale: 0.99 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{
-                duration: 0.4,
-                ease: [0.19, 1, 0.22, 1],
+                type: "spring",
+                stiffness: 400,
+                damping: 25,
             }}
             drag="x"
             dragDirectionLock
@@ -156,88 +202,44 @@ const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpe
                                 <div className="prose prose-sm md:prose-[15px] max-w-none break-words 
                                     text-foreground/90 prose-zinc dark:prose-invert
                                     prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0
+                                    prose-code:before:content-none prose-code:after:content-none
                                     prose-a:text-accent-primary hover:prose-a:text-accent-secondary
                                 ">
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm, remarkMath]}
                                         rehypePlugins={[rehypeKatex]}
                                         urlTransform={(value) => value}
-                                        components={{
-                                            code: (props: any) => <CodeBlock {...props} onOpenArtifact={onOpenArtifact} />,
-                                            // Custom Paragraph to handle Image Galleries
-                                            p: ({ node, children }) => {
-                                                // Check if children are mostly images using AST node type to survive minification
-                                                const childrenArray = React.Children.toArray(children);
-                                                const imageChildren = childrenArray.filter(
-                                                    (child: any) =>
-                                                        React.isValidElement(child) &&
-                                                        (child as any).props?.node?.tagName === 'img'
-                                                );
-
-                                                const hasImages = imageChildren.length > 0;
-
-                                                if (hasImages) {
-                                                    // Use 'single' variant if exactly one image, else 'grid'
-                                                    const variant = imageChildren.length === 1 ? 'single' : 'grid';
-
-                                                    // Remap children to inject variant prop
-                                                    const content = childrenArray.map((child: any) => {
-                                                        if (React.isValidElement(child) && (child as any).props?.node?.tagName === 'img') {
-                                                            return React.cloneElement(child, { variant } as any);
-                                                        }
-                                                        return child;
-                                                    });
-
-                                                    if (variant === 'grid') {
-                                                        return (
-                                                            <div className="flex gap-2 my-2 w-full overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent snap-x">
-                                                                {content}
-                                                            </div>
-                                                        );
-                                                    }
-
-                                                    // Single image - use div to avoid p > div nesting issue
-                                                    return <div className="mb-2 last:mb-0 w-full">{content}</div>;
-                                                }
-                                                // Return a div instead of p to avoid any hydration errors if nested divs sneak in
-                                                return <div className="mb-4 last:mb-0 leading-7">{children}</div>;
-                                            },
-
-                                            img: ({ node, ...props }: any) => {
-                                                return <ImageAttachment src={props.src || ''} alt={props.alt || ''} variant={props.variant || 'single'} />;
-                                            }
-                                        }}
+                                        components={markdownComponents}
                                     >
-                                        {message.content}
+                                        {message.content + (isGenerating ? ' █' : '')}
                                     </ReactMarkdown>
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    {/* Actions (Model and User) */}
                     <div
                         className={cn(
-                            "flex items-center gap-2 mt-1 px-1 select-none transition-opacity duration-200",
-                            "opacity-100 md:opacity-0 md:group-hover:opacity-100", // Persistent on mobile, hover on desktop
+                            "flex items-center gap-1 md:gap-2 mt-1 px-1 select-none transition-opacity duration-300",
+                            "opacity-50 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100", // Faintly visible on touch, reveal fully on hover
                             isUser ? "justify-end" : "justify-start"
                         )}
                     >
                         {!isUser && (
                             <>
-                                <button onClick={handleReadAloud} className={cn("p-1.5 hover:bg-glass-shimmer rounded-lg hover:scale-110 active:scale-95 transition-all duration-200", isPlaying ? "text-accent-primary" : "text-gray-500 dark:text-gray-300 hover:text-accent-primary")} title="Read Aloud" aria-label="Read message aloud">
-                                    <Volume2 size={14} />
+                                <button onClick={handleReadAloud} className={cn("p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg hover:scale-110 active:scale-95 transition-all duration-200", isPlaying ? "text-accent-primary opacity-100" : "text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100")} title="Read Aloud" aria-label="Read message aloud">
+                                    <Volume2 size={16} className="md:w-3.5 md:h-3.5" />
                                 </button>
                                 {isLast && onRegenerate && (
-                                    <button onClick={onRegenerate} className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:scale-110 active:scale-95 transition-all duration-200" title="Regenerate" aria-label="Regenerate message">
-                                        <RefreshCw size={14} />
+                                    <button onClick={onRegenerate} className="p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200" title="Regenerate" aria-label="Regenerate message">
+                                        <RefreshCw size={16} className="md:w-3.5 md:h-3.5" />
                                     </button>
                                 )}
-                                <button className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:scale-110 active:scale-95 transition-all duration-200" title="Helpful" aria-label="Rate message as helpful">
-                                    <ThumbsUp size={14} />
+                                <button className="p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200" title="Helpful" aria-label="Rate message as helpful">
+                                    <ThumbsUp size={16} className="md:w-3.5 md:h-3.5" />
                                 </button>
-                                <button className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:scale-110 active:scale-95 transition-all duration-200" title="Not Helpful" aria-label="Rate message as not helpful">
-                                    <ThumbsDown size={14} />
+                                <button className="p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200" title="Not Helpful" aria-label="Rate message as not helpful">
+                                    <ThumbsDown size={16} className="md:w-3.5 md:h-3.5" />
                                 </button>
                             </>
                         )}
@@ -246,11 +248,11 @@ const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpe
                         {!isEditing && (
                             <button
                                 onClick={handleCopy}
-                                className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:scale-110 active:scale-95 transition-all duration-200"
+                                className="p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200"
                                 title="Copy"
                                 aria-label="Copy message text"
                             >
-                                {isCopied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                                {isCopied ? <Check size={16} className="text-green-500 md:w-3.5 md:h-3.5" /> : <Copy size={16} className="md:w-3.5 md:h-3.5" />}
                             </button>
                         )}
 
@@ -258,11 +260,11 @@ const MessageBubble = React.memo(({ message, isLast, onEdit, onRegenerate, onOpe
                         {isUser && !isEditing && (
                             <button
                                 onClick={() => setIsEditing(true)}
-                                className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:scale-110 active:scale-95 transition-all duration-200"
+                                className="p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200"
                                 title="Edit"
                                 aria-label="Edit your message"
                             >
-                                <Pencil size={14} />
+                                <Pencil size={16} className="md:w-3.5 md:h-3.5" />
                             </button>
                         )}
                     </div>

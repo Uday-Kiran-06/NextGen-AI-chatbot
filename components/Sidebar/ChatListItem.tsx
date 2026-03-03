@@ -72,10 +72,10 @@ export default function ChatListItem({
                         if (window.innerWidth < 768) onClose?.();
                     }}
                     className={cn(
-                        "w-full text-left p-2.5 rounded-xl text-sm transition-all duration-200 flex items-center gap-3 relative overflow-hidden",
+                        "w-full text-left p-2.5 rounded-xl text-sm transition-all duration-300 flex items-center gap-3 relative overflow-hidden",
                         activeId === item.id
-                            ? "bg-accent-primary/10 text-accent-primary font-medium"
-                            : "text-foreground/70 hover:text-foreground hover:bg-glass-shimmer",
+                            ? "bg-gradient-to-r from-accent-primary/20 to-accent-primary/5 text-accent-primary font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.1)] border border-accent-primary/10"
+                            : "text-foreground/70 hover:text-foreground hover:bg-glass-shimmer border border-transparent",
                         isCollapsed && "justify-center"
                     )}>
 
@@ -100,10 +100,11 @@ export default function ChatListItem({
                     {activeId === item.id && !isCollapsed && (
                         <motion.div
                             layoutId="active-chat"
-                            className="absolute left-0 w-1 h-6 bg-accent-primary rounded-r-full shadow-[0_0_10px_rgba(124,58,237,0.3)]"
-                            initial={{ opacity: 0, x: -5 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -5 }}
+                            className="absolute left-0 w-1 h-8 bg-accent-primary rounded-r-full shadow-[0_0_15px_rgba(var(--accent-primary-rgb,124,58,237),0.5)]"
+                            initial={{ opacity: 0, scaleY: 0.5 }}
+                            animate={{ opacity: 1, scaleY: 1 }}
+                            exit={{ opacity: 0, scaleY: 0.5 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
                         />
                     )}
                 </button>
