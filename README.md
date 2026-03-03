@@ -2,7 +2,8 @@
 
 A beautifully designed, high-performance AI chat interface built with Next.js. NextGen AI transforms standard LLM interactions into a powerful, agentic workspace featuring live code execution, real-time web browsing, continuous voice conversations, and seamless Supabase integration.
 
-![NextGen AI Chatbot preview placeholder. Imagine a stunning glassmorphic UI.]()
+<img width="1919" height="869" alt="image" src="https://github.com/user-attachments/assets/386ccb37-b173-4584-8b8b-7039739ce1d7" />
+
 
 ## 🚀 Key Features
 
