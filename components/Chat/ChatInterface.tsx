@@ -118,9 +118,6 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
 
 
 
-    const [showScrollPill, setShowScrollPill] = useState(false);
-    const lastScrollTime = useRef<number>(0);
-
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const target = e.currentTarget;
         const currentScrollY = target.scrollTop;
@@ -136,14 +133,6 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             setShowHeader(true);
         }
         setLastScrollY(currentScrollY);
-
-        const now = Date.now();
-        // Throttle scroll events to 100ms
-        if (now - lastScrollTime.current < 100) return;
-        lastScrollTime.current = now;
-
-        const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 100;
-        setShowScrollPill(!isAtBottom);
     };
 
     return (
@@ -254,27 +243,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     <div ref={messagesEndRef} className="h-4" />
                 </div>
 
-                {/* Floating Scroll Pill */}
-                <AnimatePresence>
-                    {showScrollPill && (
-                        <motion.button
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            onClick={scrollToBottom}
-                            className="fixed bottom-32 left-1/2 -translate-x-1/2 px-4 py-2 bg-accent-primary text-white rounded-full shadow-2xl flex items-center gap-2 hover:scale-110 active:scale-95 transition-all z-20 group"
-                        >
-                            {isGenerating && (
-                                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500 border-2 border-background"></span>
-                                </span>
-                            )}
-                            <span className="text-xs font-bold tracking-wide">New Messages</span>
-                            <ChevronDown size={14} className="group-hover:animate-bounce" />
-                        </motion.button>
-                    )}
-                </AnimatePresence>
+                {/* Floating Scroll Pill removed as per request */}
             </div>
 
             {/* Input Area */}
