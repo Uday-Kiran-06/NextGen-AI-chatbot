@@ -13,6 +13,7 @@ export default function ImageAttachment({ src, alt, variant = 'single' }: ImageA
     const [error, setError] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const imgRef = useRef<HTMLImageElement>(null);
 
     // Immediate cache check to prevent flickering
@@ -56,7 +57,6 @@ export default function ImageAttachment({ src, alt, variant = 'single' }: ImageA
     }
 
     const isGrid = variant === 'grid';
-    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
     return (
         <>
@@ -87,6 +87,7 @@ export default function ImageAttachment({ src, alt, variant = 'single' }: ImageA
                     onError={() => {
                         setIsLoading(false);
                         setError(true);
+                        console.error("Image loading failed for URL:", src);
                     }}
                 />
                 {!isLoading && (

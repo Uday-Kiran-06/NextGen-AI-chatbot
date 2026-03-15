@@ -28,26 +28,68 @@ export async function runAgentWorkflow(history: any[], message: string, images: 
     const dateTimeContext = `Current Date and Time: ${now.toLocaleString()} (${Intl.DateTimeFormat().resolvedOptions().timeZone})\n`;
 
     if (isGroq || isOllama) {
-        // Groq / OpenAI Format
-        const formatMessages = history.map(msg => ({
+        // Groq / Ollama Path with Tool Support
+        // Optimized: Reduced context and more concise instructions to stay under rate limits (TPM)
+        const systemPrompt = `
+You are NextGen AI, a helpful and accurate assistant for ALIET (Andhra Loyola Institute of Engineering & Technology).
+
+${dateTimeContext}
+
+If you need to use a tool, respond ONLY with a JSON object: { "tool": "name", "args": { ... } }
+
+Tools:
+${Object.values(toolRegistry).map(t => `- ${t.name}: ${t.description.substring(0, 200)}`).join('\n')}
+
+Rules:
+1. **Direct Answers**: Provide direct, factual answers based on search results. Do NOT just provide links if the information is present in the text results.
+2. **Handle Missing Info**: If search_knowledge returns nothing or isn't relevant, state that you couldn't find the specific info on the college site and use your general knowledge if appropriate, but be honest about the gap.
+3. **Images**: If you see images in search results metadata, include them as Markdown: \`![alt](url)\`.
+4. **Formatting**: Always use structured Markdown (titles, lists) and emojis to make answers friendly.
+5. **No Hallucination**: Stick to the provided search data for ALIET-specific facts (like faculty names, HODs, dates).
+
+${useWebSearch ? "\nUSER REQUESTED WEB SEARCH. Use `web_search` if internal knowledge is insufficient.\n" : ""}
+${persona ? `\nPersona: ${persona}` : ''}
+`;
+
+        // Prune history for Groq to avoid rate limits (TPM 12000)
+        const formatMessages = history.slice(-4).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.content
         }));
 
-        // Add Persona and Date/Time as system message
-        const systemPrompt = (persona ? `PERSONA: ${persona}\n` : '') + dateTimeContext + (useWebSearch ? "\nUSER REQUESTED WEB SEARCH: You MUST use the `duckduckgo_search` or `read_page` tool to gather real-time information before responding." : "");
         formatMessages.unshift({ role: 'system', content: systemPrompt });
-
         formatMessages.push({ role: 'user', content: message });
 
         try {
-            let content = "";
+            let responseText = "";
             if (isOllama) {
-                content = await callOllama(formatMessages, modelId!);
+                responseText = await callOllama(formatMessages, modelId!);
             } else {
-                content = await callGroq(formatMessages, modelId);
+                responseText = await callGroq(formatMessages, modelId);
             }
-            return { type: 'text', content };
+
+            // Parse for tool calls
+            const firstBrace = responseText.indexOf('{');
+            const lastBrace = responseText.lastIndexOf('}');
+
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                try {
+                    const potentialJsonStr = responseText.substring(firstBrace, lastBrace + 1);
+                    const parsed = JSON.parse(potentialJsonStr);
+
+                    if (parsed.tool && typeof parsed.tool === 'string' && toolRegistry[parsed.tool]) {
+                        return {
+                            type: 'tool_call',
+                            toolName: parsed.tool,
+                            toolArgs: parsed.args || {}
+                        };
+                    }
+                } catch (e) {
+                    // Not valid JSON, fall through to text
+                }
+            }
+
+            return { type: 'text', content: responseText };
         } catch (error: any) {
             console.error('[OpenSource Workflow Error]:', error);
             return { type: 'text', content: `Error from Model Provider: ${error.message}` };

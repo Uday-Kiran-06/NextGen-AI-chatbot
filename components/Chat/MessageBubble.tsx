@@ -24,9 +24,10 @@ interface MessageBubbleProps {
     onEdit?: (id: string, newContent: string) => void;
     onRegenerate?: () => void;
     onOpenArtifact?: (code: string, lang: string) => void;
+    onSendMessage?: (text: string, files: any[]) => void;
 }
 
-const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onRegenerate, onOpenArtifact }: MessageBubbleProps) => {
+const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onRegenerate, onOpenArtifact, onSendMessage }: MessageBubbleProps) => {
     const isUser = message.role === 'user';
     const [isCopied, setIsCopied] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -83,8 +84,23 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
         },
         img: ({ node, ...props }: any) => {
             return <ImageAttachment src={props.src || ''} alt={props.alt || ''} variant={props.variant || 'single'} />;
+        },
+        a: ({ node, ...props }: any) => {
+            const href = props.href || '';
+            if (href.startsWith('send:')) {
+                const text = href.replace('send:', '');
+                return (
+                    <button
+                        onClick={() => onSendMessage?.(decodeURIComponent(text), [])}
+                        className="text-accent-primary hover:text-accent-secondary font-semibold transition-colors bg-white/5 hover:bg-white/10 px-2 py-0.5 rounded-md border border-white/5"
+                    >
+                        {props.children}
+                    </button>
+                );
+            }
+            return <a {...props} target="_blank" rel="noopener noreferrer" className="text-accent-primary hover:text-accent-secondary underline" />;
         }
-    }), []);
+    }), [onSendMessage]);
 
     useEffect(() => {
         return () => {

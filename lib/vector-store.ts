@@ -12,13 +12,25 @@ export interface Document {
 
 /**
  * Generates an embedding for the given text using Gemini's text-embedding-004 model.
+ * Includes exponential backoff to handle rate limits (429).
  */
-export async function embedText(text: string): Promise<number[]> {
+export async function embedText(text: string, retries = 3, delay = 1000): Promise<number[]> {
     try {
-        const result = await embeddingModel.embedContent(text);
+        const result = await embeddingModel.embedContent({
+            content: { role: 'user', parts: [{ text }] },
+            taskType: 'RETRIEVAL_DOCUMENT' as any,
+            outputDimensionality: 768
+        } as any);
         const embedding = result.embedding;
         return embedding.values;
-    } catch (error) {
+    } catch (error: any) {
+        // If rate limited and we have retries left
+        if (error?.status === 429 && retries > 0) {
+            console.warn(`[VectorStore] Rate limited. Retrying in ${delay}ms... (${retries} retries left)`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return embedText(text, retries - 1, delay * 2);
+        }
+        
         console.error("Error generating embedding:", error);
         throw error;
     }
@@ -60,18 +72,23 @@ export async function addDocument(content: string, metadata: Record<string, any>
  * Searches for documents similar to the query string.
  * Uses the 'match_documents' RPC function in Supabase.
  */
-export async function searchDocuments(query: string, matchCount: number = 5, conversationId?: string, userId?: string): Promise<Document[]> {
+export async function searchDocuments(
+    query: string, 
+    matchCount: number = 5, 
+    threshold: number = 0.5,
+    conversationId?: string, 
+    userId?: string
+): Promise<Document[]> {
     try {
         const supabase = createAdminClient();
         const queryEmbedding = await embedText(query);
 
-        // RPC call might need explicit casting in some setups, but usually fine
         const { data: documents, error } = await supabase.rpc('match_documents', {
             query_embedding: queryEmbedding,
-            match_threshold: 0.5, // Adjust threshold as needed
+            match_threshold: threshold,
             match_count: matchCount,
-            filter_conversation_id: conversationId,
-            filter_user_id: userId
+            filter_conversation_id: conversationId || null,
+            filter_user_id: userId || null
         });
 
         if (error) {

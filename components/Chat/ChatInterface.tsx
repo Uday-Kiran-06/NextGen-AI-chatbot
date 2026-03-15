@@ -209,6 +209,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                             onEdit={handleEditMessage}
                             onRegenerate={handleRegenerate}
                             onOpenArtifact={handleOpenArtifact}
+                            onSendMessage={handleSendMessage}
                         />
                     ))}
 
@@ -240,14 +241,14 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                         )
                     )}
 
-                    <div ref={messagesEndRef} className="h-4" />
+                    <div ref={messagesEndRef} className="h-1" />
                 </div>
 
                 {/* Floating Scroll Pill removed as per request */}
             </div>
 
             {/* Input Area */}
-            <div className="p-4 md:p-6 bg-gradient-to-t from-background via-background/80 to-transparent z-10">
+            <div className="p-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10">
                 <div className="max-w-4xl mx-auto">
                     <InputArea onSendMessage={handleSendMessage} isGenerating={isGenerating} modelId={modelId} onModelChange={handleModelChange} onStop={handleStopGeneration} />
 
@@ -259,8 +260,8 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                         language={artifactLang}
                     />
                 </div>
-
-                <div className="flex justify-center items-center gap-4 mt-3">
+ 
+                <div className="flex justify-center items-center gap-4 mt-0.5 mb-1 text-[9px]">
                     <p className="text-[10px] text-foreground opacity-50">
                         AI can make mistakes. Please verify important information.
                     </p>

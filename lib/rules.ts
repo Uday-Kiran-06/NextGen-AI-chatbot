@@ -6,6 +6,15 @@
  */
 
 import { RULES } from './rules-data';
+import Fuse from 'fuse.js';
+
+// Pre-compute the fuzzy search index
+const fuse = new Fuse(RULES, {
+    keys: ['keywords'],
+    threshold: 0.3, // Allow minor misspellings
+    includeScore: true,
+    ignoreLocation: true,
+});
 
 /**
  * Checks if a message matches any registered rules.
@@ -55,19 +64,22 @@ export async function checkRules(message: string): Promise<string | null> {
             : `The current time is **${now.toLocaleTimeString()}**. 🕒`;
     }
 
-    // 3. Static Keyword Rules
-    for (const rule of RULES) {
-        if (cleanMessage.length < 60) {
-            // Check if any keyword matches as a full phrase or a single word
-            const match = rule.keywords.some(k => {
-                if (k.includes(' ')) {
-                    return cleanMessage.includes(k);
-                }
-                return words.has(k);
-            });
+    // 3. Fuzzy Keyword Rules
+    if (cleanMessage.length < 80) {
+        // Try to match the entire phrase (handles phrases and exact matches well)
+        const phraseResults = fuse.search(cleanMessage);
+        if (phraseResults.length > 0 && phraseResults[0].score !== undefined && phraseResults[0].score <= 0.3) {
+            return phraseResults[0].item.response;
+        }
 
-            if (match) {
-                return rule.response;
+        // If no full phrase match, check individual significant words (handles bad spelling & extra words like 'who is pricnipal')
+        // We use a slightly stricter threshold here to prevent false positives for single tokens.
+        for (const word of words) {
+            if (word.length >= 4) { // Only fuzzy match significant words
+                const wordResults = fuse.search(word);
+                if (wordResults.length > 0 && wordResults[0].score !== undefined && wordResults[0].score <= 0.2) {
+                    return wordResults[0].item.response;
+                }
             }
         }
     }

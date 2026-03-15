@@ -19,10 +19,15 @@ export const model = genAI.getGenerativeModel(
 export const getDynamicModel = (modelId: string) => {
     // Standardize model IDs if necessary
     let id = modelId || 'gemini-2.5-flash';
+    
+    // If it's a Groq model or doesn't look like Gemini, fallback to flash for Gemini SDK
+    if (!id.toLowerCase().includes('gemini') && !id.toLowerCase().includes('text-embedding')) {
+        id = 'gemini-2.5-flash';
+    }
+
     if (id === 'gemini-1.5-flash-latest' || id === 'gemini-1.5-flash') id = 'gemini-2.5-flash';
     if (id === 'gemini-1.5-pro-latest' || id === 'gemini-1.5-pro') id = 'gemini-2.5-pro';
-    if (id === 'gemini-3-flash-preview') id = 'gemini-3-flash-preview'; // Explicitly support
-
+    
     return genAI.getGenerativeModel(
         {
             model: id,
@@ -31,7 +36,7 @@ export const getDynamicModel = (modelId: string) => {
                 temperature: 0.7,
             }
         },
-        { apiVersion: 'v1beta' }
+        { apiVersion: 'v1beta' } // Use v1beta for broader model support including previews
     );
 };
 
@@ -41,6 +46,6 @@ export const visionModel = genAI.getGenerativeModel(
 );
 
 export const embeddingModel = genAI.getGenerativeModel(
-    { model: 'text-embedding-004' },
+    { model: 'gemini-embedding-001' },
     { apiVersion: 'v1beta' }
 );

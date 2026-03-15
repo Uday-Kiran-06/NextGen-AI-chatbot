@@ -9,6 +9,7 @@ import { chatStore, Conversation } from '@/lib/chat-store';
 import { createClient } from '@/lib/supabase/client';
 import ChatListItem from './ChatListItem';
 import SidebarFooter from './SidebarFooter';
+import KnowledgeManager from '../Knowledge/KnowledgeManager';
 
 interface SidebarProps {
     activeId: string | null;
@@ -277,6 +278,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                 )}
             </div>
 
+            {!isCollapsed && <KnowledgeManager />}
 
             <div className="flex-1 overflow-y-auto px-2 space-y-2 scrollbar-hide py-2">
                 {/* Grouped History Items */}

@@ -156,8 +156,8 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
     };
 
     return (
-        <div className="p-4 md:p-6 pb-6 relative w-full z-10">
-            <div className="absolute inset-0 top-[-40px] bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none -z-10" />
+        <div className="p-1 md:p-2 pb-0 relative w-full z-10">
+            <div className="absolute inset-0 top-[-20px] bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none -z-10" />
             {/* Voice Status Indicator */}
             <AnimatePresence>
                 {isRecording && (
@@ -339,11 +339,6 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
 
                 </div>
             </div>
-
-            <div className="flex justify-center mt-2 h-4">
-                {/* Reserved space for potential future indicators */}
-            </div>
         </div>
     );
 }
-

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Download } from 'lucide-react';
@@ -83,10 +84,10 @@ export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerPr
                         <TransformWrapper
                             initialScale={1}
                             minScale={0.5}
-                            maxScale={5}
+                            maxScale={8}
                             centerZoomedOut={true}
-                            wheel={{ step: 0.2 }}
-                            doubleClick={{ step: 1.5 }}
+                            wheel={{ step: 0.1 }}
+                            doubleClick={{ step: 2 }}
                         >
                             {({ zoomIn, zoomOut, resetTransform, ...rest }) => (
                                 <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>

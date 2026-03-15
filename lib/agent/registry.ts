@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import * as cheerio from 'cheerio';
 import * as vectorStore from '../vector-store';
+import { createAdminClient } from '../supabase/admin';
 
 export interface Tool {
     name: string;
@@ -174,33 +175,97 @@ registerTool({
     parameters: z.object({
         query: z.string().describe('The image search query'),
     }),
-    execute: async ({ query }) => {
+    execute: async ({ query }, context) => {
         try {
-            // Search Wikimedia Commons for freely usable images
-            const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent('filetype:bitmap ' + query)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url&format=json&origin=*`;
-
-            const response = await fetch(searchUrl);
-
-            if (!response.ok) {
-                return { error: `Image search failed with status ${response.status}` };
-            }
-
-            const data = await response.json();
-            const pages = data.query?.pages;
             const imageUrls: string[] = [];
+            const lowerQuery = query.toLowerCase();
+            const isCollegeQuery = /aliet|loyola|principal|director|mahesh|joji|college|department/i.test(lowerQuery);
 
-            if (pages) {
-                for (const id in pages) {
-                    if (pages[id].imageinfo && pages[id].imageinfo[0] && pages[id].imageinfo[0].url) {
-                        imageUrls.push(pages[id].imageinfo[0].url);
+            // 1. Search Internal Knowledge base first if related to college
+            if (isCollegeQuery) {
+                try {
+                    // Lower threshold (0.3) for images to be more forgiving with specific queries
+                    const docs = await vectorStore.searchDocuments(query, 5, 0.3, undefined, context?.userId);
+                    for (const doc of docs) {
+                        if (doc.metadata?.images && Array.isArray(doc.metadata.images)) {
+                            doc.metadata.images.forEach((img: any) => {
+                                if (img.url && !imageUrls.includes(img.url)) {
+                                    imageUrls.push(img.url);
+                                }
+                            });
+                        }
                     }
+                } catch (e) {
+                    console.error("Internal image search error:", e);
                 }
             }
 
-            return { images: imageUrls.length > 0 ? imageUrls : "No images found." };
+            // 2. Search Wikimedia Commons for general images (ONLY if NOT a college query)
+            if (!isCollegeQuery) {
+                try {
+                    const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent('filetype:bitmap ' + query)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url&format=json&origin=*`;
+                    const response = await fetch(searchUrl);
+                    if (response.ok) {
+                        const data = await response.json();
+                        const pages = data.query?.pages;
+                        if (pages) {
+                            for (const id in pages) {
+                                if (pages[id].imageinfo?.[0]?.url) {
+                                    const url = pages[id].imageinfo[0].url;
+                                    if (!imageUrls.includes(url)) imageUrls.push(url);
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Wikimedia search error:", e);
+                }
+            }
+
+            return { images: imageUrls.length > 0 ? imageUrls.slice(0, 10) : "No images found." };
         } catch (error: any) {
             console.error("Image search error:", error);
             return { error: "Failed to search images." };
+        }
+    },
+});
+
+// 6.5 Search Faculty (Structured Database)
+registerTool({
+    name: 'search_faculty',
+    description: 'Search for structured information about ALIET faculty, HODs, and staff. Returns names, designations, qualifications, and profile photos. Use this specifically when asking "Who is...", "List faculty for...", or "HOD of...".',
+    parameters: z.object({
+        query: z.string().describe('The person name or department to search for (e.g., "CSE" or "Dr. Mahesh")'),
+    }),
+    execute: async ({ query }) => {
+        try {
+            const supabase = createAdminClient();
+            
+            // Search by name or department specifically
+            const { data, error } = await supabase
+                .from('faculty')
+                .select('*')
+                .or(`name.ilike.%${query}%,department.ilike.%${query}%,designation.ilike.%${query}%`)
+                .order('is_hod', { ascending: false })
+                .limit(10);
+
+            if (error) throw error;
+            if (!data || data.length === 0) {
+                return { result: "No specific faculty records found. Try search_knowledge for general info." };
+            }
+
+            const results = data.map((f: any) => {
+                let info = `### ${f.name} (${f.designation})\n`;
+                info += `- Department: ${f.department}\n`;
+                if (f.qualification) info += `- Qualification: ${f.qualification}\n`;
+                if (f.image_url) info += `![${f.name} Profile Photo](${f.image_url})`;
+                return info;
+            }).join('\n\n---\n\n');
+
+            return { result: `[FOUND IN STRUCTURED DATABASE]\n\n${results}` };
+        } catch (error: any) {
+            console.error("Faculty search error:", error);
+            return { error: "Failed to search faculty database." };
         }
     },
 });
@@ -265,19 +330,64 @@ registerTool({
 // 7. Search Knowledge (RAG)
 registerTool({
     name: 'search_knowledge',
-    description: 'Search the internal knowledge base for documents. Use this when the user asks about specific stored information.',
+    description: 'Search the internal knowledge base for general information about ALIET. For specific questions about PEOPLE, HODs, or STAFF, use `search_faculty` first for better accuracy.',
     parameters: z.object({
         query: z.string().describe('The search query for the knowledge base'),
     }),
     execute: async ({ query }, context) => {
         try {
+            let expandedQuery = query;
+            if (query.toLowerCase().includes('hod')) {
+                expandedQuery += ' Head of Department';
+            }
+            
             // using top-level import
-            const documents = await vectorStore.searchDocuments(query, 5, undefined, context?.userId);
+            // Lower threshold (0.3) for more flexible matching
+            const documents = await vectorStore.searchDocuments(expandedQuery, 5, 0.3, undefined, context?.userId);
             if (documents.length === 0) {
                 return { result: "No relevant documents found in the knowledge base." };
             }
             // Format results for the LLM
-            const result = documents.map((doc: any) => `[ID: ${doc.id}]\n${doc.content}`).join('\n\n');
+            const result = documents.map((doc: any) => {
+                const truncatedContent = doc.content.substring(0, 3000);
+                let docText = `### [ID: ${doc.id}] SOURCE: ${doc.metadata?.url || 'Internal'}\n${truncatedContent}`;
+                
+                if (doc.metadata?.images && Array.isArray(doc.metadata.images)) {
+                    // Score images based on query keywords
+                    const queryWords = query.toLowerCase().split(/\s+/);
+                    const scoredImages = doc.metadata.images.map((img: any) => {
+                        const alt = (img.alt || '').toLowerCase();
+                        const url = (img.url || '').toLowerCase();
+                        let score = 0;
+                        
+                        queryWords.forEach((word: string) => {
+                            if (word.length > 3 && (alt.includes(word) || url.includes(word))) score += 3;
+                        });
+                        
+                        if (alt.includes('profile') || alt.includes('photo') || alt.includes('faculty')) score += 2;
+                        
+                        // Noise check: slides/banners often cause "Failed to load" or are irrelevant
+                        const isNoise = alt.includes('slide') || alt.includes('banner') || alt.includes('event') || alt.includes('workshop') || url.includes('/slides/') || url.includes('/banners/');
+                        
+                        // If it's noise and doesn't have a strong query match, heavily penalize it
+                        if (isNoise && score < 3) score -= 10;
+                        
+                        return { ...img, score };
+                    }).filter((img: any) => img.score > -5)
+                    .sort((a: any, b: any) => b.score - a.score);
+
+                    // Only pass top 5 images to save tokens, prioritized by relevance
+                    const imageList = scoredImages.slice(0, 5).map((img: any) => {
+                        const relevance = img.score >= 3 ? " [High Relevance]" : "";
+                        return `![${img.alt}${relevance}](${img.url})`;
+                    }).join('\n');
+                    
+                    if (imageList) {
+                        docText += `\n\n--- IMAGES FOR THIS SECTION ---\n${imageList}\n------------------------------`;
+                    }
+                }
+                return docText;
+            }).join('\n\n---\n\n');
             return { result };
         } catch (error: any) {
             console.error("Knowledge search error:", error);
