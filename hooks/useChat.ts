@@ -128,7 +128,8 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
                     layers: files,
                     persona: localStorage.getItem('nextgen_persona') || 'Standard AI',
                     modelId,
-                    useWebSearch
+                    useWebSearch,
+                    rulesEnabled: localStorage.getItem('nextgen_rules_enabled') !== 'false'
                 }),
                 signal: abortControllerRef.current.signal
             });

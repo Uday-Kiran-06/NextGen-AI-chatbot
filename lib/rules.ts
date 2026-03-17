@@ -26,6 +26,13 @@ export async function checkRules(message: string): Promise<string | null> {
     const words = new Set(cleanMessage.split(/\s+/));
     const now = new Date();
 
+    // 0. Explicit AI/Coding Bypass
+    // If the user is asking for code, math, or translation, the college rules engine should back off.
+    const aiIntents = ['write', 'code', 'build', 'create', 'how to', 'calculate', 'solve', 'translate', 'explain', 'python', 'javascript', 'java', 'c++', 'calculator', 'formula'];
+    if (aiIntents.some(intent => cleanMessage.includes(intent))) {
+        return null;
+    }
+
     // 1. Dynamic Weather Rule (Priority)
     if (words.has('weather') || words.has('temperature') || words.has('temp')) {
         // Simple heuristic to find a city: word after "in", "at", or "for"
@@ -68,17 +75,25 @@ export async function checkRules(message: string): Promise<string | null> {
     if (cleanMessage.length < 80) {
         // Try to match the entire phrase (handles phrases and exact matches well)
         const phraseResults = fuse.search(cleanMessage);
-        if (phraseResults.length > 0 && phraseResults[0].score !== undefined && phraseResults[0].score <= 0.3) {
+        // Stricter threshold for phrases (0.2 instead of 0.3)
+        if (phraseResults.length > 0 && phraseResults[0].score !== undefined && phraseResults[0].score <= 0.2) {
             return phraseResults[0].item.response;
         }
 
-        // If no full phrase match, check individual significant words (handles bad spelling & extra words like 'who is pricnipal')
-        // We use a slightly stricter threshold here to prevent false positives for single tokens.
+        // If no full phrase match, check individual significant words
+        // We use a very strict threshold here to prevent false positives for single tokens.
         for (const word of words) {
-            if (word.length >= 4) { // Only fuzzy match significant words
+            // Only fuzzy match significant, unique words to avoid common token collisions
+            if (word.length >= 5) { 
                 const wordResults = fuse.search(word);
-                if (wordResults.length > 0 && wordResults[0].score !== undefined && wordResults[0].score <= 0.2) {
-                    return wordResults[0].item.response;
+                if (wordResults.length > 0 && wordResults[0].score !== undefined && wordResults[0].score <= 0.15) {
+                    // Check if the matched rule actually has the word as a keyword (not just fuzzy overlap)
+                    const matchedItem = wordResults[0].item;
+                    const hasHighConfidenceMatch = matchedItem.keywords.some(k => k.includes(word) || word.includes(k));
+                    
+                    if (hasHighConfidenceMatch) {
+                        return matchedItem.response;
+                    }
                 }
             }
         }

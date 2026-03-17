@@ -11,10 +11,10 @@ interface AgentResponse {
     toolArgs?: any;
 }
 
-export async function runAgentWorkflow(history: any[], message: string, images: any[] = [], persona?: string, modelId?: string, userId?: string, useWebSearch?: boolean) {
+export async function runAgentWorkflow(history: any[], message: string, images: any[] = [], persona?: string, modelId?: string, userId?: string, useWebSearch?: boolean, rulesEnabled: boolean = true) {
     // 0. Tier-1 Rules Engine (Instant Response)
-    // Only apply for simple text messages without images
-    if (images.length === 0) {
+    // Only apply for simple text messages without images and if rules are enabled
+    if (images.length === 0 && rulesEnabled) {
         const ruleMatch = await checkRules(message);
         if (ruleMatch) {
             return { type: 'text', content: ruleMatch };

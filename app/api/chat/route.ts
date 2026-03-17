@@ -9,7 +9,7 @@ export const maxDuration = 60;
 export async function POST(req: NextRequest) {
     try {
         const payload = await req.json();
-        let { history, message, layers, persona, modelId, useWebSearch } = payload;
+        let { history, message, layers, persona, modelId, useWebSearch, rulesEnabled } = payload;
 
         // Smart Context Truncation: Keep only the last 20 turns
         if (Array.isArray(history) && history.length > 20) {
@@ -51,8 +51,11 @@ export async function POST(req: NextRequest) {
                 try {
                     // 1. Initial Planned Action
                     sendChunk("__AGENT_ACTION__:Initializing workflow...\n");
+                    
+                    // Default to true if not specified
+                    const enableRules = rulesEnabled !== false;
 
-                    let response = await runAgentWorkflow(history, message, layers, persona, modelId, userId, useWebSearch);
+                    let response = await runAgentWorkflow(history, message, layers, persona, modelId, userId, useWebSearch, enableRules);
 
                     // 2. Agent Execution Loop with Tool Streaming
                     const workingHistory = [...history];
