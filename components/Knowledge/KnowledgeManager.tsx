@@ -127,35 +127,6 @@ export default function KnowledgeManager() {
                                 )}
                             </button>
 
-                            <div className="pt-1 border-t border-white/5 mt-2">
-                                <button
-                                    onClick={() => {
-                                        const newState = !(localStorage.getItem('nextgen_rules_enabled') !== 'false');
-                                        localStorage.setItem('nextgen_rules_enabled', String(newState));
-                                        window.dispatchEvent(new Event('storage')); // Trigger update if needed
-                                        toast.success(`Rules Engine ${newState ? 'Enabled' : 'Disabled'}`);
-                                        // Force a re-render for local state if we had it, but for simplicity we rely on next cycle or just localStorage
-                                        setIsOpen(isOpen); // Dummy update to trigger re-render
-                                    }}
-                                    className={cn(
-                                        "w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all text-[10px] font-bold",
-                                        (typeof window !== 'undefined' && localStorage.getItem('nextgen_rules_enabled') !== 'false')
-                                            ? "bg-accent-primary/10 text-accent-primary border border-accent-primary/20"
-                                            : "bg-white/5 text-foreground/40 border border-white/5"
-                                    )}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Zap size={12} />
-                                        RULES ENGINE (INSTANT)
-                                    </div>
-                                    <div className={cn(
-                                        "w-2 h-2 rounded-full",
-                                        (typeof window !== 'undefined' && localStorage.getItem('nextgen_rules_enabled') !== 'false')
-                                            ? "bg-accent-primary shadow-[0_0_8px_rgba(var(--accent-primary-rgb),0.5)]"
-                                            : "bg-white/10"
-                                    )} />
-                                </button>
-                            </div>
                             
                             <p className="text-[9px] text-white/30 text-center px-2">
                                 Scrapes up to 500 pages using recursive domain crawling.

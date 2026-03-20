@@ -2,6 +2,8 @@ import { z } from 'zod';
 import * as cheerio from 'cheerio';
 import * as vectorStore from '../vector-store';
 import { createAdminClient } from '../supabase/admin';
+import { FACULTY_RULES } from '../faculty-rules';
+import Fuse from 'fuse.js';
 
 export interface Tool {
     name: string;
@@ -241,7 +243,7 @@ registerTool({
         try {
             const supabase = createAdminClient();
             
-            // Search by name or department specifically
+            // 1. Try Structured Database (Supabase)
             const { data, error } = await supabase
                 .from('faculty')
                 .select('*')
@@ -249,26 +251,50 @@ registerTool({
                 .order('is_hod', { ascending: false })
                 .limit(10);
 
-            if (error) throw error;
-            if (!data || data.length === 0) {
-                return { result: "No specific faculty records found. Try search_knowledge for general info." };
+            if (!error && data && data.length > 0) {
+                const results = data.map((f: any) => {
+                    let info = `### ${f.name} (${f.designation})\n`;
+                    info += `- Department: ${f.department}\n`;
+                    if (f.qualification) info += `- Qualification: ${f.qualification}\n`;
+                    if (f.image_url) info += `![${f.name} Profile Photo](${f.image_url})`;
+                    return info;
+                }).join('\n\n---\n\n');
+
+                return { result: `[FOUND IN STRUCTURED DATABASE]\n\n${results}` };
             }
 
-            const results = data.map((f: any) => {
-                let info = `### ${f.name} (${f.designation})\n`;
-                info += `- Department: ${f.department}\n`;
-                if (f.qualification) info += `- Qualification: ${f.qualification}\n`;
-                if (f.image_url) info += `![${f.name} Profile Photo](${f.image_url})`;
-                return info;
-            }).join('\n\n---\n\n');
+            // 2. Fallback to Static Rules (Hardcoded) if Database returns nothing or errors
+            console.log(`[SearchFaculty] No results in database for "${query}", falling back to static rules...`);
+            
+            const fuse = new Fuse(FACULTY_RULES, {
+                keys: ['keywords'],
+                threshold: 0.4,
+            });
 
-            return { result: `[FOUND IN STRUCTURED DATABASE]\n\n${results}` };
+            const staticResults = fuse.search(query);
+            if (staticResults.length > 0) {
+                const formatted = staticResults.slice(0, 3).map(r => {
+                    return `[FOUND IN STATIC RULES: ${r.item.keywords.join(', ')}]\n${r.item.response}`;
+                }).join('\n\n---\n\n');
+
+                return { result: formatted };
+            }
+
+            return { result: "No faculty records found in either database or static records. Try search_knowledge for general info." };
         } catch (error: any) {
             console.error("Faculty search error:", error);
             return { error: "Failed to search faculty database." };
         }
     },
 });
+
+// 6.7 Search Faculty Static (Hardcoded Rules) - DEPRECATED: Consistently integrated into search_faculty
+/*
+registerTool({
+    name: 'search_faculty_static',
+...
+});
+*/
 
 // 9. Web Search (DuckDuckGo implementation)
 registerTool({
