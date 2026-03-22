@@ -22,7 +22,7 @@ async function embedTextHF(text: string, retries = 3, delay = 2000): Promise<num
 
     try {
         const response = await fetch(
-            "https://api-inference.huggingface.co/models/sentence-transformers/all-mpnet-base-v2",
+            "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-mpnet-base-v2",
             {
                 headers: { 
                     "Authorization": `Bearer ${hfKey}`,
