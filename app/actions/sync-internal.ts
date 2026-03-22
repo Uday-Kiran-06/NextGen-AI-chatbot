@@ -3,6 +3,7 @@
 import { RULES } from '@/lib/rules-data';
 import { addDocument } from '@/lib/vector-store';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function syncInternalData() {
     try {
