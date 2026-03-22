@@ -29,7 +29,11 @@ export async function checkRules(message: string): Promise<string | null> {
     // 0. Explicit AI/Coding Bypass
     // If the user is asking for code, math, or translation, the college rules engine should back off.
     const aiIntents = ['write', 'code', 'build', 'create', 'how to', 'calculate', 'solve', 'translate', 'explain', 'python', 'javascript', 'java', 'c++', 'calculator', 'formula'];
-    if (aiIntents.some(intent => cleanMessage.includes(intent))) {
+    const collegeKeywords = ['fee', 'payment', 'admission', 'aliet', 'erp', 'principal', 'faculty', 'admission', 'apply', 'join', 'seat'];
+    
+    // Only bypass if it doesn't look like a college-related query
+    const hasCollegeKeyword = collegeKeywords.some(k => cleanMessage.includes(k));
+    if (!hasCollegeKeyword && aiIntents.some(intent => cleanMessage.includes(intent))) {
         return null;
     }
 

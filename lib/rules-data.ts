@@ -46,5 +46,32 @@ export const RULES: Rule[] = [
         keywords: ['admission', 'apply', 'join', 'seat'],
         response: "📝 For **Admissions**, you can contact the College Office at **0866-2498978**. The process is overseen by the Director and Principal to ensure academic merit and quality intake. 🤝"
     },
+    {
+        keywords: ['fee', 'payment', 'pay fees', 'portal', 'online payment', 'how to pay', 'alieterp', 'erp', 'fees', 'college fees', 'how to pay fees', 'payment link'],
+        response: `💳 **Fee Payment at ALIET** 📚
+
+To pay fees at Andhra Loyola Institute of Engineering & Technology (ALIET), you can follow these steps:
+
+### Online Fee Payment:
+1. Visit the **ALIET Fee Payment Portal**: 🔗 [alieterp.in](https://www.alieterp.in/)
+2. Click on the **"Fee Payment"** tab.
+3. Select the payment option (e.g., net banking, credit/debit card, UPI).
+4. Enter the required details (e.g., student ID/Roll No, name, amount).
+5. Confirm the payment and receive the receipt.
+
+**Important:**
+- Make sure to check the fee structure and payment deadlines on the ALIET website.
+- Keep the receipt safe for future reference.
+- In case of any issues, contact the accounts section or the college administration.
+
+**Payment Modes:**
+- Net banking
+- Credit/debit card
+- UPI
+
+**Note:**
+- The process may vary depending on the course and semester.
+- Check with the accounts section for the most up-to-date information. 📝`
+    },
     ...FACULTY_RULES
 ];
