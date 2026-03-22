@@ -69,6 +69,8 @@ export async function embedText(text: string, retries = 3, delay = 1000): Promis
     const hfKey = process.env.HUGGINGFACE_API_KEY;
     
     // If HF Key is present and NOT the placeholder, use HF (better rate limits for sync)
+    console.log(`[VectorStore] Initializing embedding. HF_KEY present: ${!!hfKey && hfKey !== 'hf_placeholder'}`);
+    
     if (hfKey && hfKey !== 'hf_placeholder') {
         try {
             return await embedTextHF(text);
