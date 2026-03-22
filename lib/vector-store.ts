@@ -11,10 +11,73 @@ export interface Document {
 }
 
 /**
- * Generates an embedding for the given text using Gemini's text-embedding-004 model.
- * Includes exponential backoff to handle rate limits (429).
+ * Generates an embedding using Hugging Face Inference API.
+ * Uses sentence-transformers/all-mpnet-base-v2 (768 dimensions).
+ */
+async function embedTextHF(text: string, retries = 3, delay = 2000): Promise<number[]> {
+    const hfKey = process.env.HUGGINGFACE_API_KEY;
+    if (!hfKey || hfKey === 'hf_placeholder') {
+        throw new Error("Missing HUGGINGFACE_API_KEY. Please add it to your environment variables.");
+    }
+
+    try {
+        const response = await fetch(
+            "https://api-inference.huggingface.co/models/sentence-transformers/all-mpnet-base-v2",
+            {
+                headers: { 
+                    "Authorization": `Bearer ${hfKey}`,
+                    "Content-Type": "application/json"
+                },
+                method: "POST",
+                body: JSON.stringify({ inputs: text, options: { wait_for_model: true } }),
+            }
+        );
+
+        if (response.status === 503 && retries > 0) {
+            // Model is loading, wait and retry
+            console.warn(`[VectorStore] HF Model loading. Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return embedTextHF(text, retries - 1, delay * 1.5);
+        }
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Hugging Face API Error (${response.status}): ${errorText}`);
+        }
+
+        const result = await response.json();
+        
+        // HF returns an array for single input, or array of arrays for batch
+        if (Array.isArray(result) && typeof result[0] === 'number') {
+            return result;
+        } else if (Array.isArray(result) && Array.isArray(result[0])) {
+            return result[0];
+        }
+
+        throw new Error("Unexpected response format from Hugging Face.");
+    } catch (error: any) {
+        console.error("HF Embedding Error:", error);
+        throw error;
+    }
+}
+
+/**
+ * Generates an embedding for the given text.
+ * Defaults to Hugging Face if KEY is present, otherwise falls back to Gemini.
  */
 export async function embedText(text: string, retries = 3, delay = 1000): Promise<number[]> {
+    const hfKey = process.env.HUGGINGFACE_API_KEY;
+    
+    // If HF Key is present and NOT the placeholder, use HF (better rate limits for sync)
+    if (hfKey && hfKey !== 'hf_placeholder') {
+        try {
+            return await embedTextHF(text);
+        } catch (error) {
+            console.warn("[VectorStore] HF Embedding failed, falling back to Gemini:", error);
+            // Fall through to Gemini
+        }
+    }
+
     try {
         const result = await embeddingModel.embedContent({
             content: { role: 'user', parts: [{ text }] },
