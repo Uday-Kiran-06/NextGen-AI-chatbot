@@ -4,12 +4,11 @@ import { Zap, Sparkles, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const MODELS = [
-    { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', icon: Zap, desc: 'Fast & efficient (Standard)' },
-    { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro', icon: Sparkles, desc: 'Deep reasoning & complex tasks' },
-    { id: 'gemini-2.0-flash-exp', label: 'Gemini 2.0 Flash', icon: Zap, desc: 'Next-gen speed (Experimental)' },
-    { id: 'gemini-exp-1206', label: 'Gemini Frontier', icon: Sparkles, desc: 'Highest reasoning capability' },
-    { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', icon: Zap, desc: 'Powerful Open Source (Groq)' },
-    { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7b', icon: Zap, desc: 'High-speed efficiency (Groq)' },
+    { id: 'gemini-2.5-flash', label: 'Gemini 2.5', icon: Zap, desc: 'Fast & efficient' },
+    { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro', icon: Sparkles, desc: 'Deep reasoning' },
+    { id: 'gemini-3-flash-preview', label: 'Gemini 3 Preview', icon: Sparkles, desc: 'Next-gen frontier model' },
+    { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', icon: Zap, desc: 'Powerful Open Source' },
+    { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7b', icon: Zap, desc: 'High-speed efficiency' },
 ];
 
 interface ModelSelectorProps {
