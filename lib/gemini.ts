@@ -47,5 +47,5 @@ export const visionModel = genAI.getGenerativeModel(
 
 export const embeddingModel = genAI.getGenerativeModel(
     { model: 'text-embedding-004' },
-    { apiVersion: 'v1beta' }
+    { apiVersion: 'v1' }
 );
