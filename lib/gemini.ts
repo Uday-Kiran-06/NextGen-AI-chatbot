@@ -46,6 +46,6 @@ export const visionModel = genAI.getGenerativeModel(
 );
 
 export const embeddingModel = genAI.getGenerativeModel(
-    { model: 'embedding-001' },
+    { model: 'gemini-embedding-001' },
     { apiVersion: 'v1beta' }
 );
