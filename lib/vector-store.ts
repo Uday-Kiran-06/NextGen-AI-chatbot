@@ -62,9 +62,9 @@ export async function addDocument(content: string, metadata: Record<string, any>
         }
 
         return data;
-    } catch (error) {
+    } catch (error: any) {
         console.error("Failed to add document:", error);
-        return null;
+        throw error;
     }
 }
 
