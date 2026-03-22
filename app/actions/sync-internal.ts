@@ -44,7 +44,8 @@ export async function syncInternalData() {
             }));
 
             if (i + CONCURRENCY_LIMIT < RULES.length) {
-                await new Promise(resolve => setTimeout(resolve, 200));
+                // Slower batching to stay under 15 RPM for Free Tier embedding-001
+                await new Promise(resolve => setTimeout(resolve, 4000));
             }
         }
 
