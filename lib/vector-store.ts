@@ -22,14 +22,17 @@ async function embedTextHF(text: string, retries = 3, delay = 2000): Promise<num
 
     try {
         const response = await fetch(
-            "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-mpnet-base-v2",
+            "https://api-inference.huggingface.co/models/sentence-transformers/all-mpnet-base-v2",
             {
                 headers: { 
                     "Authorization": `Bearer ${hfKey}`,
                     "Content-Type": "application/json"
                 },
                 method: "POST",
-                body: JSON.stringify({ inputs: text, options: { wait_for_model: true } }),
+                body: JSON.stringify({ 
+                    inputs: [text], 
+                    options: { wait_for_model: true } 
+                }),
             }
         );
 
