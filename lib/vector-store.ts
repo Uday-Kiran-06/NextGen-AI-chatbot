@@ -12,7 +12,7 @@ export interface Document {
 
 /**
  * Generates an embedding using Hugging Face Inference API.
- * Uses sentence-transformers/all-mpnet-base-v2 (768 dimensions).
+ * Uses BAAI/bge-base-en-v1.5 (768 dimensions).
  */
 async function embedTextHF(text: string, retries = 3, delay = 2000): Promise<number[]> {
     const hfKey = process.env.HUGGINGFACE_API_KEY;
@@ -22,7 +22,7 @@ async function embedTextHF(text: string, retries = 3, delay = 2000): Promise<num
 
     try {
         const response = await fetch(
-            "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-mpnet-base-v2",
+            "https://router.huggingface.co/hf-inference/models/BAAI/bge-base-en-v1.5",
             {
                 headers: { 
                     "Authorization": `Bearer ${hfKey}`,
@@ -30,7 +30,7 @@ async function embedTextHF(text: string, retries = 3, delay = 2000): Promise<num
                 },
                 method: "POST",
                 body: JSON.stringify({ 
-                    inputs: [text], 
+                    inputs: text, 
                     options: { wait_for_model: true } 
                 }),
             }
