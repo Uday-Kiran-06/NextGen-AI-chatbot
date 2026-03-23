@@ -239,28 +239,32 @@ registerTool({
     parameters: z.object({
         query: z.string().describe('The person name or department to search for (e.g., "CSE" or "Dr. Mahesh")'),
     }),
-    execute: async ({ query }) => {
+    execute: async (args: any) => {
+        const query = (args.query || args.name || args.search || "").toString().trim();
+        
         try {
             const supabase = createAdminClient();
             
             // 1. Try Structured Database (Supabase)
-            const { data, error } = await supabase
-                .from('faculty')
-                .select('*')
-                .or(`name.ilike.%${query}%,department.ilike.%${query}%,designation.ilike.%${query}%`)
-                .order('is_hod', { ascending: false })
-                .limit(10);
+            if (query) {
+                const { data, error } = await supabase
+                    .from('faculty')
+                    .select('*')
+                    .or(`name.ilike.%${query}%,department.ilike.%${query}%,designation.ilike.%${query}%`)
+                    .order('is_hod', { ascending: false })
+                    .limit(10);
 
-            if (!error && data && data.length > 0) {
-                const results = data.map((f: any) => {
-                    let info = `### ${f.name} (${f.designation})\n`;
-                    info += `- Department: ${f.department}\n`;
-                    if (f.qualification) info += `- Qualification: ${f.qualification}\n`;
-                    if (f.image_url) info += `![${f.name} Profile Photo](${f.image_url})`;
-                    return info;
-                }).join('\n\n---\n\n');
+                if (!error && data && data.length > 0) {
+                    const results = data.map((f: any) => {
+                        let info = `### ${f.name} (${f.designation})\n`;
+                        info += `- Department: ${f.department}\n`;
+                        if (f.qualification) info += `- Qualification: ${f.qualification}\n`;
+                        if (f.image_url) info += `![${f.name} Profile Photo](${f.image_url})`;
+                        return info;
+                    }).join('\n\n---\n\n');
 
-                return { result: `[FOUND IN STRUCTURED DATABASE]\n\n${results}` };
+                    return { result: `[FOUND IN STRUCTURED DATABASE]\n\n${results}` };
+                }
             }
 
             // 2. Fallback to Static Rules (Hardcoded) if Database returns nothing or errors
@@ -271,7 +275,8 @@ registerTool({
                 threshold: 0.4,
             });
 
-            const staticResults = fuse.search(query);
+            // Ensure we don't pass undefined/null to fuse.search
+            const staticResults = query ? fuse.search(query) : [];
             if (staticResults.length > 0) {
                 const formatted = staticResults.slice(0, 3).map(r => {
                     return `[FOUND IN STATIC RULES: ${r.item.keywords.join(', ')}]\n${r.item.response}`;
@@ -280,9 +285,9 @@ registerTool({
                 return { result: formatted };
             }
 
-            return { result: "No faculty records found in either database or static records. Try search_knowledge for general info." };
+            return { result: query ? "No faculty records found in either database or static records. Try search_knowledge for general info." : "Please provide a name or department to search for faculty information." };
         } catch (error: any) {
-            console.error("Faculty search error:", error);
+            console.error("Faculty search error:", error, "Original Args:", args);
             return { error: "Failed to search faculty database." };
         }
     },
