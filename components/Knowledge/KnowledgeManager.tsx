@@ -41,16 +41,32 @@ export default function KnowledgeManager() {
 
     const handleSyncCore = async () => {
         setIsSyncing(true);
+        const toastId = toast.loading("Syncing core data...");
         try {
-            const result = await syncInternalData();
-            if (result.success) {
-                toast.success(`Success! Synced ${result.count} internal rules.`);
-                setIsOpen(false);
-            } else {
-                toast.error(result.error || "Failed to sync core data");
+            let currentOffset = 0;
+            let hasMore = true;
+            let totalSynced = 0;
+
+            while (hasMore) {
+                const result = await syncInternalData(currentOffset, 20, currentOffset === 0);
+                if (result.success) {
+                    totalSynced += result.count || 0;
+                    currentOffset = result.nextOffset || 0;
+                    hasMore = result.hasMore || false;
+                    
+                    if (hasMore) {
+                        toast.loading(`Syncing... ${currentOffset}/${result.total} rules`, { id: toastId });
+                    } else {
+                        toast.success(`Success! Synced ${totalSynced} internal rules.`, { id: toastId });
+                        setIsOpen(false);
+                    }
+                } else {
+                    toast.error(result.error || "Failed to sync core data", { id: toastId });
+                    break;
+                }
             }
         } catch (error) {
-            toast.error("An unexpected error occurred during sync");
+            toast.error("An unexpected error occurred during sync", { id: toastId });
         } finally {
             setIsSyncing(false);
         }
