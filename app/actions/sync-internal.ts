@@ -26,7 +26,7 @@ export async function syncInternalData() {
         }
 
         let syncedCount = 0;
-        const CONCURRENCY_LIMIT = 5;
+        const CONCURRENCY_LIMIT = 2; // Reduced to mitigate HF rate limits & SocketErrors
 
         for (let i = 0; i < RULES.length; i += CONCURRENCY_LIMIT) {
             const batch = RULES.slice(i, i + CONCURRENCY_LIMIT);

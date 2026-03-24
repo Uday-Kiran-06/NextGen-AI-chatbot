@@ -373,8 +373,8 @@ export const FACULTY_RULES: Rule[] = [
     { keywords: ['winson', 'cse ds faculty'], response: "👤 **Mr. M. Winson** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. M. Winson](https://aliet.ac.in/storage/162/01K8WWBN9DS8T0MJ3D80MSK2GX.png)" },
 
     // --- Administration ---
-    { keywords: ['director', 'secretary', 'joji reddy'], response: "🎓 **Rev. Fr. Dr. B. Joji Reddy S.J** is the Secretary & Director of ALIET. Qualification: Ph.D.\n\n![Rev. Fr. Dr. B. Joji Reddy S.J](https://aliet.ac.in/storage/blocks/01K8D7DZ0AZSD7TWV75WK07MM0.jpg)" },
-    { keywords: ['principal', 'controller of examinations', 'mahesh'], response: "🎓 **Dr. O. Mahesh** is the Principal of ALIET and the Controller of Examinations. Qualification: Ph.D.\n\n![Dr. O. Mahesh](https://aliet.ac.in/storage/blocks/items/01K9C5SX3NDX2A2KERMB1SX07Z.jpg)" },
+    { keywords: ['director', 'director of aliet', 'secretary', 'joji reddy'], response: "🎓 **Rev. Fr. Dr. B. Joji Reddy S.J** is the Secretary & Director of ALIET. Qualification: Ph.D.\n\n![Rev. Fr. Dr. B. Joji Reddy S.J](https://aliet.ac.in/storage/blocks/01K8D7DZ0AZSD7TWV75WK07MM0.jpg)" },
+    { keywords: ['principal', 'principal of aliet', 'controller of examinations', 'mahesh'], response: "🎓 **Dr. O. Mahesh** is the Principal of ALIET and the Controller of Examinations. Qualification: Ph.D.\n\n![Dr. O. Mahesh](https://aliet.ac.in/storage/blocks/items/01K9C5SX3NDX2A2KERMB1SX07Z.jpg)" },
 
     // --- Exam Cell ---
     {

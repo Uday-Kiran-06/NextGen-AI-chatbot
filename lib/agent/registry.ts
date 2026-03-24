@@ -241,6 +241,7 @@ registerTool({
     }),
     execute: async (args: any) => {
         const query = (args.query || args.name || args.search || "").toString().trim();
+        let structuredResults = "";
         
         try {
             const supabase = createAdminClient();
@@ -255,27 +256,28 @@ registerTool({
                     .limit(10);
 
                 if (!error && data && data.length > 0) {
-                    const results = data.map((f: any) => {
+                    structuredResults = data.map((f: any) => {
                         let info = `### ${f.name} (${f.designation})\n`;
                         info += `- Department: ${f.department}\n`;
                         if (f.qualification) info += `- Qualification: ${f.qualification}\n`;
                         if (f.image_url) info += `![${f.name} Profile Photo](${f.image_url})`;
                         return info;
                     }).join('\n\n---\n\n');
-
-                    return { result: `[FOUND IN STRUCTURED DATABASE]\n\n${results}` };
                 }
             }
+        } catch (dbError) {
+            console.log(`[SearchFaculty] Database error or unavailable, falling back to static rules...`, dbError);
+        }
 
-            // 2. Fallback to Static Rules (Hardcoded) if Database returns nothing or errors
-            console.log(`[SearchFaculty] No results in database for "${query}", falling back to static rules...`);
+        // 2. Fallback to Static Rules (Hardcoded) if Database returns nothing/errors
+        if (!structuredResults) {
+            console.log(`[SearchFaculty] No results in database for "${query}", using static rules fallback...`);
             
             const fuse = new Fuse(FACULTY_RULES, {
                 keys: ['keywords'],
                 threshold: 0.4,
             });
 
-            // Ensure we don't pass undefined/null to fuse.search
             const staticResults = query ? fuse.search(query) : [];
             if (staticResults.length > 0) {
                 const formatted = staticResults.slice(0, 3).map(r => {
@@ -286,10 +288,9 @@ registerTool({
             }
 
             return { result: query ? "No faculty records found in either database or static records. Try search_knowledge for general info." : "Please provide a name or department to search for faculty information." };
-        } catch (error: any) {
-            console.error("Faculty search error:", error, "Original Args:", args);
-            return { error: "Failed to search faculty database." };
         }
+
+        return { result: `[FOUND IN STRUCTURED DATABASE]\n\n${structuredResults}` };
     },
 });
 

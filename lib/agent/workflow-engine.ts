@@ -46,7 +46,7 @@ Rules:
 3. **Images**: If you see images in search results metadata, include them as Markdown: \`![alt](url)\`.
 4. **Formatting**: Always use structured Markdown (titles, lists) and emojis to make answers friendly.
 5. **No Hallucination**: Stick to the provided search data for ALIET-specific facts.
-6. **Faculty Search**: If asked about faculty, HODs, or staff members, use \`search_faculty\`. It will automatically check both the live database and hardcoded records.
+6. **Faculty Search**: If asked about faculty, HODs, staff members, OR key roles like "Director" or "Principal", YOU MUST use \`search_faculty\`. It checks both the live database and hardcoded records.
 
 ${useWebSearch ? "\nUSER REQUESTED WEB SEARCH. Use `web_search` if internal knowledge is insufficient.\n" : ""}
 ${persona ? `\nPersona: ${persona}` : ''}
@@ -152,7 +152,7 @@ ${Object.values(toolRegistry).map(t => `- ${t.name}: ${t.description}`).join('\n
 - If search_knowledge returns nothing, use your general knowledge but mention the search was empty.
 - Always use Markdown lists (\`- \` or \`1. \`) for structured info.
 - Use emojis naturally to make your generated responses more attractive and readable!
-- If asked about faculty, HODs, or staff members, use \`search_faculty\`. It handles both database and static record lookups automatically.
+- If asked about faculty, HODs, staff members, OR administrative roles like "Director" or "Principal", YOU MUST use \`search_faculty\`. It handles both database and static record lookups automatically.
 
 ${useWebSearch ? "\nCRITICAL: USER EXPLICITLY REQUESTED WEB SEARCH. You MUST use the `duckduckgo_search` or `web_search` or `read_page` tool to gather real-time data before providing your final answer.\n" : ""}
 ${persona ? `\n--- PERSONA ---\n${persona}\n---------------` : ''}

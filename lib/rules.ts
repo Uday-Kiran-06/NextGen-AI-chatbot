@@ -79,8 +79,8 @@ export async function checkRules(message: string): Promise<string | null> {
     if (cleanMessage.length < 80) {
         // Try to match the entire phrase (handles phrases and exact matches well)
         const phraseResults = fuse.search(cleanMessage);
-        // Stricter threshold for phrases (0.2 instead of 0.3)
-        if (phraseResults.length > 0 && phraseResults[0].score !== undefined && phraseResults[0].score <= 0.2) {
+        // Looser threshold for phrase matching (0.35) to handle natural questions like "director of aliet ?"
+        if (phraseResults.length > 0 && phraseResults[0].score !== undefined && phraseResults[0].score <= 0.35) {
             return phraseResults[0].item.response;
         }
 

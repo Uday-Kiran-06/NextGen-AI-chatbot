@@ -59,6 +59,11 @@ async function embedTextHF(text: string, retries = 3, delay = 2000): Promise<num
 
         throw new Error("Unexpected response format from Hugging Face.");
     } catch (error: any) {
+        if (retries > 0) {
+            console.warn(`[VectorStore] HF Network Error. Retrying in ${delay}ms... (${error.message || 'Unknown'})`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return embedTextHF(text, retries - 1, delay * 1.5);
+        }
         console.error("HF Embedding Error:", error);
         throw error;
     }
