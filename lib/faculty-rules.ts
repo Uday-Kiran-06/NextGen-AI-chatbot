@@ -157,7 +157,7 @@ export const FACULTY_RULES: Rule[] = [
             "17. [Mr. M. Winson](send:Mr. M. Winson)\n\n" +
             "Click on any name to view their full profile! ✨"
     },
-    { keywords: ['siva rama krishna', 'ai ml faculty'], response: "👤 **Dr. K. Siva Rama Krishna** is an Associate Professor in CSE (AI & ML). Qualification: Ph.D.\n\n![Dr. K. Siva Rama Krishna](https://aliet.ac.in/storage/120/01K8WVMA7V90D4T9SA49ZF2EQE.png)" },
+    { keywords: ['siva rama krishna', 'CSM hod', 'ai ml hod', 'ai ml faculty'], response: "👤 **Dr. K. Siva Rama Krishna** is an Associate Professor in CSE (AI & ML). Qualification: Ph.D.\n\n![Dr. K. Siva Rama Krishna](https://aliet.ac.in/storage/120/01K8WVMA7V90D4T9SA49ZF2EQE.png)" },
     { keywords: ['ashok kumar', 'ai ml faculty'], response: "👤 **Mr. Y. C. Ashok Kumar** is an Associate Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. Y. C. Ashok Kumar](https://aliet.ac.in/storage/126/01K8WVQGNQ9PNCKCNF4128TSF3.png)" },
     { keywords: ['nikhitha', 'ai ml faculty'], response: "👤 **Mrs. P. Nikhitha** is an Assistant Professor in CSE (AI & ML). Qualification: MS\n\n![Mrs. P. Nikhitha](https://aliet.ac.in/storage/131/01K8WVR5CQ45TFQMQD0BJWK8MT.png)" },
     { keywords: ['rajashekar reddy', 'ai ml faculty'], response: "👤 **Mr. B Rajashekar Reddy** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. B Rajashekar Reddy](https://aliet.ac.in/storage/132/01K8WVSXYA1GW3PCYNZPXNGVQA.png)" },
@@ -354,7 +354,7 @@ export const FACULTY_RULES: Rule[] = [
             "17. [Mr. M. Winson](send:Mr. M. Winson)\n\n" +
             "Click on any name to view their full profile! ✨"
     },
-    { keywords: ['siva rama krishna', 'cse ds faculty'], response: "👤 **Dr. K. Siva Rama Krishna** is an Associate Professor in CSE (Data Science). Qualification: B.Tech, M.Tech, Ph.D. (PDF)\n\n![Dr. K. Siva Rama Krishna](https://aliet.ac.in/storage/147/01K8WW3RXYJZXFASJPPSCTV4HS.png)" },
+    { keywords: ['siva rama krishna', 'CSD hod', 'cse ds hod', 'cse ds faculty'], response: "👤 **Dr. K. Siva Rama Krishna** is an Associate Professor in CSE (Data Science). Qualification: B.Tech, M.Tech, Ph.D. (PDF)\n\n![Dr. K. Siva Rama Krishna](https://aliet.ac.in/storage/147/01K8WW3RXYJZXFASJPPSCTV4HS.png)" },
     { keywords: ['ashok kumar', 'cse ds faculty'], response: "👤 **Mr. Y. C. Ashok Kumar** is an Associate Professor in CSE (Data Science). Qualification: M.Tech, (Ph.D)\n\n![Mr. Y. C. Ashok Kumar](https://aliet.ac.in/storage/148/01K8WW48Y2CME0DJMHXSDH0E24.png)" },
     { keywords: ['nikhitha', 'cse ds faculty'], response: "👤 **Mrs. P. Nikhitha** is an Assistant Professor in CSE (Data Science). Qualification: MS\n\n![Mrs. P. Nikhitha](https://aliet.ac.in/storage/149/01K8WW4PHZBZZN6FJ001R2N6N5.png)" },
     { keywords: ['rajashekar reddy', 'cse ds faculty'], response: "👤 **Mr. B. Rajashekar Reddy** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. B. Rajashekar Reddy](https://aliet.ac.in/storage/150/01K8WW540Q74V8FQ5P5FZMB6Z3.png)" },
