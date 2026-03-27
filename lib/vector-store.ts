@@ -40,7 +40,7 @@ async function embedTextHF(text: string, retries = 3, delay = 2000): Promise<num
             // Model is loading, wait and retry
             console.warn(`[VectorStore] HF Model loading. Retrying in ${delay}ms...`);
             await new Promise(resolve => setTimeout(resolve, delay));
-            return embedTextHF(text, retries - 1, delay * 1.5);
+            return embedTextHF(text, retries - 1, delay * 2);
         }
 
         if (!response.ok) {
@@ -52,18 +52,21 @@ async function embedTextHF(text: string, retries = 3, delay = 2000): Promise<num
         
         // HF returns an array for single input, or array of arrays for batch
         if (Array.isArray(result) && typeof result[0] === 'number') {
-            return result;
+            return result as number[];
         } else if (Array.isArray(result) && Array.isArray(result[0])) {
-            return result[0];
+            return result[0] as number[];
         }
 
         throw new Error("Unexpected response format from Hugging Face.");
     } catch (error: any) {
-        if (retries > 0) {
-            console.warn(`[VectorStore] HF Network Error. Retrying in ${delay}ms... (${error.message || 'Unknown'})`);
+        const isSocketError = error.message?.includes('socket') || error.code === 'UND_ERR_SOCKET' || error.message?.includes('fetch failed');
+        
+        if ((isSocketError || response?.status === 503) && retries > 0) {
+            console.warn(`[VectorStore] HF ${isSocketError ? 'Network' : 'Server'} Error. Retrying in ${delay}ms... (${error.message || 'Unknown'})`);
             await new Promise(resolve => setTimeout(resolve, delay));
-            return embedTextHF(text, retries - 1, delay * 1.5);
+            return embedTextHF(text, retries - 1, delay * 2);
         }
+        
         console.error("HF Embedding Error:", error);
         throw error;
     }

@@ -33,20 +33,37 @@ export async function syncInternalData(offset = 0, limit = 20, isInitialCall = t
             const batch = batchRules.slice(i, i + CONCURRENCY_LIMIT);
             
             await Promise.all(batch.map(async (rule) => {
-                const content = `[OFFICIAL RULE/FAQ]\nKeywords: ${rule.keywords.join(', ')}\nResponse: ${rule.response}`;
+                let retries = 3;
+                let success = false;
                 
-                await addDocument(content, {
-                    source: 'internal_fixed_data',
-                    type: 'official_rule',
-                    synced_at: new Date().toISOString()
-                }, user?.id);
-                
-                syncedCount++;
+                while (retries > 0 && !success) {
+                    try {
+                        const content = `[OFFICIAL RULE/FAQ]\nKeywords: ${rule.keywords.join(', ')}\nResponse: ${rule.response}`;
+                        
+                        await addDocument(content, {
+                            source: 'internal_fixed_data',
+                            type: 'official_rule',
+                            synced_at: new Date().toISOString()
+                        }, user?.id);
+                        
+                        success = true;
+                        syncedCount++;
+                    } catch (error: any) {
+                        retries--;
+                        if (retries > 0) {
+                            console.warn(`[Sync] Item failed, retrying... (${retries} left):`, error.message);
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                        } else {
+                            console.error(`[Sync] Item failed after all retries:`, error.message);
+                            // Don't throw, allow other items in batch to proceed
+                        }
+                    }
+                }
             }));
 
             if (i + CONCURRENCY_LIMIT < batchRules.length) {
                 // Short break between sub-batches
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 1500));
             }
         }
 
