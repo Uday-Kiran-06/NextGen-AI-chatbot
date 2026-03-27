@@ -20,8 +20,9 @@ async function embedTextHF(text: string, retries = 3, delay = 2000): Promise<num
         throw new Error("Missing HUGGINGFACE_API_KEY. Please add it to your environment variables.");
     }
 
+    let response: Response | undefined;
     try {
-        const response = await fetch(
+        response = await fetch(
             "https://router.huggingface.co/hf-inference/models/BAAI/bge-base-en-v1.5",
             {
                 headers: { 
