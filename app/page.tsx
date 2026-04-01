@@ -27,7 +27,14 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-[100dvh] w-full bg-background relative overflow-hidden">
+    <div 
+      className="flex w-full bg-background relative overflow-hidden"
+      style={{ 
+        height: '100dvh',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        paddingTop: 'env(safe-area-inset-top, 0px)'
+      }}
+    >
       <PremiumSidebar
         activeId={activeConversationId}
         onSelectChat={setActiveConversationId}

@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Cpu, Check, Zap, Atom, Server, Bot, ChevronDown } from 'lucide-react';
+import { Brain, Cpu, Check, Zap, Atom, Server, Bot, ChevronDown, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const MODELS = [
@@ -27,16 +27,24 @@ export default function ModelSelector({ modelId, onModelChange, isOpen, setIsOpe
     const activeModel = MODELS.find(m => m.id === modelId) || MODELS[0];
     const buttonRef = useRef<HTMLButtonElement>(null);
     const [position, setPosition] = useState({ top: 0, left: 0 });
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        if (isOpen && buttonRef.current) {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    useEffect(() => {
+        if (isOpen && buttonRef.current && !isMobile) {
             const rect = buttonRef.current.getBoundingClientRect();
             setPosition({
                 top: rect.top - 340,
                 left: Math.min(rect.left, window.innerWidth - 296)
             });
         }
-    }, [isOpen]);
+    }, [isOpen, isMobile]);
 
     const dropdownContent = isOpen && (
         <>
@@ -47,82 +55,157 @@ export default function ModelSelector({ modelId, onModelChange, isOpen, setIsOpe
                 className="fixed inset-0 z-[9998]"
                 onClick={() => setIsOpen(false)}
             />
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="fixed w-72 rounded-2xl overflow-hidden z-[9999] shadow-2xl"
-                style={{
-                    backgroundColor: 'var(--sidebar-bg)',
-                    border: '1px solid var(--sidebar-border)',
-                    top: `${Math.max(16, position.top)}px`,
-                    left: `${Math.max(16, position.left)}px`
-                }}
-            >
-                <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--sidebar-border)' }}>
-                    <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground)', opacity: 0.6 }}>Select AI Model</h3>
-                </div>
-                <div className="flex flex-col p-1.5 max-h-80 overflow-y-auto">
-                    {MODELS.map((m, i) => (
-                        <motion.button
-                            key={m.id}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.03 }}
-                            onClick={() => { onModelChange(m.id); setIsOpen(false); }}
-                            className={cn(
-                                "w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left",
-                                modelId === m.id ? "bg-[var(--accent-glow)]" : "hover:bg-[var(--sidebar-hover)]"
-                            )}
+            
+            {/* Mobile Bottom Sheet */}
+            {isMobile ? (
+                <motion.div
+                    initial={{ opacity: 1, y: '100%' }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 1, y: '100%' }}
+                    transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                    className="fixed inset-x-0 bottom-0 z-[9999] rounded-t-3xl overflow-hidden"
+                    style={{
+                        backgroundColor: 'var(--sidebar-bg)',
+                        border: '1px solid var(--sidebar-border)',
+                        borderBottom: 'none',
+                        maxHeight: '70vh'
+                    }}
+                >
+                    {/* Handle */}
+                    <div className="flex justify-center pt-3 pb-2">
+                        <div className="w-10 h-1 rounded-full" style={{ backgroundColor: 'var(--foreground)', opacity: 0.2 }} />
+                    </div>
+                    
+                    {/* Header */}
+                    <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: 'var(--sidebar-border)' }}>
+                        <div className="flex items-center gap-2">
+                            <Atom size={18} style={{ color: 'var(--accent-primary-light)' }} />
+                            <h3 className="text-base font-semibold" style={{ color: 'var(--foreground)' }}>Select AI Model</h3>
+                        </div>
+                        <button 
+                            onClick={() => setIsOpen(false)}
+                            className="w-8 h-8 flex items-center justify-center rounded-full"
+                            style={{ touchAction: 'manipulation' }}
                         >
-                            <div 
-                                className="p-2 rounded-lg"
+                            <X size={18} style={{ color: 'var(--foreground)', opacity: 'var(--text-muted)' }} />
+                        </button>
+                    </div>
+                    
+                    {/* Model List */}
+                    <div className="flex flex-col gap-1 p-3 overflow-y-auto" style={{ maxHeight: 'calc(70vh - 100px)' }}>
+                        {MODELS.map((m, i) => (
+                            <motion.button
+                                key={m.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: i * 0.03 }}
+                                onClick={() => { onModelChange(m.id); setIsOpen(false); }}
+                                className="w-full flex items-center gap-3 p-4 rounded-2xl transition-all text-left active:scale-[0.98]"
                                 style={{
-                                    backgroundColor: modelId === m.id ? 'var(--accent-primary)' : 'var(--sidebar-hover)',
-                                    color: modelId === m.id ? 'white' : 'var(--foreground)'
+                                    backgroundColor: modelId === m.id ? 'var(--accent-glow)' : 'transparent',
+                                    border: modelId === m.id ? '1px solid var(--accent-primary)' : '1px solid transparent',
+                                    touchAction: 'manipulation'
                                 }}
                             >
-                                <m.icon size={16} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <div className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--foreground)' }}>
-                                    {m.label}
-                                    {modelId === m.id && <Check size={14} style={{ color: 'var(--accent-primary)' }} />}
+                                <div 
+                                    className="w-11 h-11 flex items-center justify-center rounded-xl"
+                                    style={{
+                                        backgroundColor: modelId === m.id ? 'var(--accent-primary)' : 'var(--glass-bg)',
+                                        color: modelId === m.id ? 'white' : 'var(--foreground)'
+                                    }}
+                                >
+                                    <m.icon size={20} />
                                 </div>
-                                <div className="text-xs" style={{ color: 'var(--foreground)', opacity: 0.5 }}>{m.desc}</div>
-                            </div>
-                        </motion.button>
-                    ))}
-                </div>
-            </motion.div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-base font-semibold flex items-center gap-2" style={{ color: 'var(--foreground)' }}>
+                                        {m.label}
+                                        {modelId === m.id && <Check size={16} style={{ color: 'var(--accent-primary-light)' }} />}
+                                    </div>
+                                    <div className="text-sm mt-0.5" style={{ color: 'var(--foreground)', opacity: 'var(--text-secondary)' }}>{m.desc}</div>
+                                </div>
+                            </motion.button>
+                        ))}
+                    </div>
+                </motion.div>
+            ) : (
+                /* Desktop Dropdown */
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    className="fixed w-72 rounded-2xl overflow-hidden z-[9999] shadow-2xl"
+                    style={{
+                        backgroundColor: 'var(--sidebar-bg)',
+                        border: '1px solid var(--sidebar-border)',
+                        top: `${Math.max(16, position.top)}px`,
+                        left: `${Math.max(16, position.left)}px`
+                    }}
+                >
+                    <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--sidebar-border)' }}>
+                        <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--foreground)', opacity: 'var(--text-secondary)' }}>Select AI Model</h3>
+                    </div>
+                    <div className="flex flex-col p-1.5 max-h-80 overflow-y-auto">
+                        {MODELS.map((m, i) => (
+                            <motion.button
+                                key={m.id}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: i * 0.03 }}
+                                onClick={() => { onModelChange(m.id); setIsOpen(false); }}
+                                className={cn(
+                                    "w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left",
+                                    modelId === m.id ? "bg-[var(--accent-glow)]" : "hover:bg-[var(--sidebar-hover)]"
+                                )}
+                            >
+                                <div 
+                                    className="p-2 rounded-lg"
+                                    style={{
+                                        backgroundColor: modelId === m.id ? 'var(--accent-primary)' : 'var(--sidebar-hover)',
+                                        color: modelId === m.id ? 'white' : 'var(--foreground)'
+                                    }}
+                                >
+                                    <m.icon size={16} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--foreground)' }}>
+                                        {m.label}
+                                        {modelId === m.id && <Check size={14} style={{ color: 'var(--accent-primary-light)' }} />}
+                                    </div>
+                                    <div className="text-xs" style={{ color: 'var(--foreground)', opacity: 'var(--text-secondary)' }}>{m.desc}</div>
+                                </div>
+                            </motion.button>
+                        ))}
+                    </div>
+                </motion.div>
+            )}
         </>
     );
 
     return (
         <div className="relative" ref={dropdownRef}>
-            <motion.button
+            <button
                 ref={buttonRef}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all active:scale-95"
                 style={{
                     backgroundColor: isOpen ? 'var(--accent-glow)' : 'transparent',
                     border: '1px solid',
                     borderColor: isOpen ? 'var(--accent-primary)' : 'transparent',
-                    color: 'var(--foreground)'
+                    color: 'var(--foreground)',
+                    touchAction: 'manipulation',
+                    minHeight: '32px'
                 }}
                 title="Switch Model"
             >
-                <activeModel.icon size={14} style={{ color: 'var(--accent-primary)' }} />
+                <activeModel.icon size={14} style={{ color: 'var(--accent-primary-light)' }} />
                 <span className="text-xs font-medium">{activeModel.shortLabel}</span>
                 <ChevronDown 
                     size={12} 
                     className={cn("transition-transform", isOpen && "rotate-180")} 
-                    style={{ opacity: 0.5 }}
+                    style={{ opacity: 'var(--text-muted)' }}
                 />
-            </motion.button>
+            </button>
 
             {typeof document !== 'undefined' && createPortal(
                 <AnimatePresence>{dropdownContent}</AnimatePresence>,

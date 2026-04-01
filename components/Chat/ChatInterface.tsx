@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import MessageBubble, { MessageSkeleton } from './MessageBubble';
 import InputArea from './InputArea';
 import WelcomeView from './WelcomeView';
+import ModelSelector from './ModelSelector';
+import PersonaSelector from './PersonaSelector';
 import { Menu, RefreshCw, Copy, FileDown, Bot, Atom } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -18,7 +20,7 @@ const ArtifactViewer = dynamic(() => import('./ArtifactViewer'), {
 });
 
 const MODELS = [
-    { id: 'gemini-2.5-flash', label: 'Gemini 2.5' },
+    { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
     { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
     { id: 'gemini-3-flash-preview', label: 'Gemini 3 Preview' },
     { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B' },
@@ -36,7 +38,6 @@ interface ChatInterfaceProps {
 export default function ChatInterface({ conversationId, onConversationCreated, onOpenSidebar, onNewChat }: ChatInterfaceProps) {
     const [modelId, setModelId] = useState('llama-3.3-70b-versatile');
     const activeModel = MODELS.find(m => m.id === modelId) || MODELS[0];
-    const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const { theme, setTheme } = useTheme();
@@ -95,7 +96,6 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
     const handleModelChange = (newModelId: string) => {
         setModelId(newModelId);
         localStorage.setItem('nextgen_model', newModelId);
-        setIsModelDropdownOpen(false);
     };
 
     const scrollToBottom = () => {
@@ -128,7 +128,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
     return (
         <div className="flex-1 flex flex-col h-full relative z-0 overflow-hidden">
 
-            {/* Mobile Header - Sticky, Capsule, Floating */}
+            {/* Mobile Header - Premium Floating Capsule */}
             <motion.div
                 initial={false}
                 animate={{
@@ -136,30 +136,75 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     opacity: showHeader ? 1 : 0
                 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="md:hidden absolute top-[calc(env(safe-area-inset-top,0px)+8px)] left-3 right-3 z-50 flex items-center justify-between px-4 py-2.5 bg-sidebar-bg/80 backdrop-blur-xl border border-glass-border rounded-2xl shadow-lg ring-1 ring-white/10"
+                className="md:hidden fixed left-3 right-3 z-50"
+                style={{ top: 'calc(env(safe-area-inset-top, 8px) + 8px)' }}
             >
-                <button
-                    onClick={onOpenSidebar}
-                    className="p-2 -ml-2 text-foreground opacity-70 hover:opacity-100 hover:scale-110 active:scale-95 transition-all rounded-xl hover:bg-white/5 relative z-10"
-                    aria-label="Open Sidebar"
+                <div 
+                    className="flex items-center justify-between px-3 py-2 rounded-2xl"
+                    style={{
+                        backgroundColor: 'var(--sidebar-bg)',
+                        border: '1px solid var(--glass-border)',
+                        backdropFilter: 'blur(20px)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+                        touchAction: 'manipulation'
+                    }}
                 >
-                    <Menu size={20} />
-                </button>
-                <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
-                    <div className="font-bold text-[13px] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-accent-primary to-accent-secondary">
-                        NextGen AI
+                    {/* Hamburger Menu Button */}
+                    <button
+                        onClick={onOpenSidebar}
+                        className="w-9 h-9 flex items-center justify-center rounded-lg transition-all active:scale-90"
+                        style={{ 
+                            backgroundColor: 'var(--glass-bg)',
+                            touchAction: 'manipulation'
+                        }}
+                        aria-label="Open Sidebar"
+                    >
+                        <div className="flex flex-col gap-[4px]">
+                            <span 
+                                className="block w-5 h-0.5 rounded-full"
+                                style={{ backgroundColor: 'var(--accent-primary-light)' }}
+                            />
+                            <span 
+                                className="block w-5 h-0.5 rounded-full"
+                                style={{ backgroundColor: 'var(--accent-primary-light)' }}
+                            />
+                            <span 
+                                className="block w-3 h-0.5 rounded-full"
+                                style={{ backgroundColor: 'var(--accent-primary-light)' }}
+                            />
+                        </div>
+                    </button>
+
+                    {/* Center Logo */}
+                    <div className="flex flex-col items-center">
+                        <span 
+                            className="font-bold tracking-tight"
+                            style={{ 
+                                fontSize: '18px',
+                                backgroundImage: 'linear-gradient(135deg, var(--accent-primary-light), var(--accent-secondary))',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent'
+                            }}
+                        >
+                            NextGen AI
+                        </span>
+                        <span 
+                            className="text-[9px] font-medium tracking-wider uppercase"
+                            style={{ color: 'var(--foreground)', opacity: 'var(--text-muted)' }}
+                        >
+                            {activeModel?.label || 'Gemini 2.5 Pro'}
+                        </span>
                     </div>
-                    <div className="text-[9px] font-bold uppercase tracking-[0.1em] text-gray-500 flex items-center gap-1">
-                        <Bot size={8} className="text-violet-500 animate-pulse" />
-                        {activeModel?.label || 'Gemini'}
-                    </div>
+
+                    {/* Empty space for balance */}
+                    <div className="w-9 h-9" />
                 </div>
             </motion.div>
 
             {/* ChatMessages Area - Extends to full height underneath input */}
             <div
                 ref={chatContainerRef}
-                className={`absolute inset-0 overflow-y-auto touch-pan-y ${messages.length === 0 ? '' : 'pt-20 md:pt-4 pb-[180px] md:pb-[140px]'}`}
+                className={`absolute inset-0 overflow-y-auto touch-pan-y ${messages.length === 0 ? 'pt-24 md:pt-0' : 'pt-24 md:pt-4 pb-[200px] md:pb-[140px]'}`}
                 onScroll={handleScroll}
             >
                 {/* Pull to New Chat Indicator */}
@@ -240,8 +285,11 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             </div>
 
             {/* Input Area - Fixed at bottom, floats over messages */}
-            <div className="absolute bottom-0 left-0 right-0 p-0 z-10 pointer-events-none">
-                <div className="max-w-4xl mx-auto pointer-events-auto">
+            <div 
+                className="absolute left-0 right-0 p-0 z-10 pointer-events-none"
+                style={{ bottom: 'env(safe-area-inset-bottom, 0px)' }}
+            >
+                <div className="max-w-4xl mx-auto pointer-events-auto px-2 md:px-0">
                     <InputArea onSendMessage={handleSendMessage} isGenerating={isGenerating} modelId={modelId} onModelChange={handleModelChange} onStop={handleStopGeneration} />
 
                     {/* Artifact Viewer Side Panel */}
@@ -253,7 +301,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     />
                 </div>
 
-                <div className="flex justify-center items-center gap-4 pt-2 pb-2 text-[9px] pointer-events-auto">
+                <div className="flex justify-center items-center gap-4 pt-2 pb-2 md:pb-2 text-[9px] pointer-events-auto px-2">
                     <p className="text-[10px] text-foreground opacity-50">
                         AI can make mistakes. Please verify important information.
                     </p>
