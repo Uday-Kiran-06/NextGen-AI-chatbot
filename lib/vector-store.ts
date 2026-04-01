@@ -120,6 +120,12 @@ export async function embedText(text: string, retries = 3, delay = 1000): Promis
 export async function addDocument(content: string, metadata: Record<string, any> = {}, userId?: string): Promise<Document | null> {
     try {
         const supabase = createAdminClient();
+        
+        if (!supabase) {
+            console.warn("Supabase not configured, skipping document storage");
+            return null;
+        }
+        
         const embedding = await embedText(content);
 
         const { data, error } = await supabase
@@ -158,6 +164,12 @@ export async function searchDocuments(
 ): Promise<Document[]> {
     try {
         const supabase = createAdminClient();
+        
+        if (!supabase) {
+            console.warn("Supabase not configured, returning empty results");
+            return [];
+        }
+        
         const queryEmbedding = await embedText(query);
 
         const { data: documents, error } = await supabase.rpc('match_documents', {

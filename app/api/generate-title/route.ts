@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
         }
 
         const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
 
         const model = getDynamicModel(modelId || 'gemini-1.5-flash');
 

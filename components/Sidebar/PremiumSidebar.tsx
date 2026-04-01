@@ -26,7 +26,7 @@ interface SidebarProps {
     onClose?: () => void;
 }
 
-const SPRING_CONFIG = { type: 'spring', stiffness: 350, damping: 30 };
+const SPRING_CONFIG = { type: 'spring' as const, stiffness: 350, damping: 30 };
 
 export default function PremiumSidebar({ 
     activeId, onSelectChat, onNewChat, refreshKey, isOpen, onClose 
@@ -82,7 +82,7 @@ export default function PremiumSidebar({
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (!e.target.closest('.chat-menu')) setActiveMenuId(null);
+            if (e.target && !((e.target as HTMLElement).closest?.('.chat-menu'))) setActiveMenuId(null);
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);

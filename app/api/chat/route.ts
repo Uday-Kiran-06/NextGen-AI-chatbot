@@ -18,8 +18,12 @@ export async function POST(req: NextRequest) {
 
         // Identify User for RAG Context
         const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        const userId = user?.id;
+        let userId: string | undefined;
+        
+        if (supabase) {
+            const { data: { user } } = await supabase.auth.getUser();
+            userId = user?.id;
+        }
 
         // High-Performance Optimization: Context-Aware Cache
         // Include history length to prevent serving cached first-turn answers on follow-up questions

@@ -8,20 +8,28 @@ import { createAdminClient } from '@/lib/supabase/admin';
 export async function syncInternalData(offset = 0, limit = 20, isInitialCall = true) {
     try {
         const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
         const adminSupabase = createAdminClient();
+        
+        let userId: string | undefined;
+        
+        if (supabase) {
+            const { data: { user } } = await supabase.auth.getUser();
+            userId = user?.id;
+        }
         
         if (isInitialCall && offset === 0) {
             console.log(`[Sync] Starting sync of ${RULES.length} internal rules...`);
             // 1. Clear old internal data to prevent duplicates
-            console.log("[Sync] Clearing old internal rules...");
-            const { error: deleteError } = await adminSupabase
-                .from('documents')
-                .delete()
-                .eq('metadata->>source', 'internal_fixed_data');
-                
-            if (deleteError) {
-                console.error("[Sync] Delete failed:", deleteError);
+            if (adminSupabase) {
+                console.log("[Sync] Clearing old internal rules...");
+                const { error: deleteError } = await adminSupabase
+                    .from('documents')
+                    .delete()
+                    .eq('metadata->>source', 'internal_fixed_data');
+                    
+                if (deleteError) {
+                    console.error("[Sync] Delete failed:", deleteError);
+                }
             }
         }
 
@@ -44,7 +52,7 @@ export async function syncInternalData(offset = 0, limit = 20, isInitialCall = t
                             source: 'internal_fixed_data',
                             type: 'official_rule',
                             synced_at: new Date().toISOString()
-                        }, user?.id);
+                        }, userId);
                         
                         success = true;
                         syncedCount++;

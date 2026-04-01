@@ -6,17 +6,20 @@ import { createClient } from '@/lib/supabase/server';
 export async function crawlWebsite(url: string, maxPages: number = 500) {
     try {
         const supabase = await createClient();
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-
+        
         // Allow bypassing auth in development for easier testing
         const isDev = process.env.NODE_ENV === 'development';
         
-        if (!user && !isDev) {
-            console.error("Auth check failed:", authError);
-            throw new Error("Unauthorized: Please log in to your account first before syncing a website.");
+        let userId: string | undefined;
+        
+        if (supabase) {
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            if (!user && !isDev) {
+                console.error("Auth check failed:", authError);
+                throw new Error("Unauthorized: Please log in to your account first before syncing a website.");
+            }
+            userId = user?.id;
         }
-
-        const userId = user?.id; // Will be undefined if not logged in (allowed in dev)
 
         const crawler = new WebsiteCrawler({
             maxPages,

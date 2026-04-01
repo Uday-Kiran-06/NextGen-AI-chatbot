@@ -438,8 +438,8 @@ export const chatStore = {
                 .ilike('content', `%${query}%`);
 
             if (error) throw error;
-            const dbResults = [...new Set(data.map(m => m.conversation_id))];
-            return [...new Set([...localResults, ...dbResults])];
+            const dbResults = [...new Set(data.map((m: { conversation_id: string }) => m.conversation_id))] as string[];
+            return [...new Set([...localResults, ...dbResults])] as string[];
         } catch (error) {
             console.error('Error searching messages:', error);
             return localResults;

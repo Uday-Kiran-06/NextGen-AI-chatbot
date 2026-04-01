@@ -48,8 +48,10 @@ export function useErrorHandler(options: UseErrorHandlerOptions = {}) {
         : new Error(String(event.reason));
       
       logError(error, ErrorType.RUNTIME_ERROR, { 
-        context: 'unhandled_promise_rejection',
-        ...context 
+        additionalInfo: { 
+          context: 'unhandled_promise_rejection',
+          ...context 
+        }
       });
 
       if (onError) {
@@ -63,8 +65,10 @@ export function useErrorHandler(options: UseErrorHandlerOptions = {}) {
         : new Error(event.message);
       
       logError(error, categorizeError(error), {
-        context: 'global_error_handler',
-        ...context
+        additionalInfo: {
+          context: 'global_error_handler',
+          ...context
+        }
       });
 
       if (onError) {
@@ -101,7 +105,7 @@ export function useConsoleErrorCapture() {
         logError(
           new Error(errorMessage),
           categorizeError(errorMessage),
-          { context: 'console_error' }
+          { additionalInfo: { context: 'console_error' } }
         );
       }
 
@@ -116,7 +120,7 @@ export function useConsoleErrorCapture() {
       logError(
         new Error(warningMessage),
         ErrorType.CONSOLE_WARNING,
-        { context: 'console_warning' }
+        { additionalInfo: { context: 'console_warning' } }
       );
 
       originalConsoleWarn.apply(console, args);

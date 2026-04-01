@@ -161,7 +161,7 @@ function logError(error: Error, type: string) {
     console.error(`[${type}]`, {
       message: error.message,
       stack: error.stack,
-      digest: error.digest,
+      digest: (error as any).digest,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
       url: window.location.href,

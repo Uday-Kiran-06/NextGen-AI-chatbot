@@ -19,6 +19,11 @@ const DEPARTMENTS = [
 
 export async function scrapeFacultyData() {
   const supabase = createAdminClient();
+  
+  if (!supabase) {
+    return { success: false, error: 'Database not configured' };
+  }
+  
   let totalScraped = 0;
   const errors = [];
 

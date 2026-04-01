@@ -247,7 +247,7 @@ registerTool({
             const supabase = createAdminClient();
             
             // 1. Try Structured Database (Supabase)
-            if (query) {
+            if (supabase && query) {
                 const { data, error } = await supabase
                     .from('faculty')
                     .select('*')
