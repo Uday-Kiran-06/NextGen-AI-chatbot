@@ -4,7 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
     TrendingUp, Image, Bug, BookOpen, 
-    Sparkles, ArrowRight, Zap, Code2, PenTool
+    ArrowRight, Zap, Code2, PenTool
 } from 'lucide-react';
 
 const CAPABILITIES = [
@@ -12,13 +12,6 @@ const CAPABILITIES = [
     { icon: Image, label: 'Image Generation', desc: 'Visual creation' },
     { icon: Code2, label: 'Code Assistant', desc: 'Debug & write' },
     { icon: PenTool, label: 'Creative Writing', desc: 'Stories & content' },
-];
-
-const FEATURES = [
-    'Advanced reasoning & analysis',
-    'Multi-modal understanding',
-    'Code generation & debugging',
-    'Creative content creation',
 ];
 
 interface WelcomeViewProps {
@@ -143,33 +136,6 @@ export default function WelcomeView({ onSendMessage }: WelcomeViewProps) {
                             <ArrowRight className="w-3.5 h-3.5" style={{ color: 'var(--accent-primary)' }} />
                         </div>
                     </motion.button>
-                ))}
-            </motion.div>
-
-            {/* Features List */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-                className="flex flex-wrap justify-center gap-2 sm:gap-3 max-w-xl px-4"
-            >
-                {FEATURES.map((feature, i) => (
-                    <motion.div
-                        key={feature}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.7 + (i * 0.06), duration: 0.3 }}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-full"
-                        style={{ 
-                            backgroundColor: 'var(--sidebar-hover)',
-                            border: '1px solid var(--sidebar-border)'
-                        }}
-                    >
-                        <Sparkles className="w-3 h-3" style={{ color: 'var(--accent-primary)' }} />
-                        <span className="text-xs font-medium" style={{ color: 'var(--foreground)', opacity: 0.7 }}>
-                            {feature}
-                        </span>
-                    </motion.div>
                 ))}
             </motion.div>
 

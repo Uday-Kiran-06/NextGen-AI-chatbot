@@ -6,7 +6,7 @@ import {
     User, LogOut, Settings, Sun, Moon, 
     ChevronRight, Shield, Bell,
     HelpCircle, CreditCard,
-    LogIn, UserPlus, Award
+    LogIn, Award
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
@@ -235,23 +235,18 @@ export default function PremiumSidebarFooter({ user, isCollapsed, onLogout, onEx
                         </div>
                     </div>
                 ) : (
-                    <div className="mt-2 space-y-1">
+                    <div className="mt-2">
                         <a
                             href="/login"
-                            className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold text-white transition-colors"
+                            className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-xs font-semibold text-white transition-all hover:scale-[1.02]"
                             style={{ backgroundColor: 'var(--accent-primary)' }}
                         >
                             <LogIn className="w-4 h-4" />
-                            <span>Sign In</span>
+                            <span>Get Started</span>
                         </a>
-                        <a
-                            href="/login"
-                            className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium hover:bg-[var(--sidebar-hover)] transition-colors"
-                            style={{ color: 'var(--foreground)', opacity: 0.6 }}
-                        >
-                            <UserPlus className="w-4 h-4" />
-                            <span>Create Account</span>
-                        </a>
+                        <p className="text-[10px] text-center mt-2" style={{ color: 'var(--foreground)', opacity: 0.4 }}>
+                            Sign in to save your conversations
+                        </p>
                     </div>
                 )}
 

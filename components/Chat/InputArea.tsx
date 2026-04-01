@@ -1,8 +1,9 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon, ChevronDown, Check, Zap, PenTool, Square, Globe, FileText } from 'lucide-react';
+import { Send, Mic, Paperclip, X, Image as ImageIcon, ChevronDown, Check, Zap, PenTool, Square, Globe, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, vibrate } from '@/lib/utils';
-import { toast } from 'sonner';
 import ModelSelector from './ModelSelector';
 import PersonaSelector from './PersonaSelector';
 import { FileAttachment } from './types';
@@ -152,24 +153,46 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
     };
 
     return (
-        <div className="p-1 md:p-2 pb-0 relative w-full z-10">
-            <div className="absolute inset-0 top-[-20px] bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none -z-10" />
+        <div className="relative w-full z-10">
+            {/* Subtle Gradient Fade */}
+            <div className="absolute -top-8 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent pointer-events-none" />
             
             <AnimatePresence>
                 {isRecording && (
                     <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-2 z-50 pointer-events-none"
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 pointer-events-none"
                     >
-                        <div className="bg-black/80 backdrop-blur-md text-white text-sm px-4 py-2 rounded-full flex items-center gap-2 border border-white/10 shadow-xl">
-                            <div className="flex gap-1 items-center h-4">
+                        <div 
+                            className="flex items-center gap-3 px-5 py-2.5 rounded-full shadow-xl backdrop-blur-md border"
+                            style={{ 
+                                backgroundColor: 'var(--glass-bg)',
+                                borderColor: 'var(--glass-border)'
+                            }}
+                        >
+                            <div className="flex gap-0.5 items-center h-4">
                                 {[1, 2, 3].map(i => (
-                                    <div key={i} className="w-1 bg-red-500 rounded-full animate-music-bar" style={{ animationDelay: `${i * 0.15}s` }} />
+                                    <motion.div 
+                                        key={i} 
+                                        className="w-0.5 rounded-full"
+                                        style={{ backgroundColor: '#ef4444' }}
+                                        animate={{ 
+                                            height: [8, 16, 8] 
+                                        }}
+                                        transition={{ 
+                                            duration: 0.5, 
+                                            repeat: Infinity, 
+                                            delay: i * 0.1,
+                                            ease: "easeInOut"
+                                        }} 
+                                    />
                                 ))}
                             </div>
-                            <span>{interimTranscript || "Listening..."}</span>
+                            <span className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+                                {interimTranscript || "Listening..."}
+                            </span>
                         </div>
                     </motion.div>
                 )}
@@ -178,154 +201,225 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
             <AnimatePresence>
                 {files.length > 0 && (
                     <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="flex gap-2 mb-3 overflow-x-auto pb-2 scrollbar-hide"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex gap-3 mb-3 overflow-x-auto pb-2 scrollbar-hide"
                     >
                         {files.map((file, i) => (
                             <motion.div
                                 key={i}
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
+                                initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
                                 className="relative group shrink-0"
                             >
-                                <div className="w-16 h-16 rounded-xl overflow-hidden border border-white/10 shadow-lg bg-zinc-800">
+                                <div 
+                                    className="w-16 h-16 rounded-xl overflow-hidden border shadow-lg flex items-center justify-center"
+                                    style={{ 
+                                        backgroundColor: 'var(--glass-bg)',
+                                        borderColor: 'var(--glass-border)'
+                                    }}
+                                >
                                     {file.mimeType.startsWith('image/') ? (
                                         <img src={file.preview} alt="upload" className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-violet-400">
-                                            <FileText size={24} />
-                                        </div>
+                                        <FileText size={24} style={{ color: 'var(--accent-primary)' }} />
                                     )}
                                 </div>
-                                <button
+                                <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
                                     onClick={() => removeFile(i)}
-                                    className="absolute -top-1.5 -right-1.5 p-1 bg-red-500 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="absolute -top-2 -right-2 p-1.5 rounded-full shadow-lg flex items-center justify-center"
+                                    style={{ 
+                                        backgroundColor: '#ef4444', 
+                                        color: 'white'
+                                    }}
                                 >
-                                    <X size={10} />
-                                </button>
+                                    <X size={12} />
+                                </motion.button>
                             </motion.div>
                         ))}
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            <div
+            {/* Main Input Container */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
                 onDragOver={onDragOver}
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
                 className={cn(
-                    "glass-panel rounded-[20px] md:rounded-2xl p-1 md:p-2 flex items-end gap-1 md:gap-2 relative transition-all duration-500",
-                    isDragging ? "ring-2 ring-violet-500 bg-violet-500/5 scale-[1.01]" : "focus-within:ring-2 focus-within:ring-violet-500/60 focus-within:shadow-[0_8px_32px_rgba(0,0,0,0.12)] focus-within:shadow-violet-500/20 focus-within:-translate-y-0.5"
+                    "relative overflow-hidden transition-all duration-300 rounded-2xl",
+                    isDragging 
+                        ? "ring-2 ring-[var(--accent-primary)] shadow-xl" 
+                        : "hover:shadow-lg"
                 )}
+                style={{
+                    backgroundColor: 'var(--glass-bg)',
+                    border: '1px solid var(--glass-border)',
+                    backdropFilter: 'blur(16px)'
+                }}
             >
-                <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="p-3.5 md:p-3 text-gray-400 hover:text-violet-500 transition-all duration-300 rounded-full hover:bg-white/5 hover:scale-110 active:scale-95 shrink-0"
-                    title="Attach Files"
-                    aria-label="Attach Files"
-                >
-                    <Paperclip size={20} className="md:w-5 md:h-5 w-5.5 h-5.5" />
-                </button>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    multiple
-                    accept="image/*,application/pdf,text/*"
-                    onChange={handleFileSelect}
-                />
-
-                <PersonaSelector
-                    persona={persona}
-                    onPersonaChange={(newPersona) => {
-                        setPersona(newPersona);
-                        localStorage.setItem('nextgen_persona', newPersona);
+                {/* Inner Glow Effect */}
+                <div 
+                    className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    style={{
+                        background: 'radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 70%)'
                     }}
-                    isOpen={isPersonaDropdownOpen}
-                    setIsOpen={setIsPersonaDropdownOpen}
-                    dropdownRef={personaDropdownRef}
                 />
 
-                <textarea
-                    ref={textareaRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Ask anything..."
-                    className="flex-1 max-h-32 min-h-[40px] md:min-h-[44px] bg-transparent border-none outline-none text-foreground placeholder:text-gray-500 resize-none py-2.5 md:py-3 scrollbar-hide text-[15px] md:text-base leading-relaxed transition-all duration-200"
-                    rows={1}
-                />
-
-                <div className="flex items-center gap-1 pb-1 shrink-0">
-                    <button
-                        onClick={() => setUseWebSearch(!useWebSearch)}
-                        className={cn(
-                            "p-2 rounded-full transition-all duration-300",
-                            useWebSearch ? "bg-emerald-500/20 text-emerald-500" : "text-gray-400 hover:bg-white/5 hover:text-white"
-                        )}
-                        title={useWebSearch ? "Web Search Enabled" : "Enable Web Search"}
+                <div className="relative flex items-end gap-2 p-2 md:p-3">
+                    {/* Attach Button */}
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-2.5 md:p-3 rounded-xl transition-all duration-200 shrink-0 group"
+                        style={{ color: 'var(--foreground)', opacity: 0.5 }}
+                        title="Attach Files"
                     >
-                        <Globe size={18} className={cn(useWebSearch && "animate-pulse")} />
-                    </button>
-
-                    <ModelSelector
-                        modelId={modelId}
-                        onModelChange={onModelChange}
-                        isOpen={isModelDropdownOpen}
-                        setIsOpen={setIsModelDropdownOpen}
-                        dropdownRef={modelDropdownRef}
+                        <Paperclip size={20} className="md:w-5 md:h-5 w-5 h-5 group-hover:text-[var(--accent-primary)] transition-colors" />
+                    </motion.button>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        multiple
+                        accept="image/*,application/pdf,text/*"
+                        onChange={handleFileSelect}
                     />
 
-                    <AnimatePresence mode="popLayout">
-                        {input.trim() || files.length > 0 || isGenerating ? (
-                            <motion.button
-                                key="send"
-                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                exit={{ opacity: 0, scale: 0.5, rotate: 10 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                whileHover={{ scale: 1.08 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={isGenerating ? onStop : handleSend}
-                                className={cn(
-                                    "p-3.5 md:p-3 rounded-full transition-all duration-300",
-                                    isGenerating
-                                        ? "bg-red-500 text-white shadow-lg shadow-red-500/40 hover:bg-red-600 hover:shadow-xl hover:shadow-red-500/60"
-                                        : "bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg shadow-violet-500/40 hover:shadow-xl hover:shadow-violet-500/60"
-                                )}
-                                aria-label={isGenerating ? "Stop Generation" : "Send Message"}
-                            >
-                                {isGenerating ? <Square size={20} fill="currentColor" className="animate-pulse" /> : <Send size={20} className="translate-x-0.5 translate-y-[-0.5px]" />}
-                            </motion.button>
-                        ) : (
-                            <motion.button
-                                key="mic"
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
-                                transition={{ duration: 0.15 }}
-                                onClick={toggleRecording}
-                                className={cn(
-                                    "relative p-3.5 md:p-3 transition-all duration-300 rounded-full hover:scale-110 active:scale-95 shrink-0 z-10",
-                                    isRecording ? "bg-red-500 text-white shadow-lg shadow-red-500/40" : "text-gray-400 hover:text-violet-500 hover:bg-white/5"
-                                )}
-                                title={isRecording ? "Stop Recording" : "Voice Input"}
-                                aria-label={isRecording ? "Stop Voice Recording" : "Start Voice Recording"}
-                            >
-                                {isRecording && (
-                                    <>
-                                        <span className="absolute inset-0 rounded-full border-2 border-red-500 animate-ping opacity-75" style={{ animationDuration: '1.5s' }} />
-                                        <span className="absolute -inset-2 rounded-full border border-red-500/50 animate-ping opacity-50" style={{ animationDuration: '2s', animationDelay: '0.2s' }} />
-                                    </>
-                                )}
-                                <Mic size={20} className={cn("relative z-10", isRecording && "animate-pulse")} />
-                            </motion.button>
-                        )}
-                    </AnimatePresence>
+                    {/* Persona Selector */}
+                    <PersonaSelector
+                        persona={persona}
+                        onPersonaChange={(newPersona) => {
+                            setPersona(newPersona);
+                            localStorage.setItem('nextgen_persona', newPersona);
+                        }}
+                        isOpen={isPersonaDropdownOpen}
+                        setIsOpen={setIsPersonaDropdownOpen}
+                        dropdownRef={personaDropdownRef}
+                    />
+
+                    {/* Text Input */}
+                    <textarea
+                        ref={textareaRef}
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Ask anything..."
+                        className="flex-1 max-h-32 min-h-[44px] bg-transparent border-none outline-none resize-none py-2.5 md:py-3 scrollbar-hide text-[15px] md:text-base leading-relaxed placeholder:text-current transition-all duration-200"
+                        style={{ 
+                            color: 'var(--foreground)',
+                            opacity: 0.6
+                        }}
+                        rows={1}
+                    />
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-1 shrink-0 pb-0.5">
+                        {/* Web Search Toggle */}
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setUseWebSearch(!useWebSearch)}
+                            className={cn(
+                                "p-2.5 rounded-xl transition-all duration-200"
+                            )}
+                            style={{
+                                backgroundColor: useWebSearch ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
+                                color: useWebSearch ? '#10b981' : 'var(--foreground)',
+                                opacity: useWebSearch ? 1 : 0.5
+                            }}
+                            title={useWebSearch ? "Web Search Enabled" : "Enable Web Search"}
+                        >
+                            <Globe size={18} className={cn(useWebSearch && "animate-pulse")} />
+                        </motion.button>
+
+                        {/* Model Selector */}
+                        <ModelSelector
+                            modelId={modelId}
+                            onModelChange={onModelChange}
+                            isOpen={isModelDropdownOpen}
+                            setIsOpen={setIsModelDropdownOpen}
+                            dropdownRef={modelDropdownRef}
+                        />
+
+                        {/* Send / Stop / Mic */}
+                        <AnimatePresence mode="popLayout">
+                            {input.trim() || files.length > 0 || isGenerating ? (
+                                <motion.button
+                                    key="send"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    exit={{ opacity: 0, scale: 0.5, rotate: 90 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={isGenerating ? onStop : handleSend}
+                                    className="p-3 md:p-3.5 rounded-xl shadow-lg flex items-center justify-center"
+                                    style={{
+                                        background: isGenerating 
+                                            ? '#ef4444' 
+                                            : 'var(--accent-primary)',
+                                        color: 'white'
+                                    }}
+                                    aria-label={isGenerating ? "Stop Generation" : "Send Message"}
+                                >
+                                    {isGenerating ? (
+                                        <Square size={18} fill="currentColor" className="animate-pulse" />
+                                    ) : (
+                                        <Send size={18} className="translate-x-0.5" />
+                                    )}
+                                </motion.button>
+                            ) : (
+                                <motion.button
+                                    key="mic"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    transition={{ duration: 0.15 }}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={toggleRecording}
+                                    className="relative p-3 md:p-3.5 rounded-xl transition-all duration-200"
+                                    style={{
+                                        backgroundColor: isRecording ? '#ef4444' : 'transparent',
+                                        color: isRecording ? 'white' : 'var(--foreground)',
+                                        opacity: isRecording ? 1 : 0.5
+                                    }}
+                                    title={isRecording ? "Stop Recording" : "Voice Input"}
+                                >
+                                    {isRecording && (
+                                        <>
+                                            <span className="absolute inset-0 rounded-xl border-2 border-red-500 animate-ping opacity-30" />
+                                            <span className="absolute inset-[-4px] rounded-xl border border-red-500/50 animate-ping opacity-20" />
+                                        </>
+                                    )}
+                                    <Mic size={18} className={cn(isRecording && "animate-pulse")} />
+                                </motion.button>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </div>
-            </div>
+            </motion.div>
+
+            {/* Helper Text */}
+            <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-center text-[11px] mt-2"
+                style={{ color: 'var(--foreground)', opacity: 0.3 }}
+            >
+                Press Enter to send • Shift + Enter for new line
+            </motion.p>
         </div>
     );
 }
