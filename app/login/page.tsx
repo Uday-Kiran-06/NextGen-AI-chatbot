@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Mail, Lock, Loader2, ArrowLeft } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { Bot, Mail, Lock, Loader2, ArrowLeft, AlertCircle } from 'lucide-react';
+import { createClient, isSupabaseAvailable } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -15,11 +14,16 @@ export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);
     const [message, setMessage] = useState<string | null>(null);
     const router = useRouter();
-    const supabase = createClient();
+    const supabase = isSupabaseAvailable() ? createClient() : null;
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
+        
+        if (!supabase) {
+            setError('Authentication is not configured. Please set up Supabase environment variables.');
+            return;
+        }
+        
         setLoading(true);
         setError(null);
         setMessage(null);
@@ -30,7 +34,7 @@ export default function LoginPage() {
                     email,
                     password,
                     options: {
-                        emailRedirectTo: `${location.origin}/auth/callback`,
+                        emailRedirectTo: `${window.location.origin}/auth/callback`,
                     },
                 });
                 if (error) throw error;
@@ -64,11 +68,16 @@ export default function LoginPage() {
     };
 
     const handleOAuth = async (provider: 'google') => {
+        if (!supabase) {
+            setError('Authentication is not configured. Please set up Supabase environment variables.');
+            return;
+        }
+        
         try {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider,
                 options: {
-                    redirectTo: `${location.origin}/auth/callback`,
+                    redirectTo: `${window.location.origin}/auth/callback`,
                 },
             });
             if (error) throw error;
@@ -76,6 +85,60 @@ export default function LoginPage() {
             setError(err.message);
         }
     };
+
+    if (!supabase) {
+        return (
+            <div className="bg-background">
+                <div className="flex min-h-screen items-center justify-center p-4 relative z-10">
+                    <button
+                        onClick={() => router.push('/')}
+                        className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-foreground transition-colors group"
+                    >
+                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                        <span className="text-sm font-medium hidden sm:block">Back to Home</span>
+                    </button>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="w-full max-w-md bg-glass-bg backdrop-blur-xl border border-glass-border rounded-2xl p-8 shadow-2xl"
+                    >
+                        <div className="flex flex-col items-center mb-8">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-accent-primary to-accent-secondary flex items-center justify-center mb-4 shadow-lg shadow-accent-primary/20">
+<Bot size={24} className="text-white" />
+                            </div>
+                            <h1 className="text-2xl font-bold text-foreground mb-2">
+                                Authentication Not Available
+                            </h1>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm text-center">
+                                Please configure your Supabase environment variables to enable authentication.
+                            </p>
+                        </div>
+
+                        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 mb-6">
+                            <div className="flex items-start gap-3">
+                                <AlertCircle className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
+                                <div className="text-sm text-yellow-200">
+                                    <p className="font-medium mb-2">Required Environment Variables:</p>
+                                    <ul className="space-y-1 text-yellow-300/80 font-mono text-xs">
+                                        <li>• NEXT_PUBLIC_SUPABASE_URL</li>
+                                        <li>• NEXT_PUBLIC_SUPABASE_ANON_KEY</li>
+                                        <li>• SUPABASE_SERVICE_ROLE_KEY</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => router.push('/')}
+                            className="w-full bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-accent-primary/20 flex items-center justify-center gap-2"
+                        >
+                            Continue as Guest
+                        </button>
+                    </motion.div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-background">
@@ -94,7 +157,7 @@ export default function LoginPage() {
                 >
                     <div className="flex flex-col items-center mb-8">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-accent-primary to-accent-secondary flex items-center justify-center mb-4 shadow-lg shadow-accent-primary/20">
-                            <Sparkles size={24} className="text-white" />
+                            <Bot size={24} className="text-white" />
                         </div>
                         <h1 className="text-2xl font-bold text-foreground mb-2">
                             {mode === 'signin' ? 'Welcome Back' : mode === 'signup' ? 'Create Account' : 'Reset Password'}
@@ -252,7 +315,7 @@ export default function LoginPage() {
                         )}
                     </div>
                 </motion.div>
-            </div >
-        </div >
+            </div>
+        </div>
     );
 }

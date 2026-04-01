@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download, Volume2, RefreshCw, Sparkles } from 'lucide-react';
+import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download, Volume2, RefreshCw, MessageSquare } from 'lucide-react';
 import { cn, vibrate } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -172,9 +172,9 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
             )}>
                 <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg mt-1",
-                    isUser ? "bg-accent-primary text-white" : "bg-transparent text-accent-secondary"
+                    isUser ? "bg-gradient-to-br from-violet-500 to-purple-500 text-white" : "bg-gradient-to-br from-emerald-500/20 to-teal-500/20 text-emerald-500"
                 )}>
-                    {isUser ? <User size={16} /> : <Sparkles size={20} />}
+                    {isUser ? <User size={16} /> : <Bot size={18} />}
                 </div>
 
                 {/* Bubble Container */}

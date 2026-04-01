@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Lock, Loader2 } from 'lucide-react';
+import { KeyRound, Lock, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
@@ -54,7 +54,7 @@ export default function ResetPasswordPage() {
                 >
                     <div className="flex flex-col items-center mb-8">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-accent-primary to-accent-secondary flex items-center justify-center mb-4 shadow-lg shadow-accent-primary/20">
-                            <Sparkles size={24} className="text-white" />
+                            <KeyRound size={24} className="text-white" />
                         </div>
                         <h1 className="text-2xl font-bold text-white mb-2">
                             Reset Password

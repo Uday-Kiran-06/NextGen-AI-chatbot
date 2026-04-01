@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Sidebar from '@/components/Sidebar/Sidebar';
+import PremiumSidebar from '@/components/Sidebar/PremiumSidebar';
 import ChatInterface from '@/components/Chat/ChatInterface';
 
 export default function Home() {
@@ -16,7 +16,7 @@ export default function Home() {
 
   return (
     <div className="flex h-[100dvh] w-full bg-background relative z-10 overflow-hidden">
-      <Sidebar
+      <PremiumSidebar
         activeId={activeConversationId}
         onSelectChat={setActiveConversationId}
         onNewChat={() => setActiveConversationId(null)}

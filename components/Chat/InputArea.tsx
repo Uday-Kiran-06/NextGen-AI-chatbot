@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon, ChevronDown, Sparkles, Check, Zap, PenTool, Square, Globe } from 'lucide-react';
+import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon, ChevronDown, Check, Zap, PenTool, Square, Globe, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, vibrate } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -38,14 +38,12 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
         }
     });
 
-    // Auto-Send effect
     useEffect(() => {
         if (autoSendTrigger > 0) {
             handleSend();
         }
     }, [autoSendTrigger]);
 
-    // Auto-expand textarea
     useEffect(() => {
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';
@@ -53,7 +51,6 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
         }
     }, [input]);
 
-    // Close dropdowns on click outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (modelDropdownRef.current && !modelDropdownRef.current.contains(event.target as Node)) {
@@ -72,7 +69,6 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
         };
     }, [isModelDropdownOpen, isPersonaDropdownOpen]);
 
-    // Cleanup on unmount
     useEffect(() => {
         const savedPersona = localStorage.getItem('nextgen_persona');
         if (savedPersona) setPersona(savedPersona);
@@ -158,7 +154,7 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
     return (
         <div className="p-1 md:p-2 pb-0 relative w-full z-10">
             <div className="absolute inset-0 top-[-20px] bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none -z-10" />
-            {/* Voice Status Indicator */}
+            
             <AnimatePresence>
                 {isRecording && (
                     <motion.div
@@ -179,7 +175,6 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                 )}
             </AnimatePresence>
 
-            {/* File Previews */}
             <AnimatePresence>
                 {files.length > 0 && (
                     <motion.div
@@ -195,12 +190,12 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                 animate={{ scale: 1, opacity: 1 }}
                                 className="relative group shrink-0"
                             >
-                                <div className="w-16 h-16 rounded-xl overflow-hidden border border-white/10 shadow-lg">
+                                <div className="w-16 h-16 rounded-xl overflow-hidden border border-white/10 shadow-lg bg-zinc-800">
                                     {file.mimeType.startsWith('image/') ? (
                                         <img src={file.preview} alt="upload" className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="w-full h-full bg-accent-primary/10 flex items-center justify-center text-accent-primary">
-                                            <Paperclip size={20} />
+                                        <div className="w-full h-full flex items-center justify-center text-violet-400">
+                                            <FileText size={24} />
                                         </div>
                                     )}
                                 </div>
@@ -216,24 +211,22 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                 )}
             </AnimatePresence>
 
-            {/* Standard Glass Wrapper */}
             <div
                 onDragOver={onDragOver}
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
                 className={cn(
                     "glass-panel rounded-[20px] md:rounded-2xl p-1 md:p-2 flex items-end gap-1 md:gap-2 relative transition-all duration-500",
-                    isDragging ? "ring-2 ring-accent-primary bg-accent-primary/5 scale-[1.01]" : "focus-within:ring-2 focus-within:ring-accent-primary/60 focus-within:shadow-[0_8px_32px_rgba(0,0,0,0.12)] focus-within:shadow-accent-primary/20 focus-within:-translate-y-0.5"
+                    isDragging ? "ring-2 ring-violet-500 bg-violet-500/5 scale-[1.01]" : "focus-within:ring-2 focus-within:ring-violet-500/60 focus-within:shadow-[0_8px_32px_rgba(0,0,0,0.12)] focus-within:shadow-violet-500/20 focus-within:-translate-y-0.5"
                 )}
             >
-                {/* Attach Button */}
                 <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-3.5 md:p-3 text-gray-400 hover:text-accent-primary transition-all duration-300 rounded-full hover:bg-white/5 hover:scale-110 active:scale-95 shrink-0"
+                    className="p-3.5 md:p-3 text-gray-400 hover:text-violet-500 transition-all duration-300 rounded-full hover:bg-white/5 hover:scale-110 active:scale-95 shrink-0"
                     title="Attach Files"
-                    aria-label="Attach Files from Computer"
+                    aria-label="Attach Files"
                 >
-                    <Paperclip size={20} className="md:w-[20px] md:h-[20px] w-[22px] h-[22px]" />
+                    <Paperclip size={20} className="md:w-5 md:h-5 w-5.5 h-5.5" />
                 </button>
                 <input
                     type="file"
@@ -244,7 +237,6 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                     onChange={handleFileSelect}
                 />
 
-                {/* Persona Selector (Custom Dropdown) */}
                 <PersonaSelector
                     persona={persona}
                     onPersonaChange={(newPersona) => {
@@ -256,7 +248,6 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                     dropdownRef={personaDropdownRef}
                 />
 
-                {/* Text Input */}
                 <textarea
                     ref={textareaRef}
                     value={input}
@@ -267,13 +258,12 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                     rows={1}
                 />
 
-                {/* Right Actions */}
                 <div className="flex items-center gap-1 pb-1 shrink-0">
                     <button
                         onClick={() => setUseWebSearch(!useWebSearch)}
                         className={cn(
                             "p-2 rounded-full transition-all duration-300",
-                            useWebSearch ? "bg-accent-primary/20 text-accent-primary" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                            useWebSearch ? "bg-emerald-500/20 text-emerald-500" : "text-gray-400 hover:bg-white/5 hover:text-white"
                         )}
                         title={useWebSearch ? "Web Search Enabled" : "Enable Web Search"}
                     >
@@ -303,12 +293,11 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                     "p-3.5 md:p-3 rounded-full transition-all duration-300",
                                     isGenerating
                                         ? "bg-red-500 text-white shadow-lg shadow-red-500/40 hover:bg-red-600 hover:shadow-xl hover:shadow-red-500/60"
-                                        : "bg-accent-primary text-white shadow-lg shadow-accent-primary/40 hover:bg-accent-primary hover:shadow-xl hover:shadow-accent-primary/60"
+                                        : "bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg shadow-violet-500/40 hover:shadow-xl hover:shadow-violet-500/60"
                                 )}
                                 aria-label={isGenerating ? "Stop Generation" : "Send Message"}
-                                title={isGenerating ? "Stop Generation" : "Send"}
                             >
-                                {isGenerating ? <Square size={20} fill="currentColor" className="animate-pulse" /> : <Send size={20} className="translate-x-[1px] translate-y-[-1px] md:w-[20px] md:h-[20px] w-[22px] h-[22px]" />}
+                                {isGenerating ? <Square size={20} fill="currentColor" className="animate-pulse" /> : <Send size={20} className="translate-x-0.5 translate-y-[-0.5px]" />}
                             </motion.button>
                         ) : (
                             <motion.button
@@ -320,23 +309,21 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                 onClick={toggleRecording}
                                 className={cn(
                                     "relative p-3.5 md:p-3 transition-all duration-300 rounded-full hover:scale-110 active:scale-95 shrink-0 z-10",
-                                    isRecording ? "bg-red-500 text-white shadow-lg shadow-red-500/40" : "text-gray-400 hover:text-accent-primary hover:bg-white/5"
+                                    isRecording ? "bg-red-500 text-white shadow-lg shadow-red-500/40" : "text-gray-400 hover:text-violet-500 hover:bg-white/5"
                                 )}
                                 title={isRecording ? "Stop Recording" : "Voice Input"}
                                 aria-label={isRecording ? "Stop Voice Recording" : "Start Voice Recording"}
                             >
-                                {/* Recording Pulse Rings */}
                                 {isRecording && (
                                     <>
                                         <span className="absolute inset-0 rounded-full border-2 border-red-500 animate-ping opacity-75" style={{ animationDuration: '1.5s' }} />
                                         <span className="absolute -inset-2 rounded-full border border-red-500/50 animate-ping opacity-50" style={{ animationDuration: '2s', animationDelay: '0.2s' }} />
                                     </>
                                 )}
-                                <Mic size={20} className={cn("relative z-10 md:w-[20px] md:h-[20px] w-[22px] h-[22px]", isRecording && "animate-pulse")} />
+                                <Mic size={20} className={cn("relative z-10", isRecording && "animate-pulse")} />
                             </motion.button>
                         )}
                     </AnimatePresence>
-
                 </div>
             </div>
         </div>

@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import MessageBubble, { MessageSkeleton } from './MessageBubble';
 import InputArea from './InputArea';
 import WelcomeView from './WelcomeView';
-import { Share2, Sparkles, Zap, Image as ImageIcon, Code, PenTool, Menu, Download, ChevronDown, RefreshCw, MessageSquarePlus } from 'lucide-react';
+import { Share2, Zap, Image as ImageIcon, Code, PenTool, Menu, Download, RefreshCw, MessageSquarePlus, Copy, FileDown, Bot, Atom, Cpu, Server, Brain } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, vibrate } from '@/lib/utils';
 import { chatStore, Message as StoreMessage, Conversation } from '@/lib/chat-store';
@@ -29,8 +29,8 @@ interface ChatMessage {
 
 const MODELS = [
     { id: 'gemini-2.5-flash', label: 'Gemini 2.5', icon: Zap, desc: 'Fast & efficient' },
-    { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro', icon: Sparkles, desc: 'Deep reasoning' },
-    { id: 'gemini-3-flash-preview', label: 'Gemini 3 Preview', icon: Sparkles, desc: 'Next-gen frontier model' },
+    { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro', icon: Brain, desc: 'Deep reasoning' },
+    { id: 'gemini-3-flash-preview', label: 'Gemini 3 Preview', icon: Atom, desc: 'Next-gen frontier model' },
     { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', icon: Zap, desc: 'Powerful Open Source' },
     { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7b', icon: Zap, desc: 'High-speed efficiency' },
     { id: 'ollama-llama3', label: 'Local (Ollama)', icon: Zap, desc: 'Private localhost:11434' },
@@ -160,7 +160,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                         NextGen AI
                     </div>
                     <div className="text-[9px] font-bold uppercase tracking-[0.1em] text-gray-500 flex items-center gap-1">
-                        <Sparkles size={8} className="text-accent-primary animate-pulse" />
+                        <Bot size={8} className="text-violet-500 animate-pulse" />
                         {activeModel?.label || 'Gemini'}
                     </div>
                 </div>
@@ -224,7 +224,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                 className="flex items-center gap-4 ml-12 bg-glass-bg/30 backdrop-blur-md px-4 py-2 rounded-2xl border border-glass-border/50 max-w-fit shadow-lg shadow-black/10"
                             >
                                 <div className="relative">
-                                    <Sparkles size={16} className="animate-spin-slow text-accent-primary relative z-10" />
+                                    <Atom size={16} className="animate-spin-slow text-violet-500 relative z-10" />
                                     <div className="absolute inset-0 bg-accent-primary/30 blur-lg rounded-full animate-pulse" />
                                 </div>
                                 <div className="flex flex-col">
@@ -272,13 +272,13 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                     const text = messages.map(m => `${m.role === 'user' ? 'YOU' : 'AI'}: ${m.content}`).join('\n\n');
                                     navigator.clipboard.writeText(text);
                                 }}
-                                className="text-[10px] text-accent-secondary hover:text-accent-primary flex items-center gap-1 hover:scale-110 active:scale-95 transition-all"
+                                className="text-[10px] text-violet-500 hover:text-violet-400 flex items-center gap-1 hover:scale-110 active:scale-95 transition-all"
                             >
-                                <Share2 size={10} /> Copy Chat
+                                <Copy size={10} /> Copy
                             </button>
                             <button
                                 onClick={() => {
-                                    const text = messages.map(m => `### ${m.role === 'user' ? '👤 YOU' : '🤖 AI'}\n${m.content}`).join('\n\n---\n\n');
+                                    const text = messages.map(m => `### ${m.role === 'user' ? 'YOU' : 'AI'}\n${m.content}`).join('\n\n---\n\n');
                                     const blob = new Blob([text], { type: 'text/markdown' });
                                     const url = URL.createObjectURL(blob);
                                     const a = document.createElement('a');
@@ -289,9 +289,9 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                     document.body.removeChild(a);
                                     URL.revokeObjectURL(url);
                                 }}
-                                className="text-[10px] text-accent-secondary hover:text-accent-primary flex items-center gap-1 hover:scale-110 active:scale-95 transition-all ml-2"
+                                className="text-[10px] text-violet-500 hover:text-violet-400 flex items-center gap-1 hover:scale-110 active:scale-95 transition-all ml-2"
                             >
-                                <Download size={10} /> Export (.md)
+                                <FileDown size={10} /> Export
                             </button>
                         </>
                     )}

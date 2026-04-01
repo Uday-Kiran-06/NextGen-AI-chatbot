@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Globe, Loader2, CheckCircle2, AlertCircle, Plus, BookOpen, Zap } from 'lucide-react';
+import { Globe, Loader2, BookOpen, Zap, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { crawlWebsite } from '@/app/actions/crawl';
 import { syncInternalData } from '@/app/actions/sync-internal';
 import { toast } from 'sonner';
@@ -11,7 +12,6 @@ export default function KnowledgeManager() {
     const [url, setUrl] = useState('https://aliet.ac.in/');
     const [isCrawling, setIsCrawling] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-
     const [isSyncing, setIsSyncing] = useState(false);
 
     const handleCrawl = async () => {
@@ -73,18 +73,19 @@ export default function KnowledgeManager() {
     };
 
     return (
-        <div className="px-3 mb-4">
+        <div className="px-4 pb-3">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between px-3 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group"
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[var(--sidebar-hover)] transition-colors group"
+                style={{ backgroundColor: 'var(--sidebar-hover)' }}
             >
                 <div className="flex items-center gap-2">
-                    <BookOpen size={16} className="text-accent-primary" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-foreground/70 group-hover:text-foreground">
+                    <BookOpen className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+                    <span className="text-xs font-semibold" style={{ color: 'var(--foreground)', opacity: 0.7 }}>
                         Knowledge Base
                     </span>
                 </div>
-                <Plus size={14} className={cn("text-foreground/40 transition-transform", isOpen ? "rotate-45" : "")} />
+                <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", isOpen && "rotate-180")} style={{ color: 'var(--foreground)', opacity: 0.5 }} />
             </button>
 
             <AnimatePresence>
@@ -93,61 +94,73 @@ export default function KnowledgeManager() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.15 }}
                         className="overflow-hidden"
                     >
-                        <div className="pt-2 pb-1 space-y-2">
+                        <div className="pt-3 space-y-2">
+                            {/* URL Input */}
                             <div className="relative">
+                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--foreground)', opacity: 0.4 }} />
                                 <input
                                     type="text"
                                     value={url}
                                     onChange={(e) => setUrl(e.target.value)}
                                     placeholder="Enter website URL..."
-                                    className="w-full bg-black/20 border border-white/5 rounded-lg pl-8 pr-3 py-2 text-[11px] focus:outline-none focus:border-accent-primary/50 transition-colors"
+                                    className="w-full h-10 pl-10 pr-3 rounded-lg text-sm placeholder:text-neutral-500 focus:outline-none focus:ring-2 transition-all"
+                                    style={{ 
+                                        backgroundColor: 'var(--sidebar-hover)',
+                                        border: '1px solid var(--glass-border)',
+                                        color: 'var(--foreground)'
+                                    }}
                                 />
-                                <Globe size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30" />
                             </div>
-                            
+
+                            {/* Sync Website Button */}
                             <button
                                 onClick={handleCrawl}
                                 disabled={isCrawling || !url}
-                                className="w-full bg-accent-primary/20 hover:bg-accent-primary/30 disabled:opacity-50 disabled:hover:bg-accent-primary/20 text-accent-primary text-[10px] font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-2"
+                                className="w-full h-10 flex items-center justify-center gap-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs font-semibold"
+                                style={{ backgroundColor: 'var(--accent-primary)', color: 'white' }}
                             >
                                 {isCrawling ? (
                                     <>
-                                        <Loader2 size={12} className="animate-spin" />
+                                        <Loader2 className="w-4 h-4 animate-spin" />
                                         INDEXING SITE...
                                     </>
                                 ) : (
                                     <>
-                                        <Globe size={12} />
+                                        <Globe className="w-4 h-4" />
                                         SYNC WEBSITE
                                     </>
                                 )}
                             </button>
-                            
+
+                            {/* Sync Core Data Button */}
                             <button
                                 onClick={handleSyncCore}
                                 disabled={isSyncing}
-                                className="w-full bg-white/5 hover:bg-white/10 border border-white/5 disabled:opacity-50 text-foreground/70 text-[10px] font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-2"
+                                className="w-full h-10 flex items-center justify-center gap-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs font-semibold"
+                                style={{ 
+                                    backgroundColor: 'var(--glass-bg)',
+                                    border: '1px solid var(--glass-border)',
+                                    color: 'var(--foreground)'
+                                }}
                             >
                                 {isSyncing ? (
                                     <>
-                                        <Loader2 size={12} className="animate-spin" />
+                                        <Loader2 className="w-4 h-4 animate-spin" />
                                         SYNCING CORE...
                                     </>
                                 ) : (
                                     <>
-                                        <Zap size={12} className="text-yellow-500" />
-                                        SYNC CORE DATA (RULES)
+                                        <Zap className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+                                        SYNC CORE DATA
                                     </>
                                 )}
                             </button>
 
-                            
-                            <p className="text-[9px] text-white/30 text-center px-2">
-                                Scrapes up to 500 pages using recursive domain crawling.
-                                <br />
-                                Core Data syncs fixed rules from project files.
+                            <p className="text-[10px] text-center leading-relaxed" style={{ color: 'var(--foreground)', opacity: 0.4 }}>
+                                Scrapes up to 500 pages via recursive crawling. Core Data syncs fixed rules from project files.
                             </p>
                         </div>
                     </motion.div>
@@ -155,9 +168,4 @@ export default function KnowledgeManager() {
             </AnimatePresence>
         </div>
     );
-}
-
-// Helper for class names since I don't want to import it if it's not standard in the file
-function cn(...classes: any[]) {
-    return classes.filter(Boolean).join(' ');
 }

@@ -1,7 +1,24 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+function isSupabaseConfigured(): boolean {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    return !!(url && key && 
+               url !== 'your_supabase_project_url' && 
+               key !== 'your_supabase_anon_key' &&
+               (url.startsWith('http://') || url.startsWith('https://')));
+}
+
 export async function updateSession(request: NextRequest) {
+    if (!isSupabaseConfigured()) {
+        return NextResponse.next({
+            request: {
+                headers: request.headers,
+            },
+        });
+    }
+
     let response = NextResponse.next({
         request: {
             headers: request.headers,
@@ -32,19 +49,6 @@ export async function updateSession(request: NextRequest) {
             },
         }
     )
-
-    // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
-    // creating a new Response object with NextResponse.next() make sure to:
-    // 1. Pass the request in it, like so:
-    //    const myNewResponse = NextResponse.next({ request })
-    // 2. Copy over the cookies, like so:
-    //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-    // 3. Change the myNewResponse object to fit your needs, but avoid changing
-    //    the cookies!
-    // 4. Finally:
-    //    return myNewResponse
-    // If this is not done, you may be causing the browser and server to go out
-    // of sync and terminate the user's session prematurely!
 
     await supabase.auth.getUser()
 

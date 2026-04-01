@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MessageSquarePlus, History, ChevronLeft, ChevronRight, Sparkles, Search, X } from 'lucide-react';
+import { MessageSquarePlus, History, ChevronLeft, ChevronRight, Bot, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { chatStore, Conversation } from '@/lib/chat-store';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, isSupabaseAvailable } from '@/lib/supabase/client';
 import ChatListItem from './ChatListItem';
 import SidebarFooter from './SidebarFooter';
 import KnowledgeManager from '../Knowledge/KnowledgeManager';
@@ -19,7 +19,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey, isOpen, onClose }: SidebarProps & { isOpen?: boolean, onClose?: () => void }) {
-    const supabase = createClient();
+    const supabase = isSupabaseAvailable() ? createClient() : null;
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -32,7 +32,6 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
     }, []);
 
     useEffect(() => {
-        // Fetch Chats
         const fetchChats = async () => {
             setLoading(true);
             const data = await chatStore.getConversations();
@@ -41,7 +40,11 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
         };
         fetchChats();
 
-        // Check Auth
+        if (!supabase) {
+            setUser(null);
+            return;
+        }
+
         const checkUser = async () => {
             try {
                 const { data: { user } } = await supabase.auth.getUser();
@@ -53,18 +56,18 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
         };
         checkUser();
 
-        // Listen for Auth Changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
             setUser(session?.user ?? null);
-            fetchChats(); // Re-fetch chats on auth change
+            fetchChats();
         });
 
         return () => subscription.unsubscribe();
-
-    }, [refreshKey]);
+    }, [refreshKey, supabase]);
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
+        if (supabase) {
+            await supabase.auth.signOut();
+        }
         window.location.reload();
     };
 
@@ -72,7 +75,6 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
     const [editTitle, setEditTitle] = useState('');
     const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
-    // Click outside to close menu
     useEffect(() => {
         const handleClickOutside = (event: any) => {
             if (!event.target.closest('.chat-menu-trigger') && !event.target.closest('.chat-menu-content')) {
@@ -84,7 +86,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
     }, []);
 
     const handleAction = async (e: React.MouseEvent, action: string, conversation: Conversation) => {
-        e.stopPropagation(); // Prevent navigation
+        e.stopPropagation();
         setActiveMenuId(null);
 
         switch (action) {
@@ -123,22 +125,18 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
         e.preventDefault();
         e.stopPropagation();
 
-        // Optimistic Update
         if (editTitle.trim() && editTitle !== conversations.find(c => c.id === id)?.title) {
             setConversations(prev => prev.map(c =>
                 c.id === id ? { ...c, title: editTitle } : c
             ));
 
             await chatStore.renameConversation(id, editTitle);
-            refreshChats(); // Background refresh
+            refreshChats();
         }
         setEditingId(null);
     };
 
     const refreshChats = async () => {
-        // Helper to re-fetch without full loading state if desired, or just re-trigger effect
-        // For now, we can just trigger the parent's refresh logic if we had one, 
-        // but since we keep local state 'conversations', we should re-fetch:
         const data = await chatStore.getConversations();
         setConversations(data);
     };
@@ -197,7 +195,6 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
 
     const SidebarContent = (
         <div className="flex flex-col h-full w-full">
-            {/* Header */}
             <div className={cn("flex items-center p-3 shrink-0", isCollapsed ? "flex-col justify-start gap-2 mt-2 mb-2" : "h-14 justify-between")}>
                 <div className="flex items-center gap-2">
                     <button
@@ -208,7 +205,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                     >
                         {isCollapsed ? (
                             <>
-                                <Sparkles size={20} className="absolute text-foreground/70 transition-opacity duration-300 group-hover:opacity-0" />
+                                <Bot size={20} className="absolute text-foreground/70 transition-opacity duration-300 group-hover:opacity-0" />
                                 <ChevronRight size={20} className="absolute opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                             </>
                         ) : (
@@ -217,7 +214,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                     </button>
                     {!isCollapsed && (
                         <div className="flex items-center gap-2 px-1">
-                            <Sparkles size={16} className="text-foreground/70" />
+                            <Bot size={16} className="text-foreground/70" />
                             <span className="font-semibold text-[14px] text-foreground/90 tracking-wide">NextGen</span>
                         </div>
                     )}
@@ -237,7 +234,6 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                         <MessageSquarePlus size={20} />
                     </button>
 
-                    {/* Mobile Close Button */}
                     <button
                         onClick={onClose}
                         className="md:hidden text-gray-500 dark:text-gray-400 hover:text-foreground p-2 rounded-lg hover:bg-sidebar-hover transition-colors ml-1"
@@ -247,12 +243,11 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                 </div>
             </div>
 
-            {/* Search Bar */}
             <div className={cn("mb-4", isCollapsed ? "px-2" : "px-4")}>
                 {!isCollapsed ? (
                     <div className="relative">
                         {isSearching ? (
-                            <Sparkles size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-accent-primary animate-pulse" />
+                            <Bot size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-500 animate-pulse" />
                         ) : (
                             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         )}
@@ -281,7 +276,6 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
             {!isCollapsed && <KnowledgeManager />}
 
             <div className="flex-1 overflow-y-auto px-2 space-y-2 scrollbar-hide py-2">
-                {/* Grouped History Items */}
                 {!isCollapsed && (
                     filteredHistory.length > 0 ? (
                         Object.entries(conversationGroups).map(([groupName, groupItems]) => (
@@ -314,7 +308,6 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                             )
                         ))
                     ) : loading ? (
-                        // Skeleton Loaders
                         Array.from({ length: 5 }).map((_, i) => (
                             <div key={i} className={cn(
                                 "w-full p-3 rounded-xl flex items-center gap-3 animate-pulse bg-glass-bg/50 my-1 justify-start"
@@ -340,7 +333,6 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
 
     return (
         <>
-            {/* Desktop Sidebar */}
             <motion.aside
                 initial={{ width: 260 }}
                 animate={{ width: isCollapsed ? 60 : 260 }}
@@ -353,11 +345,9 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                 {SidebarContent}
             </motion.aside>
 
-            {/* Mobile Sidebar Overlay */}
             <AnimatePresence>
                 {isOpen && (
                     <>
-                        {/* Backdrop */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -365,7 +355,6 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                             onClick={onClose}
                             className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
                         />
-                        {/* Drawer */}
                         <motion.aside
                             initial={{ x: "-100%" }}
                             animate={{ x: 0 }}
@@ -381,7 +370,6 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
                             className="md:hidden fixed top-0 left-0 bottom-0 w-[280px] z-50 flex flex-col h-full bg-sidebar-bg border-r border-glass-border touch-none"
                         >
-                            {/* Force expanded state on mobile */}
                             {SidebarContent}
                         </motion.aside>
                     </>
@@ -390,4 +378,3 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
         </>
     );
 }
-

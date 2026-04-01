@@ -3,27 +3,31 @@
 @tailwind utilities;
 
 :root {
+  /* Dark Theme (Default) */
   --background: 2 6 23;
-  /* #020617 as RGB */
   --foreground: 248 250 252;
-  /* #f8fafc as RGB */
 
   /* Glassmorphism Tokens */
-  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg: rgba(255, 255, 255, 0.04);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-shimmer: rgba(255, 255, 255, 0.1);
   --glass-blur: 16px;
 
-  /* Sidebar Tokens */
-  --sidebar-bg: #171717a8;
-  --sidebar-hover: rgba(255, 255, 255, 0.05);
+  /* Sidebar Tokens - Dark */
+  --sidebar-bg: #111111f0;
+  --sidebar-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
 
   /* Accent Colors - Vibe Driven */
   --accent-primary: #7c3aed;
-  /* Violet */
   --accent-secondary: #db2777;
-  /* Pink */
   --accent-glow: rgba(124, 58, 237, 0.15);
+
+  /* Text Opacity */
+  --text-primary: 1;
+  --text-secondary: 0.7;
+  --text-tertiary: 0.5;
+  --text-muted: 0.4;
 
   /* Font */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -35,16 +39,31 @@
 }
 
 .light {
+  /* Light Theme */
   --background: 248 250 252;
-  --foreground: 2 6 23;
-  --glass-bg: rgba(0, 0, 0, 0.05);
+  --foreground: 15 23 42;
+
+  /* Glassmorphism Tokens - Light */
+  --glass-bg: rgba(255, 255, 255, 0.8);
   --glass-border: rgba(0, 0, 0, 0.1);
-  --glass-shimmer: rgba(0, 0, 0, 0.15);
-  --sidebar-bg: #c4c3c3;
-  --sidebar-hover: rgba(0, 0, 0, 0.05);
-  --accent-primary: #6d28d9;
-  --accent-secondary: #be185d;
-  --accent-glow: rgba(109, 40, 217, 0.2);
+  --glass-shimmer: rgba(255, 255, 255, 0.5);
+  --glass-blur: 12px;
+
+  /* Sidebar Tokens - Light */
+  --sidebar-bg: #ffffff;
+  --sidebar-hover: rgba(0, 0, 0, 0.04);
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+
+  /* Accent Colors - Light */
+  --accent-primary: #7c3aed;
+  --accent-secondary: #db2777;
+  --accent-glow: rgba(124, 58, 237, 0.12);
+
+  /* Text Opacity - Light */
+  --text-primary: 1;
+  --text-secondary: 0.75;
+  --text-tertiary: 0.55;
+  --text-muted: 0.45;
 }
 
 
@@ -134,21 +153,28 @@ body {
     background: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.12);
+  }
+
+  .light .glass-panel {
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.08);
   }
 
   .glass-button {
     background: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--glass-border);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
   .glass-button:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 25px var(--accent-glow);
+    background: var(--sidebar-hover);
+    box-shadow: 0 0 20px var(--accent-glow);
     transform: translateY(-2px);
+  }
+
+  .light .glass-button:hover {
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
   }
 
   @keyframes shimmer {
