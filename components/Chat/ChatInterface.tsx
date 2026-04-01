@@ -1,17 +1,15 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import MessageBubble, { MessageSkeleton } from './MessageBubble';
 import InputArea from './InputArea';
 import WelcomeView from './WelcomeView';
-import { Share2, Zap, Image as ImageIcon, Code, PenTool, Menu, Download, RefreshCw, MessageSquarePlus, Copy, FileDown, Bot, Atom, Cpu, Server, Brain } from 'lucide-react';
+import { Menu, RefreshCw, Copy, FileDown, Bot, Atom } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn, vibrate } from '@/lib/utils';
-import { chatStore, Message as StoreMessage, Conversation } from '@/lib/chat-store';
+import { cn } from '@/lib/utils';
 import { useShortcuts } from '@/hooks/use-shortcuts';
 import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
-import { FileAttachment } from './types';
 import { useChat } from '@/hooks/useChat';
 
 const ArtifactViewer = dynamic(() => import('./ArtifactViewer'), {
@@ -19,21 +17,13 @@ const ArtifactViewer = dynamic(() => import('./ArtifactViewer'), {
     loading: () => <div className="hidden">Loading Viewer...</div>
 });
 
-interface ChatMessage {
-    id: string;
-    role: 'user' | 'model';
-    content: string;
-}
-
-
-
 const MODELS = [
-    { id: 'gemini-2.5-flash', label: 'Gemini 2.5', icon: Zap, desc: 'Fast & efficient' },
-    { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro', icon: Brain, desc: 'Deep reasoning' },
-    { id: 'gemini-3-flash-preview', label: 'Gemini 3 Preview', icon: Atom, desc: 'Next-gen frontier model' },
-    { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', icon: Zap, desc: 'Powerful Open Source' },
-    { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7b', icon: Zap, desc: 'High-speed efficiency' },
-    { id: 'ollama-llama3', label: 'Local (Ollama)', icon: Zap, desc: 'Private localhost:11434' },
+    { id: 'gemini-2.5-flash', label: 'Gemini 2.5' },
+    { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+    { id: 'gemini-3-flash-preview', label: 'Gemini 3 Preview' },
+    { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B' },
+    { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7b' },
+    { id: 'ollama-llama3', label: 'Local (Ollama)' },
 ];
 
 interface ChatInterfaceProps {
@@ -166,10 +156,10 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                 </div>
             </motion.div>
 
-            {/* ChatMessages Area */}
+            {/* ChatMessages Area - Extends to full height underneath input */}
             <div
                 ref={chatContainerRef}
-                className="flex-1 overflow-y-auto p-4 md:p-8 pt-20 md:pt-4 relative touch-pan-y"
+                className={`absolute inset-0 overflow-y-auto touch-pan-y ${messages.length === 0 ? '' : 'pt-20 md:pt-4 pb-[180px] md:pb-[140px]'}`}
                 onScroll={handleScroll}
             >
                 {/* Pull to New Chat Indicator */}
@@ -193,12 +183,15 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                         </motion.div>
                     )}
                 </AnimatePresence>
-                <div className="max-w-4xl mx-auto space-y-6 h-full flex flex-col">
+                
+                {/* Welcome View - Full Width */}
+                {messages.length === 0 && (
+                    <WelcomeView onSendMessage={handleSendMessage} />
+                )}
 
-                    {/* Welcome View */}
-                    {messages.length === 0 && (
-                        <WelcomeView onSendMessage={handleSendMessage} />
-                    )}
+                {/* Messages Container - Constrained Width */}
+                {messages.length > 0 && (
+                <div className="max-w-4xl mx-auto space-y-6 h-full flex flex-col">
 
                     {messages.map((msg, index) => (
                         <MessageBubble
@@ -243,13 +236,12 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
 
                     <div ref={messagesEndRef} className="h-1" />
                 </div>
-
-                {/* Floating Scroll Pill removed as per request */}
+                )}
             </div>
 
-            {/* Input Area */}
-            <div className="p-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10">
-                <div className="max-w-4xl mx-auto">
+            {/* Input Area - Fixed at bottom, floats over messages */}
+            <div className="absolute bottom-0 left-0 right-0 p-0 z-10 pointer-events-none">
+                <div className="max-w-4xl mx-auto pointer-events-auto">
                     <InputArea onSendMessage={handleSendMessage} isGenerating={isGenerating} modelId={modelId} onModelChange={handleModelChange} onStop={handleStopGeneration} />
 
                     {/* Artifact Viewer Side Panel */}
@@ -260,8 +252,8 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                         language={artifactLang}
                     />
                 </div>
- 
-                <div className="flex justify-center items-center gap-4 mt-0.5 mb-1 text-[9px]">
+
+                <div className="flex justify-center items-center gap-4 pt-2 pb-2 text-[9px] pointer-events-auto">
                     <p className="text-[10px] text-foreground opacity-50">
                         AI can make mistakes. Please verify important information.
                     </p>

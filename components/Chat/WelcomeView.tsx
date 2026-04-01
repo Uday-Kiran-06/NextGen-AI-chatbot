@@ -1,11 +1,8 @@
 'use client';
 
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-    TrendingUp, Image, Bug, BookOpen, 
-    ArrowRight, Zap, Code2, PenTool
-} from 'lucide-react';
+import { TrendingUp, Image, Code2, PenTool, ArrowRight, Zap } from 'lucide-react';
 
 const CAPABILITIES = [
     { icon: TrendingUp, label: 'Data Analysis', desc: 'Insights & trends' },
@@ -19,26 +16,34 @@ interface WelcomeViewProps {
 }
 
 export default function WelcomeView({ onSendMessage }: WelcomeViewProps) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
-        <div className="flex-1 flex flex-col items-center justify-center relative z-0 min-h-screen">
-            {/* Mesh Gradient Background */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[130%] w-[600px] h-[200px] rounded-[60%_40%_40%_60%_/_50%_50%_50%_50%] blur-[120px] animate-pulse" 
-                    style={{ background: 'var(--accent-primary)', opacity: 0.75, animationDuration: '3s', animationDelay: '0.5s' }} 
-                />
-            </div>
+        <div className="flex-1 flex flex-col items-center justify-center w-full h-full relative overflow-hidden">
+            {/* Mesh Gradient Background - Radial glow matching reference */}
+            <div 
+                className="absolute inset-0 pointer-events-none -z-10"
+                style={{
+                    background: 'radial-gradient(ellipse 70% 50% at 50% 40%, rgba(124, 58, 237, 0.4) 0%, rgba(124, 58, 237, 0.15) 40%, transparent 70%)'
+                }}
+            />
 
             {/* Hero Section */}
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 30 }}
                 transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="text-center max-w-2xl mx-auto"
+                className="text-center w-full px-6 md:px-12 relative z-10"
             >
                 {/* Accent Badge */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    animate={{ opacity: mounted ? 1 : 0, scale: mounted ? 1 : 0.9 }}
                     transition={{ delay: 0.1, duration: 0.4 }}
                     className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6"
                     style={{ 
@@ -56,7 +61,7 @@ export default function WelcomeView({ onSendMessage }: WelcomeViewProps) {
                 {/* Main Title */}
                 <motion.h1
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 20 }}
                     transition={{ delay: 0.15, duration: 0.5 }}
                     className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4"
                     style={{ color: 'var(--foreground)' }}
@@ -67,7 +72,7 @@ export default function WelcomeView({ onSendMessage }: WelcomeViewProps) {
                 {/* Subtitle */}
                 <motion.p
                     initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 15 }}
                     transition={{ delay: 0.25, duration: 0.5 }}
                     className="text-base sm:text-lg md:text-xl max-w-md mx-auto mb-8"
                     style={{ color: 'var(--foreground)', opacity: 0.6 }}
@@ -79,20 +84,20 @@ export default function WelcomeView({ onSendMessage }: WelcomeViewProps) {
             {/* Capabilities Grid */}
             <motion.div
                 initial={{ opacity: 0, y: 25 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 25 }}
                 transition={{ delay: 0.35, duration: 0.5 }}
-                className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full max-w-3xl px-4 sm:px-0 mb-10"
+                className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-4xl px-6 sm:px-8 mb-10 relative z-10"
             >
                 {CAPABILITIES.map((cap, i) => (
                     <motion.button
                         key={cap.label}
                         initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 20 }}
                         transition={{ delay: 0.4 + (i * 0.08), duration: 0.4 }}
                         whileHover={{ y: -4, scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => onSendMessage(`Help me with ${cap.label.toLowerCase()}: `, [])}
-                        className="group relative flex flex-col items-center gap-3 p-4 sm:p-5 md:p-6 rounded-2xl transition-all duration-300"
+                        className="group relative flex flex-col items-center gap-4 p-5 sm:p-6 rounded-2xl transition-all duration-300"
                         style={{ 
                             backgroundColor: 'var(--glass-bg)',
                             border: '1px solid var(--glass-border)',
@@ -109,24 +114,24 @@ export default function WelcomeView({ onSendMessage }: WelcomeViewProps) {
 
                         {/* Icon Container */}
                         <div 
-                            className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                            className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
                             style={{ 
                                 backgroundColor: 'var(--sidebar-hover)',
                                 border: '1px solid var(--sidebar-border)'
                             }}
                         >
                             <cap.icon 
-                                className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300" 
+                                className="w-6 h-6 transition-transform duration-300" 
                                 style={{ color: 'var(--accent-primary)' }}
                             />
                         </div>
 
                         {/* Label */}
                         <div className="text-center">
-                            <p className="text-sm font-semibold mb-0.5 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+                            <p className="text-[13px] sm:text-sm font-semibold tracking-tight mb-1.5" style={{ color: 'var(--foreground)' }}>
                                 {cap.label}
                             </p>
-                            <p className="text-[11px] transition-colors duration-300" style={{ color: 'var(--foreground)', opacity: 0.5 }}>
+                            <p className="text-[11px] sm:text-xs" style={{ color: 'var(--foreground)', opacity: 0.55 }}>
                                 {cap.desc}
                             </p>
                         </div>
@@ -142,9 +147,9 @@ export default function WelcomeView({ onSendMessage }: WelcomeViewProps) {
             {/* Decorative Line */}
             <motion.div
                 initial={{ opacity: 0, scaleX: 0 }}
-                animate={{ opacity: 1, scaleX: 1 }}
+                animate={{ opacity: mounted ? 1 : 0, scaleX: mounted ? 1 : 0 }}
                 transition={{ delay: 0.8, duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="mt-10 w-24 h-px"
+                className="w-24 h-px relative z-10"
                 style={{ 
                     background: 'linear-gradient(90deg, transparent, var(--glass-border), transparent)'
                 }}

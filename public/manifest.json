@@ -1,16 +1,38 @@
 {
     "name": "NextGen AI Chatbot",
-    "short_name": "NextGen",
-    "description": "An advanced AI pair programming and chat assistant.",
+    "short_name": "NextGen AI",
+    "description": "Advanced AI Chat Assistant - Your intelligent companion for analysis, creativity, and development",
     "start_url": "/",
+    "scope": "/",
     "display": "standalone",
+    "orientation": "portrait-primary",
     "background_color": "#000000",
-    "theme_color": "#000000",
+    "theme_color": "#7c3aed",
+    "categories": ["productivity", "utilities"],
+    "screenshots": [],
     "icons": [
         {
-            "src": "/favicon.ico",
+            "src": "/logo.png",
             "sizes": "192x192",
-            "type": "image/x-icon"
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
         }
-    ]
+    ],
+    "shortcuts": [
+        {
+            "name": "New Chat",
+            "short_name": "Chat",
+            "description": "Start a new conversation",
+            "url": "/?new=true",
+            "icons": [{ "src": "/logo.png", "sizes": "96x96" }]
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { History, Pin, MoreVertical, Edit2, Share, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';

@@ -1,18 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    MessageSquarePlus, Search, X, 
-    PanelLeftClose, PanelLeft, 
+    Search, X, PanelLeftClose, PanelLeft, 
     TrendingUp, Clock, Calendar, Archive,
     Loader2, ChevronDown, Plus, Bot,
     History, BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { chatStore, Conversation } from '@/lib/chat-store';
 import { createClient, isSupabaseAvailable } from '@/lib/supabase/client';
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import PremiumChatListItem from './PremiumChatListItem';
 import PremiumSidebarFooter from './PremiumSidebarFooter';
 import KnowledgeManager from '../Knowledge/KnowledgeManager';

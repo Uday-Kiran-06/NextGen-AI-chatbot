@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     User, LogOut, Settings, Sun, Moon, 
     ChevronRight, Shield, Bell,
-    HelpCircle, CreditCard,
-    LogIn, Award
+    HelpCircle, CreditCard, LogIn, Award
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';

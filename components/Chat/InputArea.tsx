@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, Paperclip, X, Image as ImageIcon, ChevronDown, Check, Zap, PenTool, Square, Globe, FileText } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Send, Mic, Paperclip, X, Square, Globe, FileText, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, vibrate } from '@/lib/utils';
 import ModelSelector from './ModelSelector';
@@ -48,7 +48,7 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
     useEffect(() => {
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 128) + 'px';
+            textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 160) + 'px';
         }
     }, [input]);
 
@@ -152,34 +152,33 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
         }
     };
 
+    const hasInput = input.trim().length > 0 || files.length > 0;
+
     return (
         <div className="relative w-full z-10">
-            {/* Subtle Gradient Fade */}
-            <div className="absolute -top-8 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent pointer-events-none" />
-            
+            {/* Recording Indicator */}
             <AnimatePresence>
                 {isRecording && (
                     <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 pointer-events-none"
+                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 z-50 pointer-events-none"
                     >
                         <div 
-                            className="flex items-center gap-3 px-5 py-2.5 rounded-full shadow-xl backdrop-blur-md border"
+                            className="flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl backdrop-blur-xl"
                             style={{ 
-                                backgroundColor: 'var(--glass-bg)',
-                                borderColor: 'var(--glass-border)'
+                                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                                border: '1px solid rgba(239, 68, 68, 0.3)'
                             }}
                         >
-                            <div className="flex gap-0.5 items-center h-4">
+                            <div className="flex gap-0.5 items-center h-5">
                                 {[1, 2, 3].map(i => (
                                     <motion.div 
                                         key={i} 
-                                        className="w-0.5 rounded-full"
-                                        style={{ backgroundColor: '#ef4444' }}
+                                        className="w-1 rounded-full bg-red-500"
                                         animate={{ 
-                                            height: [8, 16, 8] 
+                                            height: [6, 18, 6] 
                                         }}
                                         transition={{ 
                                             duration: 0.5, 
@@ -190,7 +189,7 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                     />
                                 ))}
                             </div>
-                            <span className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
+                            <span className="text-sm font-medium text-white">
                                 {interimTranscript || "Listening..."}
                             </span>
                         </div>
@@ -198,13 +197,14 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                 )}
             </AnimatePresence>
 
+            {/* File Attachments Preview */}
             <AnimatePresence>
                 {files.length > 0 && (
                     <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="flex gap-3 mb-3 overflow-x-auto pb-2 scrollbar-hide"
+                        className="flex gap-2 mb-2 overflow-x-auto pb-1 scrollbar-hide px-1"
                     >
                         {files.map((file, i) => (
                             <motion.div
@@ -216,32 +216,58 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                 className="relative group shrink-0"
                             >
                                 <div 
-                                    className="w-16 h-16 rounded-xl overflow-hidden border shadow-lg flex items-center justify-center"
+                                    className="w-16 h-16 rounded-lg overflow-hidden shadow-md flex items-center justify-center"
                                     style={{ 
-                                        backgroundColor: 'var(--glass-bg)',
-                                        borderColor: 'var(--glass-border)'
+                                        backgroundColor: 'var(--sidebar-hover)',
+                                        border: '1px solid var(--glass-border)'
                                     }}
                                 >
                                     {file.mimeType.startsWith('image/') ? (
                                         <img src={file.preview} alt="upload" className="w-full h-full object-cover" />
                                     ) : (
-                                        <FileText size={24} style={{ color: 'var(--accent-primary)' }} />
+                                        <div className="flex flex-col items-center gap-0.5">
+                                            <FileText size={16} style={{ color: 'var(--accent-primary)' }} />
+                                            <span className="text-[8px] truncate max-w-12 px-0.5" style={{ color: 'var(--foreground)', opacity: 0.6 }}>
+                                                {file.name.split('.').pop()}
+                                            </span>
+                                        </div>
                                     )}
                                 </div>
                                 <motion.button
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={() => removeFile(i)}
-                                    className="absolute -top-2 -right-2 p-1.5 rounded-full shadow-lg flex items-center justify-center"
+                                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full shadow-md flex items-center justify-center"
                                     style={{ 
-                                        backgroundColor: '#ef4444', 
+                                        backgroundColor: 'var(--accent-primary)',
                                         color: 'white'
                                     }}
                                 >
-                                    <X size={12} />
+                                    <X size={10} />
                                 </motion.button>
                             </motion.div>
                         ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Drag Overlay */}
+            <AnimatePresence>
+                {isDragging && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 rounded-2xl flex items-center justify-center z-20"
+                        style={{
+                            backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                            border: '2px dashed var(--accent-primary)'
+                        }}
+                    >
+                        <div className="flex items-center gap-2 text-sm font-medium" style={{ color: 'var(--accent-primary)' }}>
+                            <Sparkles size={20} />
+                            <span>Drop files here</span>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -254,48 +280,18 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                 onDragOver={onDragOver}
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
-                className={cn(
-                    "relative overflow-hidden transition-all duration-300 rounded-2xl",
-                    isDragging 
-                        ? "ring-2 ring-[var(--accent-primary)] shadow-xl" 
-                        : "hover:shadow-lg"
-                )}
+                className="relative rounded-2xl transition-all duration-300"
                 style={{
                     backgroundColor: 'var(--glass-bg)',
                     border: '1px solid var(--glass-border)',
-                    backdropFilter: 'blur(16px)'
+                    backdropFilter: 'blur(20px)',
+                    boxShadow: isDragging 
+                        ? '0 0 0 2px var(--accent-primary), 0 8px 32px rgba(124, 58, 237, 0.2)' 
+                        : '0 4px 24px rgba(0, 0, 0, 0.12)'
                 }}
             >
-                {/* Inner Glow Effect */}
-                <div 
-                    className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                    style={{
-                        background: 'radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 70%)'
-                    }}
-                />
-
-                <div className="relative flex items-end gap-2 p-2 md:p-3">
-                    {/* Attach Button */}
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => fileInputRef.current?.click()}
-                        className="p-2.5 md:p-3 rounded-xl transition-all duration-200 shrink-0 group"
-                        style={{ color: 'var(--foreground)', opacity: 0.5 }}
-                        title="Attach Files"
-                    >
-                        <Paperclip size={20} className="md:w-5 md:h-5 w-5 h-5 group-hover:text-[var(--accent-primary)] transition-colors" />
-                    </motion.button>
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        multiple
-                        accept="image/*,application/pdf,text/*"
-                        onChange={handleFileSelect}
-                    />
-
-                    {/* Persona Selector */}
+                {/* Top Row - Selectors */}
+                <div className="flex items-center gap-1 px-2.5 pt-2.5 pb-0.5">
                     <PersonaSelector
                         persona={persona}
                         onPersonaChange={(newPersona) => {
@@ -306,6 +302,40 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                         setIsOpen={setIsPersonaDropdownOpen}
                         dropdownRef={personaDropdownRef}
                     />
+                    <div className="flex-1" />
+                    <ModelSelector
+                        modelId={modelId}
+                        onModelChange={onModelChange}
+                        isOpen={isModelDropdownOpen}
+                        setIsOpen={setIsModelDropdownOpen}
+                        dropdownRef={modelDropdownRef}
+                    />
+                </div>
+
+                {/* Divider */}
+                <div className="mx-2.5 h-px" style={{ backgroundColor: 'var(--glass-border)' }} />
+
+                {/* Input Row */}
+                <div className="relative flex items-end gap-1.5 p-2.5">
+                    {/* Attach Button */}
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-2 rounded-lg transition-all duration-200 shrink-0 hover:bg-[var(--sidebar-hover)]"
+                        style={{ color: 'var(--foreground)', opacity: 0.5 }}
+                        title="Attach Files"
+                    >
+                        <Paperclip size={16} />
+                    </motion.button>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        multiple
+                        accept="image/*,application/pdf,text/*"
+                        onChange={handleFileSelect}
+                    />
 
                     {/* Text Input */}
                     <textarea
@@ -313,24 +343,21 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Ask anything..."
-                        className="flex-1 max-h-32 min-h-[44px] bg-transparent border-none outline-none resize-none py-2.5 md:py-3 scrollbar-hide text-[15px] md:text-base leading-relaxed placeholder:text-current transition-all duration-200"
-                        style={{ 
-                            color: 'var(--foreground)',
-                            opacity: 0.6
-                        }}
+                        placeholder="Message AI..."
+                        className="flex-1 max-h-32 min-h-[36px] bg-transparent border-none outline-none resize-none py-2 scrollbar-hide text-[14px] leading-relaxed placeholder:opacity-40"
+                        style={{ color: 'var(--foreground)' }}
                         rows={1}
                     />
 
                     {/* Action Buttons */}
-                    <div className="flex items-center gap-1 shrink-0 pb-0.5">
+                    <div className="flex items-center gap-1 shrink-0">
                         {/* Web Search Toggle */}
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setUseWebSearch(!useWebSearch)}
                             className={cn(
-                                "p-2.5 rounded-xl transition-all duration-200"
+                                "p-1.5 rounded-lg transition-all duration-200"
                             )}
                             style={{
                                 backgroundColor: useWebSearch ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
@@ -339,21 +366,12 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                             }}
                             title={useWebSearch ? "Web Search Enabled" : "Enable Web Search"}
                         >
-                            <Globe size={18} className={cn(useWebSearch && "animate-pulse")} />
+                            <Globe size={16} className={cn(useWebSearch && "animate-pulse")} />
                         </motion.button>
 
-                        {/* Model Selector */}
-                        <ModelSelector
-                            modelId={modelId}
-                            onModelChange={onModelChange}
-                            isOpen={isModelDropdownOpen}
-                            setIsOpen={setIsModelDropdownOpen}
-                            dropdownRef={modelDropdownRef}
-                        />
-
-                        {/* Send / Stop / Mic */}
+                        {/* Send / Stop / Mic Button */}
                         <AnimatePresence mode="popLayout">
-                            {input.trim() || files.length > 0 || isGenerating ? (
+                            {hasInput || isGenerating ? (
                                 <motion.button
                                     key="send"
                                     initial={{ opacity: 0, scale: 0.5, rotate: -90 }}
@@ -363,19 +381,19 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={isGenerating ? onStop : handleSend}
-                                    className="p-3 md:p-3.5 rounded-xl shadow-lg flex items-center justify-center"
+                                    className="p-2 rounded-lg shadow-md flex items-center justify-center"
                                     style={{
                                         background: isGenerating 
-                                            ? '#ef4444' 
-                                            : 'var(--accent-primary)',
+                                            ? 'linear-gradient(135deg, #ef4444, #dc2626)' 
+                                            : 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
                                         color: 'white'
                                     }}
                                     aria-label={isGenerating ? "Stop Generation" : "Send Message"}
                                 >
                                     {isGenerating ? (
-                                        <Square size={18} fill="currentColor" className="animate-pulse" />
+                                        <Square size={16} fill="currentColor" className="animate-pulse" />
                                     ) : (
-                                        <Send size={18} className="translate-x-0.5" />
+                                        <Send size={16} />
                                     )}
                                 </motion.button>
                             ) : (
@@ -388,7 +406,7 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={toggleRecording}
-                                    className="relative p-3 md:p-3.5 rounded-xl transition-all duration-200"
+                                    className="relative p-1.5 rounded-lg transition-all duration-200"
                                     style={{
                                         backgroundColor: isRecording ? '#ef4444' : 'transparent',
                                         color: isRecording ? 'white' : 'var(--foreground)',
@@ -398,28 +416,17 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                 >
                                     {isRecording && (
                                         <>
-                                            <span className="absolute inset-0 rounded-xl border-2 border-red-500 animate-ping opacity-30" />
-                                            <span className="absolute inset-[-4px] rounded-xl border border-red-500/50 animate-ping opacity-20" />
+                                            <span className="absolute inset-0 rounded-lg border-2 border-red-500 animate-ping opacity-30" />
+                                            <span className="absolute inset-[-4px] rounded-lg border border-red-500/50 animate-ping opacity-20" />
                                         </>
                                     )}
-                                    <Mic size={18} className={cn(isRecording && "animate-pulse")} />
+                                    <Mic size={16} className={cn(isRecording && "animate-pulse")} />
                                 </motion.button>
                             )}
                         </AnimatePresence>
                     </div>
                 </div>
             </motion.div>
-
-            {/* Helper Text */}
-            <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="text-center text-[11px] mt-2"
-                style={{ color: 'var(--foreground)', opacity: 0.3 }}
-            >
-                Press Enter to send • Shift + Enter for new line
-            </motion.p>
         </div>
     );
 }
