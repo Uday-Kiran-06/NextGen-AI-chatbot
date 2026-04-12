@@ -12,9 +12,12 @@ export class Cache {
     }
 
     static set(key: string, value: any, ttlSeconds: number = 60) {
-        if (this.store.size > 100) {
-            this.cleanup();
+        // LRU Eviction: If capacity reached, remove the oldest entry (first key in Map)
+        if (this.store.size >= 100 && !this.store.has(key)) {
+            const firstKey = this.store.keys().next().value as string;
+            this.store.delete(firstKey);
         }
+
         this.store.set(key, {
             value,
             expiry: Date.now() + ttlSeconds * 1000
@@ -22,7 +25,6 @@ export class Cache {
     }
 
     static cleanup() {
-        // Simple garbage collection
         const now = Date.now();
         for (const [key, item] of this.store.entries()) {
             if (now > item.expiry) this.store.delete(key);

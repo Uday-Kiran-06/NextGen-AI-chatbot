@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MessageSquarePlus, History, ChevronLeft, ChevronRight, Sparkles, Search, X } from 'lucide-react';
+import { MessageSquarePlus, History as HistoryIcon, ChevronLeft, ChevronRight, Sparkles, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { chatStore, Conversation } from '@/lib/chat-store';
 import { createClient } from '@/lib/supabase/client';
@@ -208,16 +209,16 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                     >
                         {isCollapsed ? (
                             <>
-                                <Sparkles size={20} className="absolute text-foreground/70 transition-opacity duration-300 group-hover:opacity-0" />
-                                <ChevronRight size={20} className="absolute opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                <AttractiveIcon icon={Sparkles} size={20} gradient={['#7c3aed', '#db2777']} glow className="absolute transition-opacity duration-300 group-hover:opacity-0" />
+                                <AttractiveIcon icon={ChevronRight} size={20} className="absolute opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                             </>
                         ) : (
-                            <ChevronLeft size={20} />
+                            <AttractiveIcon icon={ChevronLeft} size={20} />
                         )}
                     </button>
                     {!isCollapsed && (
                         <div className="flex items-center gap-2 px-1">
-                            <Sparkles size={16} className="text-foreground/70" />
+                            <AttractiveIcon icon={Sparkles} size={16} gradient={['#7c3aed', '#db2777']} glow />
                             <span className="font-semibold text-[14px] text-foreground/90 tracking-wide">NextGen</span>
                         </div>
                     )}
@@ -234,7 +235,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                         title="New Chat"
                         suppressHydrationWarning
                     >
-                        <MessageSquarePlus size={20} />
+                        <AttractiveIcon icon={MessageSquarePlus} size={20} gradient={['#06b6d4', '#3b82f6']} glow />
                     </button>
 
                     {/* Mobile Close Button */}
@@ -242,7 +243,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                         onClick={onClose}
                         className="md:hidden text-gray-500 dark:text-gray-400 hover:text-foreground p-2 rounded-lg hover:bg-sidebar-hover transition-colors ml-1"
                     >
-                        <X size={20} />
+                        <AttractiveIcon icon={X} size={20} gradient={['#ef4444', '#b91c1c']} />
                     </button>
                 </div>
             </div>
@@ -252,9 +253,9 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                 {!isCollapsed ? (
                     <div className="relative">
                         {isSearching ? (
-                            <Sparkles size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-accent-primary animate-pulse" />
+                            <AttractiveIcon icon={Sparkles} size={16} gradient={['#06b6d4', '#7c3aed']} glow className="absolute left-3 top-1/2 -translate-y-1/2 animate-pulse" />
                         ) : (
-                            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <AttractiveIcon icon={Search} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         )}
                         <input
                             type="text"
@@ -272,7 +273,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                             className="p-2 text-gray-500 dark:text-gray-400 hover:text-foreground hover:bg-sidebar-hover rounded-lg transition-colors cursor-pointer"
                             title="Search"
                         >
-                            <Search size={20} />
+                            <AttractiveIcon icon={Search} size={20} />
                         </button>
                     </div>
                 )}
@@ -327,7 +328,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                         ))
                     ) : (
                         <div className="px-4 py-12 flex flex-col items-center justify-center text-foreground/40">
-                            <History size={32} className="mb-3 opacity-30 text-foreground" />
+                            <AttractiveIcon icon={HistoryIcon} size={32} className="mb-3 opacity-30" />
                             <span className="text-xs font-medium text-center text-foreground bg-foreground/5 px-3 py-1.5 rounded-full border border-foreground/10 shadow-lg">No conversations yet</span>
                         </div>
                     )
@@ -373,7 +374,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                             drag="x"
                             dragConstraints={{ left: 0, right: 0 }}
                             dragElastic={{ left: 0.1, right: 0.8 }}
-                            onDragEnd={(_, info) => {
+                            onDragEnd={(_: any, info: any) => {
                                 if ((info.offset.x < -50 || info.velocity.x < -500) && onClose) {
                                     onClose();
                                 }

@@ -1,7 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import { X, Download } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 import { cn } from '@/lib/utils';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
@@ -14,6 +15,11 @@ interface ImageViewerProps {
 
 export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerProps) {
     const [isDownloading, setIsDownloading] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Prevent body scrolling when open
     useEffect(() => {
@@ -28,6 +34,7 @@ export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerPr
     }, [isOpen]);
 
     const handleDownload = async () => {
+        // ... (rest of the logic)
         try {
             setIsDownloading(true);
             const response = await fetch(src);
@@ -47,7 +54,9 @@ export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerPr
         }
     };
 
-    return (
+    if (!mounted) return null;
+
+    return createPortal(
         <AnimatePresence>
             {isOpen && (
                 <motion.div
@@ -55,7 +64,7 @@ export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerPr
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 backdrop-blur-2xl px-4 py-8 md:p-12"
+                    className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/95 backdrop-blur-2xl px-4 py-8 md:p-12 overflow-hidden"
                 >
                     {/* Top Action Bar */}
                     <div className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-50 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
@@ -63,19 +72,38 @@ export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerPr
                             onClick={(e) => { e.stopPropagation(); onClose(); }}
                             className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-all text-white pointer-events-auto active:scale-95"
                         >
-                            <X size={20} />
+                            <AttractiveIcon icon={X} size={20} gradient={['#ef4444', '#b91c1c']} glow />
                         </button>
 
                         <div className="flex items-center gap-3 pointer-events-auto">
-                            <button
+                            <motion.button
+                                initial="initial"
+                                whileHover="hover"
                                 onClick={(e) => { e.stopPropagation(); handleDownload(); }}
                                 className={cn(
-                                    "p-2.5 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-md transition-all text-white active:scale-95",
+                                    "flex items-center bg-white/10 hover:bg-accent-primary/20 rounded-full backdrop-blur-md transition-colors border border-white/10 hover:border-accent-primary/30 text-white active:scale-95 group overflow-hidden px-2.5 py-2.5 hover:px-4",
                                     isDownloading && "animate-pulse"
                                 )}
                             >
-                                <Download size={20} />
-                            </button>
+                                <div className="flex items-center gap-0 group-hover:gap-2">
+                                    <AttractiveIcon 
+                                        icon={Download} 
+                                        size={20} 
+                                        gradient={['#06b6d4', '#3b82f6']} 
+                                        glow 
+                                    />
+                                    <motion.span
+                                        variants={{
+                                            initial: { width: 0, opacity: 0, x: -10 },
+                                            hover: { width: 'auto', opacity: 1, x: 0 }
+                                        }}
+                                        transition={{ duration: 0.3, ease: "easeOut" }}
+                                        className="text-[11px] font-bold tracking-wider uppercase whitespace-nowrap"
+                                    >
+                                        Download
+                                    </motion.span>
+                                </div>
+                            </motion.button>
                         </div>
                     </div>
 
@@ -104,6 +132,7 @@ export default function ImageViewer({ src, alt, isOpen, onClose }: ImageViewerPr
                     </div>
                 </motion.div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }

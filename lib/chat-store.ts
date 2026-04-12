@@ -175,7 +175,10 @@ export const chatStore = {
 
     async deleteMessages(messageIds: string[]) {
         if (!messageIds || messageIds.length === 0) return true;
-        let isGuestMode = messageIds.some(id => isGuest(id) || id.startsWith('msg-'));
+        
+        // Strict check: IDs starting with 'msg-' are guest messages stored in-memory
+        const isGuestMode = messageIds.every(id => id.startsWith('msg-'));
+        
         if (isGuestMode) {
             for (const convoId in guestMessages) {
                 guestMessages[convoId] = guestMessages[convoId].filter(m => !messageIds.includes(m.id));
@@ -194,7 +197,7 @@ export const chatStore = {
     },
 
     async updateMessage(messageId: string, newContent: string) {
-        if (isGuest(messageId) || messageId.startsWith('msg-')) {
+        if (messageId.startsWith('msg-')) {
             for (const convoId in guestMessages) {
                 const msg = guestMessages[convoId].find(m => m.id === messageId);
                 if (msg) msg.content = newContent;

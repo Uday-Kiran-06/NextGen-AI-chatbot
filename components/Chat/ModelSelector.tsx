@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Sparkles, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 
 export const MODELS = [
     { id: 'gemini-2.5-flash', label: 'Gemini 2.5', icon: Zap, desc: 'Fast & efficient' },
@@ -30,7 +31,13 @@ export default function ModelSelector({ modelId, onModelChange, isOpen, setIsOpe
                 title="Switch Model"
                 aria-label="Switch AI Model"
             >
-                <activeModel.icon size={18} />
+                <AttractiveIcon 
+                    icon={activeModel.icon} 
+                    size={18} 
+                    gradient={['#06b6d4', '#3b82f6']} 
+                    glow 
+                    strokeWidth={2}
+                />
                 <span className="hidden md:block text-xs font-semibold tracking-wide whitespace-nowrap">{activeModel.label}</span>
             </button>
 

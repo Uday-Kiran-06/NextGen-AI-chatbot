@@ -1,12 +1,37 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Image as ImageIcon, Code, PenTool } from 'lucide-react';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 
 const QUICK_PROMPTS = [
-    { icon: Zap, label: 'Analyze Data', prompt: 'Please analyze this technical data for me.', color: 'text-violet-400' },
-    { icon: ImageIcon, label: 'Generate Image', prompt: 'Create a futuristic cyberpunk cityscape.', color: 'text-pink-400' },
-    { icon: Code, label: 'Debug Code', prompt: 'Help me debug this React component.', color: 'text-cyan-400' },
-    { icon: PenTool, label: 'Write Story', prompt: 'Write a short science fiction story about AI.', color: 'text-amber-400' },
+    { 
+        icon: Zap, 
+        label: 'Analyze Data', 
+        prompt: 'Please analyze this technical data for me.', 
+        color: 'text-violet-400',
+        gradient: ['#a855f7', '#6366f1'] as [string, string]
+    },
+    { 
+        icon: ImageIcon, 
+        label: 'Generate Image', 
+        prompt: 'Create a futuristic cyberpunk cityscape.', 
+        color: 'text-pink-400',
+        gradient: ['#ec4899', '#f43f5e'] as [string, string]
+    },
+    { 
+        icon: Code, 
+        label: 'Debug Code', 
+        prompt: 'Help me debug this React component.', 
+        color: 'text-cyan-400',
+        gradient: ['#06b6d4', '#3b82f6'] as [string, string]
+    },
+    { 
+        icon: PenTool, 
+        label: 'Write Story', 
+        prompt: 'Write a short science fiction story about AI.', 
+        color: 'text-amber-400',
+        gradient: ['#f59e0b', '#ef4444'] as [string, string]
+    },
 ];
 
 interface WelcomeViewProps {
@@ -64,10 +89,17 @@ export default function WelcomeView({ onSendMessage }: WelcomeViewProps) {
                         whileTap={{ scale: 0.95 }}
                         transition={{ delay: 0.6 + (i * 0.1), duration: 0.5, type: 'spring', stiffness: 300, damping: 20 }}
                         onClick={() => onSendMessage(item.prompt, [])}
-                        className="flex flex-col items-center gap-4 p-5 md:p-6 rounded-3xl glass-panel border border-white/5 bg-glass-bg/50 backdrop-blur-xl hover:bg-glass-shimmer hover:border-accent-primary/30 transition-all duration-500 group hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-accent-primary/20"
+                        className="flex flex-col items-center gap-4 p-5 md:p-6 rounded-3xl glass-panel border border-white/5 bg-glass-bg/50 backdrop-blur-xl hover:bg-glass-shimmer hover:border-accent-primary/30 transition-all duration-500 group hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:shadow-accent-primary/20 hover:animate-border-shimmer"
                     >
-                        <div className={`p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 ${item.color} group-hover:bg-glass-shimmer transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-sm`}>
-                            <item.icon size={24} />
+                        <div className={`p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 transition-transform duration-500 group-hover:bg-glass-shimmer shadow-sm`}>
+                            <AttractiveIcon 
+                                icon={item.icon} 
+                                size={28} 
+                                gradient={item.gradient} 
+                                glow 
+                                strokeWidth={1.8}
+                                animate={false} // Card handles its own animation
+                            />
                         </div>
                         <span className="text-sm font-semibold text-foreground/80 group-hover:text-foreground transition-all duration-300">{item.label}</span>
                     </motion.button>

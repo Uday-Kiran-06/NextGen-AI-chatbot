@@ -3,48 +3,49 @@
 @tailwind utilities;
 
 :root {
-  --background: 2 6 23;
-  /* #020617 as RGB */
-  --foreground: 248 250 252;
-  /* #f8fafc as RGB */
+  /* High-Fidelity Color System (Tailwind RGB format) */
+  --background: 2 6 23; /* #020617 */
+  --foreground: 248 250 252; /* #f8fafc */
 
-  /* Glassmorphism Tokens */
+  /* Premium Glassmorphism Architecture */
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-shimmer: rgba(255, 255, 255, 0.1);
-  --glass-blur: 16px;
+  --glass-blur: 24px;
+  --glass-strength: 0.04;
+  --glass-border-width: 1px;
 
-  /* Sidebar Tokens */
-  --sidebar-bg: #171717a8;
-  --sidebar-hover: rgba(255, 255, 255, 0.05);
+  /* Accent Intelligence */
+  --accent-primary: #9333ea; /* Premium Purple */
+  --accent-secondary: #db2777; /* Deep Pink */
+  --accent-primary-rgb: 147, 51, 234;
+  --accent-secondary-rgb: 219, 39, 119;
+  --accent-glow: rgba(147, 51, 234, 0.3);
+  
+  /* Sidebar Geometry */
+  --sidebar-bg: rgba(9, 9, 11, 0.6);
+  --sidebar-hover: rgba(255, 255, 255, 0.04);
+  --sidebar-border: rgba(255, 255, 255, 0.06);
 
-  /* Accent Colors - Vibe Driven */
-  --accent-primary: #7c3aed;
-  /* Violet */
-  --accent-secondary: #db2777;
-  /* Pink */
-  --accent-glow: rgba(124, 58, 237, 0.15);
-
-  /* Font */
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-
-  /* Colors for Aurora */
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  
+  /* Shared Layers */
   --white: 255 255 255;
   --black: 0 0 0;
-  --transparent: transparent;
 }
 
 .light {
   --background: 248 250 252;
   --foreground: 2 6 23;
-  --glass-bg: rgba(0, 0, 0, 0.05);
+  --glass-bg: rgba(0, 0, 0, 0.04);
   --glass-border: rgba(0, 0, 0, 0.1);
-  --glass-shimmer: rgba(0, 0, 0, 0.15);
-  --sidebar-bg: #c4c3c3;
-  --sidebar-hover: rgba(0, 0, 0, 0.05);
-  --accent-primary: #6d28d9;
-  --accent-secondary: #be185d;
-  --accent-glow: rgba(109, 40, 217, 0.2);
+  --glass-shimmer: rgba(0, 0, 0, 0.08);
+  --sidebar-bg: rgba(228, 228, 231, 0.8);
+  --sidebar-hover: rgba(0, 0, 0, 0.03);
+  --accent-primary: #9333ea;
+  --accent-secondary: #db2777;
+  --accent-glow: rgba(147, 51, 234, 0.15);
 }
 
 
@@ -107,6 +108,16 @@ body {
 
 .animate-aurora {
   animation: aurora 60s linear infinite;
+}
+
+@keyframes border-shimmer {
+  0% { border-color: var(--glass-border); }
+  50% { border-color: var(--accent-primary); opacity: 0.8; }
+  100% { border-color: var(--glass-border); }
+}
+
+.animate-border-shimmer {
+  animation: border-shimmer 2s infinite;
 }
 
 

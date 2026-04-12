@@ -9,12 +9,8 @@ export const maxDuration = 60;
 export async function POST(req: NextRequest) {
     try {
         const payload = await req.json();
-        let { history, message, layers, persona, modelId, useWebSearch, rulesEnabled } = payload;
+        let { history, message, layers, persona, modelId, useWebSearch, rulesEnabled, conversationId } = payload;
 
-        // Smart Context Truncation: Keep only the last 20 turns
-        if (Array.isArray(history) && history.length > 20) {
-            history = history.slice(-20);
-        }
 
         // Identify User for RAG Context
         const supabase = await createClient();
@@ -22,9 +18,9 @@ export async function POST(req: NextRequest) {
         const userId = user?.id;
 
         // High-Performance Optimization: Context-Aware Cache
-        // Include history length to prevent serving cached first-turn answers on follow-up questions
+        // Include history length and web search status to prevent serving incorrect cached answers
         const historyLength = Array.isArray(history) ? history.length : 0;
-        const cacheKey = `query:${historyLength}:${message}:${persona || 'std'}:${modelId || 'flash'}`;
+        const cacheKey = `query:${historyLength}:${message}:${persona || 'std'}:${modelId || 'flash'}:${!!useWebSearch}`;
 
         // Skip cache if there are images, as context differs
         const cachedResponse = (!layers || layers.length === 0) ? Cache.get(cacheKey) : null;
@@ -55,7 +51,7 @@ export async function POST(req: NextRequest) {
                     // Default to true if not specified
                     const enableRules = rulesEnabled !== false;
 
-                    let response = await runAgentWorkflow(history, message, layers, persona, modelId, userId, useWebSearch, enableRules);
+                    let response = await runAgentWorkflow(history, message, layers, persona, modelId, userId, useWebSearch, enableRules, conversationId);
 
                     // 2. Agent Execution Loop with Tool Streaming
                     const workingHistory = [...history];
@@ -76,7 +72,7 @@ export async function POST(req: NextRequest) {
                         sendChunk(`__AGENT_ACTION__:${statusText}\n`);
 
                         // Execute Tool
-                        const toolResult = await executeToolCall(toolName!, toolArgs, userId);
+                        const toolResult = await executeToolCall(toolName!, toolArgs, userId, conversationId);
 
                         // Feed back to history
                         workingHistory.push({ role: 'model', content: `Requesting tool: ${toolName}` });
@@ -84,7 +80,7 @@ export async function POST(req: NextRequest) {
 
                         // Re-run Agent
                         sendChunk(`__AGENT_ACTION__:Analyzing results from ${toolName}...\n`);
-                        response = await runAgentWorkflow(workingHistory, "Continue based on the tool result.", [], persona, modelId, userId, useWebSearch);
+                        response = await runAgentWorkflow(workingHistory, "Continue based on the tool result.", [], persona, modelId, userId, useWebSearch, enableRules, conversationId);
                         depth++;
                     }
 

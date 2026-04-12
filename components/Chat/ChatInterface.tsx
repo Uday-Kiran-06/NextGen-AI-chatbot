@@ -13,6 +13,7 @@ import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { FileAttachment } from './types';
 import { useChat } from '@/hooks/useChat';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 
 const ArtifactViewer = dynamic(() => import('./ArtifactViewer'), {
     ssr: false,
@@ -153,14 +154,20 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     className="p-2 -ml-2 text-foreground opacity-70 hover:opacity-100 hover:scale-110 active:scale-95 transition-all rounded-xl hover:bg-white/5 relative z-10"
                     aria-label="Open Sidebar"
                 >
-                    <Menu size={20} />
+                    <AttractiveIcon icon={Menu} size={20} />
                 </button>
                 <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
                     <div className="font-bold text-[13px] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-accent-primary to-accent-secondary">
                         NextGen AI
                     </div>
                     <div className="text-[9px] font-bold uppercase tracking-[0.1em] text-gray-500 flex items-center gap-1">
-                        <Sparkles size={8} className="text-accent-primary animate-pulse" />
+                        <AttractiveIcon 
+                            icon={Sparkles} 
+                            size={10} 
+                            gradient={['#9333ea', '#db2777']} 
+                            glow 
+                            strokeWidth={2}
+                        />
                         {activeModel?.label || 'Gemini'}
                     </div>
                 </div>
@@ -224,7 +231,13 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                 className="flex items-center gap-4 ml-12 bg-glass-bg/30 backdrop-blur-md px-4 py-2 rounded-2xl border border-glass-border/50 max-w-fit shadow-lg shadow-black/10"
                             >
                                 <div className="relative">
-                                    <Sparkles size={16} className="animate-spin-slow text-accent-primary relative z-10" />
+                                    <AttractiveIcon 
+                                        icon={Sparkles} 
+                                        size={18} 
+                                        gradient={['#9333ea', '#db2777']} 
+                                        glow 
+                                        strokeWidth={1.5}
+                                    />
                                     <div className="absolute inset-0 bg-accent-primary/30 blur-lg rounded-full animate-pulse" />
                                 </div>
                                 <div className="flex flex-col">
@@ -272,9 +285,9 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                     const text = messages.map(m => `${m.role === 'user' ? 'YOU' : 'AI'}: ${m.content}`).join('\n\n');
                                     navigator.clipboard.writeText(text);
                                 }}
-                                className="text-[10px] text-accent-secondary hover:text-accent-primary flex items-center gap-1 hover:scale-110 active:scale-95 transition-all"
+                                className="text-[10px] text-accent-secondary hover:text-accent-primary flex items-center gap-1.5 hover:scale-110 active:scale-95 transition-all"
                             >
-                                <Share2 size={10} /> Copy Chat
+                                <AttractiveIcon icon={Share2} size={10} gradient={['#db2777', '#7c3aed']} /> Copy Chat
                             </button>
                             <button
                                 onClick={() => {
@@ -289,9 +302,9 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                     document.body.removeChild(a);
                                     URL.revokeObjectURL(url);
                                 }}
-                                className="text-[10px] text-accent-secondary hover:text-accent-primary flex items-center gap-1 hover:scale-110 active:scale-95 transition-all ml-2"
+                                className="text-[10px] text-accent-secondary hover:text-accent-primary flex items-center gap-1.5 hover:scale-110 active:scale-95 transition-all ml-2"
                             >
-                                <Download size={10} /> Export (.md)
+                                <AttractiveIcon icon={Download} size={10} gradient={['#db2777', '#7c3aed']} /> Export (.md)
                             </button>
                         </>
                     )}

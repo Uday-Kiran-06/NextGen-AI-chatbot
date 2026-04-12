@@ -19,6 +19,39 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
     const [isGenerating, setIsGenerating] = useState(false);
     const [agentAction, setAgentAction] = useState<string | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
+    
+    // Streaming refs
+    const pendingContentRef = useRef<string>("");
+    const activeMessageIdRef = useRef<string | null>(null);
+    const frameIdRef = useRef<number | null>(null);
+
+    // We track every conversationId we created ourselves so the useEffect
+    // skips DB-reloads that would wipe in-memory messages during generation.
+    const selfCreatedConvoIds = useRef<Set<string>>(new Set());
+
+    // Sync buffer to state via requestAnimationFrame
+    const syncBufferToState = useCallback(() => {
+        const id = activeMessageIdRef.current;
+        const content = pendingContentRef.current;
+        if (id && content) {
+            setMessages(prev => {
+                const idx = prev.findIndex(m => m.id === id);
+                if (idx === -1) return prev;
+                if (prev[idx].content === content) return prev; // no change
+                const next = [...prev];
+                next[idx] = { ...next[idx], content };
+                return next;
+            });
+        }
+        frameIdRef.current = requestAnimationFrame(syncBufferToState);
+    }, []);
+
+    // Cleanup frame on unmount
+    useEffect(() => {
+        return () => {
+            if (frameIdRef.current) cancelAnimationFrame(frameIdRef.current);
+        };
+    }, []);
 
     const handleStopGeneration = useCallback(() => {
         if (abortControllerRef.current) {
@@ -27,30 +60,50 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
         }
     }, []);
 
-    // Load messages when conversationId changes
+    // Load messages when conversationId changes (e.g. user clicks a sidebar item)
     useEffect(() => {
+        if (!conversationId) {
+            setMessages([]);
+            return;
+        }
+
+        // If WE just created this conversation, skip the DB reload.
+        // Our in-memory messages are the source of truth.
+        if (selfCreatedConvoIds.current.has(conversationId)) {
+            return;
+        }
+
+        // External navigation (user clicked a different conversation in sidebar)
         const loadMessages = async () => {
-            if (conversationId) {
-                if (isGenerating) return;
-                const dbMessages = await chatStore.getMessages(conversationId);
-                setMessages(dbMessages.map(m => ({ id: m.id, role: m.role as 'user' | 'model', content: m.content })));
-            } else {
-                setMessages([]);
-            }
+            const dbMessages = await chatStore.getMessages(conversationId);
+            setMessages(dbMessages.map(m => ({
+                id: m.id,
+                role: m.role as 'user' | 'model',
+                content: m.content
+            })));
         };
         loadMessages();
     }, [conversationId]);
 
-    const generateAIResponse = useCallback(async (history: ChatMessage[], userInput: string, files: FileAttachment[] = [], useWebSearch: boolean = false) => {
+    const generateAIResponse = useCallback(async (
+        history: ChatMessage[],
+        userInput: string,
+        files: FileAttachment[] = [],
+        useWebSearch: boolean = false
+    ) => {
         setIsGenerating(true);
         let currentConvoId = conversationId;
 
+        // --- New Conversation Creation ---
         if (!currentConvoId) {
             const shortTitle = userInput.slice(0, 30) + (userInput.length > 30 ? '...' : '');
             const newConvo = await chatStore.createConversation(shortTitle);
             if (newConvo) {
                 currentConvoId = newConvo.id;
                 await chatStore.addMessage(currentConvoId, 'user', userInput);
+
+                // Mark this ID so useEffect won't reload from DB
+                selfCreatedConvoIds.current.add(newConvo.id);
                 onConversationCreated(newConvo.id);
 
                 // Fire and forget smart title generation
@@ -60,53 +113,37 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
                     body: JSON.stringify({ message: userInput, modelId })
                 }).then(res => res.json()).then(data => {
                     if (data.title && currentConvoId) {
-                        chatStore.renameConversation(currentConvoId, data.title).then(() => {
-                            // This is handled by a refresh event loop in layout, but typically triggers an update implicitly next cycle
-                        });
+                        chatStore.renameConversation(currentConvoId, data.title);
                     }
                 }).catch(err => console.error("Failed to generate title:", err));
             }
         }
 
+        // --- /image Command ---
         if (userInput.trim().toLowerCase().startsWith('/image')) {
             try {
                 const prompt = userInput.replace(/^\/image\s*/i, '').trim() || "random abstract art";
                 let imageUrl = '';
-
                 try {
                     const response = await fetch('/api/image', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ prompt })
                     });
-
-                    if (!response.ok) {
-                        const errText = await response.text();
-                        throw new Error(`API Error (${response.status}): ${errText}`);
-                    }
-
+                    if (!response.ok) throw new Error(`API Error (${response.status})`);
                     const data = await response.json();
                     imageUrl = data.imageUrl;
                 } catch (apiError) {
-                    console.error('Secure image generation failed, falling back to client-side:', apiError);
                     const encodedPrompt = encodeURIComponent(prompt.slice(0, 500));
                     const seed = Math.floor(Math.random() * 1000000);
-                    const apiKey = process.env.NEXT_PUBLIC_POLLINATIONS_API_KEY || '';
-                    const keyParam = apiKey ? `&key=${apiKey}` : '';
-                    imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true${keyParam}`;
+                    imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux&nologo=true`;
                 }
-
                 if (!imageUrl) throw new Error('Failed to generate image URL');
-
-                const aiChatMessageContent = `![Generated Image](${imageUrl})\n\n_Generated via direct command: "${prompt}"_`;
-                const aiChatMessageId = crypto.randomUUID();
-                setMessages(prev => [...prev, { id: aiChatMessageId, role: 'model', content: aiChatMessageContent }]);
-
-                if (currentConvoId) {
-                    chatStore.addMessage(currentConvoId, 'model', aiChatMessageContent);
-                }
+                const content = `![Generated Image](${imageUrl})\n\n_Generated via direct command: "${prompt}"_`;
+                const id = crypto.randomUUID();
+                setMessages(prev => [...prev, { id, role: 'model', content }]);
+                if (currentConvoId) chatStore.addMessage(currentConvoId, 'model', content);
             } catch (err) {
-                console.error("Image command failed", err);
                 setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', content: 'Sorry, I encountered an error generating the image.' }]);
             } finally {
                 setIsGenerating(false);
@@ -114,11 +151,20 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
             return;
         }
 
-        let aiChatMessageId = '';
-        let aiChatMessageContent = '';
+        // --- Streaming AI Response ---
+        const aiMsgId = crypto.randomUUID();
+        activeMessageIdRef.current = aiMsgId;
+        pendingContentRef.current = "";
+        let finalContent = '';
+
+        // Add empty model bubble
+        setMessages(prev => [...prev, { id: aiMsgId, role: 'model', content: '' }]);
 
         try {
             abortControllerRef.current = new AbortController();
+
+            if (files.length > 0) setAgentAction("Analyzing documents...");
+
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -137,9 +183,7 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
             if (!response.ok) {
                 const errorText = await response.text();
                 let errorData;
-                try {
-                    errorData = JSON.parse(errorText);
-                } catch (e) {
+                try { errorData = JSON.parse(errorText); } catch (e) {
                     throw new Error(`Server Error (${response.status}): ${response.statusText}`);
                 }
                 throw new Error(errorData.error || 'Network response was not ok');
@@ -147,66 +191,67 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
 
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
-
             if (!reader) throw new Error('No reader available');
 
-            aiChatMessageId = crypto.randomUUID();
-            setMessages(prev => [...prev, { id: aiChatMessageId, role: 'model', content: '' }]);
+            // Start rendering loop
+            frameIdRef.current = requestAnimationFrame(syncBufferToState);
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
                 const textChunk = decoder.decode(value, { stream: true });
-
-                // Process potential multiple lines or concatenated markers in a single buffer
                 const lines = textChunk.split('\n');
 
                 for (let i = 0; i < lines.length; i++) {
                     const line = lines[i];
-
                     if (line.startsWith('__AGENT_ACTION__:')) {
-                        const action = line.replace('__AGENT_ACTION__:', '');
-                        setAgentAction(action.trim());
-                    } else if (line.trim() || i < lines.length - 1) {
-                        // It's a normal text message line (or an empty line between text)
-                        // Note: we only clear agent action if we are actually getting content
+                        setAgentAction(line.replace('__AGENT_ACTION__:', '').trim());
+                    } else {
                         if (line.trim()) setAgentAction(null);
-
-                        // Re-add the newline if it wasn't the last empty split item
-                        const contentToAppend = line + (i < lines.length - 1 ? '\n' : '');
-                        aiChatMessageContent += contentToAppend;
-
-                        setMessages(prev => prev.map(msg =>
-                            msg.id === aiChatMessageId ? { ...msg, content: aiChatMessageContent } : msg
-                        ));
+                        const chunk = line + (i < lines.length - 1 ? '\n' : '');
+                        pendingContentRef.current += chunk;
                     }
                 }
             }
 
-            if (currentConvoId) {
-                chatStore.addMessage(currentConvoId, 'model', aiChatMessageContent);
-            }
+            finalContent = pendingContentRef.current;
 
         } catch (error: any) {
             if (error.name === 'AbortError') {
-                if (currentConvoId && aiChatMessageContent) {
-                    chatStore.addMessage(currentConvoId, 'model', aiChatMessageContent + '\n\n_[Stopped by User]_');
+                finalContent = pendingContentRef.current;
+                if (currentConvoId && finalContent) {
+                    chatStore.addMessage(currentConvoId, 'model', finalContent + '\n\n_[Stopped by User]_');
                 }
                 setMessages(prev => prev.map(msg =>
-                    msg.id === aiChatMessageId ? { ...msg, content: aiChatMessageContent + '\n\n_[Stopped by User]_' } : msg
+                    msg.id === aiMsgId ? { ...msg, content: finalContent + '\n\n_[Stopped by User]_' } : msg
                 ));
                 return;
             }
             console.error('Error generating response:', error);
-            setAgentAction(null);
-            const errorChatMessage = error.message || 'Sorry, I encountered an error. Please check your connection or API key.';
-            setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', content: `Error: ${errorChatMessage}` }]);
+            finalContent = `Error: ${error.message || 'An unexpected error occurred.'}`;
         } finally {
+            // Stop rendering loop
+            if (frameIdRef.current) {
+                cancelAnimationFrame(frameIdRef.current);
+                frameIdRef.current = null;
+            }
+
+            // Final definitive state update — this is the ONE place we commit content
+            setMessages(prev => prev.map(msg =>
+                msg.id === aiMsgId ? { ...msg, content: finalContent } : msg
+            ));
+
+            // Save to DB ONCE
+            if (currentConvoId && finalContent && !finalContent.startsWith('Error:')) {
+                chatStore.addMessage(currentConvoId, 'model', finalContent);
+            }
+
             setIsGenerating(false);
             setAgentAction(null);
+            activeMessageIdRef.current = null;
             abortControllerRef.current = null;
         }
-    }, [conversationId, modelId, onConversationCreated]);
+    }, [conversationId, modelId, onConversationCreated, syncBufferToState]);
 
     const handleSendMessage = useCallback(async (text: string, files: FileAttachment[], useWebSearch: boolean = false) => {
         const tempId = crypto.randomUUID();
@@ -215,22 +260,15 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
         const otherFiles = files.filter(f => !f.mimeType.startsWith('image/'));
 
         if (imageFiles.length > 0) {
-            imageFiles.forEach(file => {
-                messageContent += `![Image](${file.preview})\n\n`;
-            });
+            imageFiles.forEach(file => { messageContent += `![Image](${file.preview})\n\n`; });
         }
-
-        if (text.trim()) {
-            messageContent += text.trim();
-        }
-
+        if (text.trim()) messageContent += text.trim();
         if (otherFiles.length > 0) {
             if (messageContent) messageContent += '\n\n';
             messageContent += `*Attached ${otherFiles.length} other file(s)*`;
         }
 
         const userChatMessage: ChatMessage = { id: tempId, role: 'user', content: messageContent };
-
         const currentHistory = [...messages];
         setMessages([...currentHistory, userChatMessage]);
 
@@ -249,10 +287,9 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
                             fileName: file.name,
                             mimeType: file.mimeType,
                             fileData: file.data,
-                            conversationId: conversationId
+                            conversationId
                         })
                     });
-
                     if (!uploadRes.ok) throw new Error(`Failed to process ${file.name}`);
                 }
             } catch (err: any) {
@@ -272,15 +309,12 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
         const messagesToDelete = messages.slice(messageIndex + 1).map(m => m.id);
         const truncatedHistory = messages.slice(0, messageIndex);
         const updatedChatMessage = { ...messages[messageIndex], content: newContent };
-        const newChatMessages = [...truncatedHistory, updatedChatMessage];
 
-        setMessages(newChatMessages);
+        setMessages([...truncatedHistory, updatedChatMessage]);
 
         if (conversationId) {
             chatStore.updateMessage(id, newContent);
-            if (messagesToDelete.length > 0) {
-                chatStore.deleteMessages(messagesToDelete);
-            }
+            if (messagesToDelete.length > 0) chatStore.deleteMessages(messagesToDelete);
         }
 
         generateAIResponse(truncatedHistory, newContent, []);
@@ -289,25 +323,21 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
     const handleRegenerate = useCallback(async () => {
         if (messages.length < 2) return;
 
-        let lastUserChatMessageIndex = -1;
+        let lastUserIdx = -1;
         for (let i = messages.length - 1; i >= 0; i--) {
-            if (messages[i].role === 'user') {
-                lastUserChatMessageIndex = i;
-                break;
-            }
+            if (messages[i].role === 'user') { lastUserIdx = i; break; }
         }
+        if (lastUserIdx === -1) return;
 
-        if (lastUserChatMessageIndex === -1) return;
-
-        const messagesToDelete = messages.slice(lastUserChatMessageIndex + 1).map(m => m.id);
-        const truncatedHistory = messages.slice(0, lastUserChatMessageIndex);
-        const lastUserInput = messages[lastUserChatMessageIndex].content;
+        const messagesToDelete = messages.slice(lastUserIdx + 1).map(m => m.id);
+        const truncatedHistory = messages.slice(0, lastUserIdx);
+        const lastUserInput = messages[lastUserIdx].content;
 
         if (conversationId && messagesToDelete.length > 0) {
             chatStore.deleteMessages(messagesToDelete);
         }
 
-        setMessages(messages.slice(0, lastUserChatMessageIndex + 1));
+        setMessages(messages.slice(0, lastUserIdx + 1));
         generateAIResponse(truncatedHistory, lastUserInput, []);
     }, [messages, conversationId, generateAIResponse]);
 

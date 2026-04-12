@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, LogOut, Settings, Moon, Sun } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 
 interface SidebarFooterProps {
     user: any;
@@ -29,7 +30,13 @@ export default function SidebarFooter({ user, isCollapsed, handleLogout }: Sideb
                     isCollapsed ? "justify-center flex-col gap-4" : "justify-between"
                 )}>
                     <div className={cn("flex items-center gap-3 overflow-hidden", isCollapsed && "justify-center")}>
-                        <User size={20} className="text-accent-primary shrink-0" />
+                        <AttractiveIcon 
+                            icon={User} 
+                            size={20} 
+                            gradient={['#7c3aed', '#db2777']} 
+                            glow 
+                            strokeWidth={1.5}
+                        />
                         {!isCollapsed && (
                             <div className="flex flex-col truncate">
                                 <span className="text-white text-xs truncate">{user.email}</span>
@@ -42,7 +49,7 @@ export default function SidebarFooter({ user, isCollapsed, handleLogout }: Sideb
                         className="text-gray-500 hover:text-red-400 hover:scale-110 active:scale-95 transition-all p-1"
                         title="Sign Out"
                     >
-                        <LogOut size={16} />
+                        <AttractiveIcon icon={LogOut} size={16} strokeWidth={1.5} />
                     </button>
                 </div>
             ) : (
@@ -50,7 +57,7 @@ export default function SidebarFooter({ user, isCollapsed, handleLogout }: Sideb
                     "w-full text-left p-2 rounded-lg text-sm text-foreground opacity-70 hover:opacity-100 hover:bg-glass-shimmer transition-colors flex items-center gap-3",
                     isCollapsed && "justify-center"
                 )}>
-                    <Settings size={20} />
+                    <AttractiveIcon icon={Settings} size={20} strokeWidth={1.5} />
                     {!isCollapsed && <span>Login / Profile</span>}
                 </a>
             )}
@@ -63,7 +70,11 @@ export default function SidebarFooter({ user, isCollapsed, handleLogout }: Sideb
                     isCollapsed && "justify-center"
                 )}
             >
-                {mounted && (theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />)}
+                {mounted && (
+                    theme === 'dark' 
+                        ? <AttractiveIcon icon={Sun} size={20} gradient={['#fbbf24', '#f59e0b']} glow /> 
+                        : <AttractiveIcon icon={Moon} size={20} gradient={['#6366f1', '#4f46e5']} glow />
+                )}
                 {!mounted && <div className="w-5 h-5 rounded-full bg-white/10 animate-pulse" />}
                 {!isCollapsed && <span>{mounted ? (theme === 'dark' ? 'Light Mode' : 'Dark Mode') : 'Theme'}</span>}
             </button>

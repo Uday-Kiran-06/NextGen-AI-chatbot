@@ -11,7 +11,7 @@ interface AgentResponse {
     toolArgs?: any;
 }
 
-export async function runAgentWorkflow(history: any[], message: string, images: any[] = [], persona?: string, modelId?: string, userId?: string, useWebSearch?: boolean, rulesEnabled: boolean = true) {
+export async function runAgentWorkflow(history: any[], message: string, images: any[] = [], persona?: string, modelId?: string, userId?: string, useWebSearch?: boolean, rulesEnabled: boolean = true, conversationId?: string) {
     // 0. Tier-1 Rules Engine (Instant Response)
     // Only apply for simple text messages without images and if rules are enabled
     if (images.length === 0 && rulesEnabled) {
@@ -52,8 +52,8 @@ ${useWebSearch ? "\nUSER REQUESTED WEB SEARCH. Use `web_search` if internal know
 ${persona ? `\nPersona: ${persona}` : ''}
 `;
 
-        // Prune history for Groq to avoid rate limits (TPM 12000)
-        const formatMessages = history.slice(-4).map(msg => ({
+        // Prune history for Groq to avoid rate limits (TPM)
+        const formatMessages = history.slice(-8).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.content
         }));
@@ -97,9 +97,8 @@ ${persona ? `\nPersona: ${persona}` : ''}
         }
     }
 
-    // --- Gemini Path (Existing) ---
     // High-Performance Context Pruning
-    let recentHistory = history.slice(-14).map(msg => ({
+    let recentHistory = history.slice(-25).map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.content }],
     }));
@@ -193,10 +192,10 @@ ${persona ? `\n--- PERSONA ---\n${persona}\n---------------` : ''}
     return { type: 'text', content: responseText };
 }
 
-export async function executeToolCall(toolName: string, args: any, userId?: string) {
+export async function executeToolCall(toolName: string, args: any, userId?: string, conversationId?: string) {
     const tool = toolRegistry[toolName];
     if (!tool) throw new Error(`Tool ${toolName} not found`);
-
-    console.log(`[Agent] Executing ${toolName} with`, args, "for user", userId);
-    return await tool.execute(args, { userId });
+ 
+    console.log(`[Agent] Executing ${toolName} with`, args, "for user", userId, "in conv", conversationId);
+    return await tool.execute(args, { userId, conversationId });
 }

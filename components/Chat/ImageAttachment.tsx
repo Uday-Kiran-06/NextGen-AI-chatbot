@@ -90,13 +90,6 @@ export default function ImageAttachment({ src, alt, variant = 'single' }: ImageA
                         console.error("Image loading failed for URL:", src);
                     }}
                 />
-                {!isLoading && (
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 pointer-events-none">
-                        <div className="bg-black/60 text-white rounded-full p-2 backdrop-blur-sm">
-                            <Download size={18} />
-                        </div>
-                    </div>
-                )}
             </span>
 
             <ImageViewer

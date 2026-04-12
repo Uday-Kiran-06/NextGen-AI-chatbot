@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon, ChevronDown, Sparkles, Check, Zap, PenTool, Square, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, vibrate } from '@/lib/utils';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 import { toast } from 'sonner';
 import ModelSelector from './ModelSelector';
 import PersonaSelector from './PersonaSelector';
@@ -229,11 +230,11 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                 {/* Attach Button */}
                 <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-3.5 md:p-3 text-gray-400 hover:text-accent-primary transition-all duration-300 rounded-full hover:bg-white/5 hover:scale-110 active:scale-95 shrink-0"
+                    className="p-3 md:p-2.5 text-gray-400 hover:text-accent-primary transition-all duration-300 rounded-xl hover:bg-white/5 shrink-0"
                     title="Attach Files"
                     aria-label="Attach Files from Computer"
                 >
-                    <Paperclip size={20} className="md:w-[20px] md:h-[20px] w-[22px] h-[22px]" />
+                    <AttractiveIcon icon={Paperclip} size={20} strokeWidth={1.5} />
                 </button>
                 <input
                     type="file"
@@ -277,7 +278,12 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                         )}
                         title={useWebSearch ? "Web Search Enabled" : "Enable Web Search"}
                     >
-                        <Globe size={18} className={cn(useWebSearch && "animate-pulse")} />
+                        <AttractiveIcon 
+                            icon={Globe} 
+                            size={18} 
+                            gradient={useWebSearch ? ['#7c3aed', '#db2777'] : undefined}
+                            className={cn(useWebSearch && "animate-pulse")} 
+                        />
                     </button>
 
                     <ModelSelector
@@ -308,7 +314,11 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                 aria-label={isGenerating ? "Stop Generation" : "Send Message"}
                                 title={isGenerating ? "Stop Generation" : "Send"}
                             >
-                                {isGenerating ? <Square size={20} fill="currentColor" className="animate-pulse" /> : <Send size={20} className="translate-x-[1px] translate-y-[-1px] md:w-[20px] md:h-[20px] w-[22px] h-[22px]" />}
+                                {isGenerating ? (
+                                    <AttractiveIcon icon={Square} size={20} gradient={['#ef4444', '#b91c1c']} glow />
+                                ) : (
+                                    <AttractiveIcon icon={Send} size={20} gradient={['#ffffff', '#ffffff']} strokeWidth={2} />
+                                )}
                             </motion.button>
                         ) : (
                             <motion.button
@@ -332,7 +342,12 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                         <span className="absolute -inset-2 rounded-full border border-red-500/50 animate-ping opacity-50" style={{ animationDuration: '2s', animationDelay: '0.2s' }} />
                                     </>
                                 )}
-                                <Mic size={20} className={cn("relative z-10 md:w-[20px] md:h-[20px] w-[22px] h-[22px]", isRecording && "animate-pulse")} />
+                                <AttractiveIcon 
+                                    icon={Mic} 
+                                    size={20} 
+                                    gradient={isRecording ? ['#ffffff', '#ffffff'] : undefined}
+                                    className={cn("relative z-10", isRecording && "animate-pulse")} 
+                                />
                             </motion.button>
                         )}
                     </AnimatePresence>

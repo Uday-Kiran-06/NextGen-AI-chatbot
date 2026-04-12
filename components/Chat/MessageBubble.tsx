@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Pencil, X, Send, Download, Volume2, RefreshCw, Sparkles } from 'lucide-react';
 import { cn, vibrate } from '@/lib/utils';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -172,9 +173,19 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
             )}>
                 <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg mt-1",
-                    isUser ? "bg-accent-primary text-white" : "bg-transparent text-accent-secondary"
+                    isUser ? "bg-accent-primary" : "bg-transparent"
                 )}>
-                    {isUser ? <User size={16} /> : <Sparkles size={20} />}
+                    {isUser ? (
+                        <AttractiveIcon icon={User} size={16} gradient={['#ffffff', '#ffffff']} strokeWidth={2.5} />
+                    ) : (
+                        <AttractiveIcon 
+                            icon={Sparkles} 
+                            size={22} 
+                            gradient={['#9333ea', '#db2777']} 
+                            glow 
+                            strokeWidth={1.5} 
+                        />
+                    )}
                 </div>
 
                 {/* Bubble Container */}
@@ -207,10 +218,10 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
                                     />
                                     <div className="flex justify-end gap-2">
                                         <button onClick={handleCancelEdit} className="p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-foreground hover:scale-110 active:scale-95 transition-all">
-                                            <X size={16} />
+                                            <AttractiveIcon icon={X} size={16} gradient={['#ef4444', '#b91c1c']} />
                                         </button>
                                         <button onClick={handleSaveEdit} className="p-1.5 hover:bg-green-500/10 rounded-lg text-green-600 dark:text-green-400 hover:scale-110 active:scale-95 transition-all shadow-sm">
-                                            <Send size={16} />
+                                            <AttractiveIcon icon={Send} size={16} gradient={['#22c55e', '#16a34a']} />
                                         </button>
                                     </div>
                                 </div>
@@ -244,18 +255,18 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
                         {!isUser && (
                             <>
                                 <button onClick={handleReadAloud} className={cn("p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg hover:scale-110 active:scale-95 transition-all duration-200", isPlaying ? "text-accent-primary opacity-100" : "text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100")} title="Read Aloud" aria-label="Read message aloud">
-                                    <Volume2 size={16} className="md:w-3.5 md:h-3.5" />
+                                    <AttractiveIcon icon={Volume2} size={16} gradient={isPlaying ? ['#9333ea', '#db2777'] : undefined} className="md:w-3.5 md:h-3.5" />
                                 </button>
                                 {isLast && onRegenerate && (
                                     <button onClick={onRegenerate} className="p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200" title="Regenerate" aria-label="Regenerate message">
-                                        <RefreshCw size={16} className="md:w-3.5 md:h-3.5" />
+                                        <AttractiveIcon icon={RefreshCw} size={16} gradient={['#9333ea', '#db2777']} className="md:w-3.5 md:h-3.5" />
                                     </button>
                                 )}
                                 <button className="p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200" title="Helpful" aria-label="Rate message as helpful">
-                                    <ThumbsUp size={16} className="md:w-3.5 md:h-3.5" />
+                                    <AttractiveIcon icon={ThumbsUp} size={16} className="md:w-3.5 md:h-3.5" />
                                 </button>
                                 <button className="p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200" title="Not Helpful" aria-label="Rate message as not helpful">
-                                    <ThumbsDown size={16} className="md:w-3.5 md:h-3.5" />
+                                    <AttractiveIcon icon={ThumbsDown} size={16} className="md:w-3.5 md:h-3.5" />
                                 </button>
                             </>
                         )}
@@ -268,7 +279,7 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
                                 title="Copy"
                                 aria-label="Copy message text"
                             >
-                                {isCopied ? <Check size={16} className="text-green-500 md:w-3.5 md:h-3.5" /> : <Copy size={16} className="md:w-3.5 md:h-3.5" />}
+                                {isCopied ? <AttractiveIcon icon={Check} size={16} gradient={['#22c55e', '#16a34a']} className="md:w-3.5 md:h-3.5" /> : <AttractiveIcon icon={Copy} size={16} className="md:w-3.5 md:h-3.5" />}
                             </button>
                         )}
 
@@ -280,7 +291,7 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
                                 title="Edit"
                                 aria-label="Edit your message"
                             >
-                                <Pencil size={16} className="md:w-3.5 md:h-3.5" />
+                                <AttractiveIcon icon={Pencil} size={16} className="md:w-3.5 md:h-3.5" />
                             </button>
                         )}
                     </div>

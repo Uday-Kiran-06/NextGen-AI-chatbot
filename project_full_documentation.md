@@ -1,4 +1,4 @@
-# Project Full Documentation
+﻿# Project Full Documentation
 
 This file contains the complete source code of the project for documentation purposes.
 
@@ -104,32 +104,32 @@ export default nextConfig;
 # File: README.md
 
 ``md
-# ✨ NextGen AI Chatbot
+# âœ¨ NextGen AI Chatbot
 
 A beautifully designed, high-performance AI chat interface built with Next.js. NextGen AI transforms standard LLM interactions into a powerful, agentic workspace featuring live code execution, real-time web browsing, continuous voice conversations, and seamless Supabase integration.
 
 <img width="1919" height="869" alt="image" src="https://github.com/user-attachments/assets/386ccb37-b173-4584-8b8b-7039739ce1d7" />
 
 
-## 🚀 Key Features
+## ðŸš€ Key Features
 
 ### Core Experience
-*   🎨 **Stunning UI/UX**: Premium aesthetic featuring glassmorphism, responsive design, and fluid transitions powered by **Framer Motion**.
-*   🔐 **Secure Authentication**: Built-in Google OAuth login seamlessly linked to **Supabase**.
-*   💾 **Persistent History**: All conversations and messages are securely stored in a Postgres database. Messages dynamically branch when edited or regenerated.
-*   🌗 **Theming**: Flawless Dark and Light mode support with automatic system preference detection.
+*   ðŸŽ¨ **Stunning UI/UX**: Premium aesthetic featuring glassmorphism, responsive design, and fluid transitions powered by **Framer Motion**.
+*   ðŸ” **Secure Authentication**: Built-in Google OAuth login seamlessly linked to **Supabase**.
+*   ðŸ’¾ **Persistent History**: All conversations and messages are securely stored in a Postgres database. Messages dynamically branch when edited or regenerated.
+*   ðŸŒ— **Theming**: Flawless Dark and Light mode support with automatic system preference detection.
 
-### 🧠 Advanced AI Capabilities
+### ðŸ§  Advanced AI Capabilities
 *   **Multi-Model Support**: Chat with Google's **Gemini 2.5 Flash / Pro**, **Groq** (Llama 3 / Mixtral), or switch to **Local AI (Ollama)** for 100% private, zero-cost inference right on your desktop.
-*   🌐 **Agentic Web Search**: A dedicated toggle forces the AI to actively use built-in tools (like DuckDuckGo) to research real-time information across the web before answering.
-*   🎭 **Custom Personas**: Go beyond standard prompts. Create, edit, and save your own detailed "System Instructions" via a custom modal to perfectly tailor the AI's behavior.
+*   ðŸŒ **Agentic Web Search**: A dedicated toggle forces the AI to actively use built-in tools (like DuckDuckGo) to research real-time information across the web before answering.
+*   ðŸŽ­ **Custom Personas**: Go beyond standard prompts. Create, edit, and save your own detailed "System Instructions" via a custom modal to perfectly tailor the AI's behavior.
 
-### 💻 Developer & Power-User Tools
-*   **Live Code Sandbox**: Don't just read code—**run it**. The built-in Artifact Viewer spins up an isolated browser-based sandbox to execute pure **JavaScript**, or client-side **Python** (via Pyodide), displaying real-time console outputs directly in your chat.
+### ðŸ’» Developer & Power-User Tools
+*   **Live Code Sandbox**: Don't just read codeâ€”**run it**. The built-in Artifact Viewer spins up an isolated browser-based sandbox to execute pure **JavaScript**, or client-side **Python** (via Pyodide), displaying real-time console outputs directly in your chat.
 *   **Smart Syntax Highlighting**: Fully styled markdown parsing with GitHub Flavored Markdown (tables, task lists) and intelligent code blocks that automatically collapse if they exceed 20 lines.
 *   **Global Chat Search**: Instantly find old code snippets or past conversations with a lightning-fast substring search querying the actual content of every message in your Supabase database.
 
-### 🎙️ Accessibility & UX Elevators
+### ðŸŽ™ï¸ Accessibility & UX Elevators
 *   **Continuous Voice Mode**: Hands-free interactions! Engage the microphone, speak naturally, and the app will detect a 2.5-second silence to automatically send your message.
 *   **AI-Powered Titles**: Conversations are automatically summarized into punchy, 3-4 word titles in the background using Gemini Flash.
 *   **Keyboard Shortcuts**: Press `Esc` to instantly stop AI generation, or use `Cmd/Ctrl + Enter` for quick sends.
@@ -137,7 +137,7 @@ A beautifully designed, high-performance AI chat interface built with Next.js. N
 
 ---
 
-## 🛠️ Tech Stack
+## ðŸ› ï¸ Tech Stack
 
 *   **Framework**: [Next.js](https://nextjs.org/) (App Router)
 *   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
@@ -149,7 +149,7 @@ A beautifully designed, high-performance AI chat interface built with Next.js. N
 
 ---
 
-## ⚙️ Local Development Setup
+## âš™ï¸ Local Development Setup
 
 ### 1. Prerequisites
 *   Node.js 18.x or later
@@ -201,7 +201,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ---
 
-## 📝 License
+## ðŸ“ License
 This project is open-source and available under the [MIT License](LICENSE).
 
 ``
@@ -1446,7 +1446,7 @@ export default function LoginPage() {
                                         type="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="••••••••"
+                                        placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                                         className="w-full bg-black/5 dark:bg-white/5 border border-glass-border rounded-xl py-3 pl-10 pr-4 text-foreground placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
                                         required
                                         minLength={6}
@@ -1652,7 +1652,7 @@ export default function ResetPasswordPage() {
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
+                                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                                     className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
                                     required
                                     minLength={6}
@@ -1668,7 +1668,7 @@ export default function ResetPasswordPage() {
                                     type="password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    placeholder="••••••••"
+                                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                                     className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-accent-primary/50 transition-all"
                                     required
                                     minLength={6}
@@ -2236,7 +2236,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                             </button>
                             <button
                                 onClick={() => {
-                                    const text = messages.map(m => `### ${m.role === 'user' ? '👤 YOU' : '🤖 AI'}\n${m.content}`).join('\n\n---\n\n');
+                                    const text = messages.map(m => `### ${m.role === 'user' ? 'ðŸ‘¤ YOU' : 'ðŸ¤– AI'}\n${m.content}`).join('\n\n---\n\n');
                                     const blob = new Blob([text], { type: 'text/markdown' });
                                     const url = URL.createObjectURL(blob);
                                     const a = document.createElement('a');
@@ -3290,7 +3290,7 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
                                         urlTransform={(value) => value}
                                         components={markdownComponents}
                                     >
-                                        {message.content + (isGenerating ? ' █' : '')}
+                                        {message.content + (isGenerating ? ' â–ˆ' : '')}
                                     </ReactMarkdown>
                                 </div>
                             )}
@@ -4848,7 +4848,7 @@ export function useChat({ conversationId, onConversationCreated, modelId }: UseC
                     if (!uploadRes.ok) throw new Error(`Failed to process ${file.name}`);
                 }
             } catch (err: any) {
-                setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', content: `❌ Error uploading document: ${err.message}` }]);
+                setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'model', content: `âŒ Error uploading document: ${err.message}` }]);
                 setIsGenerating(false);
                 return;
             }
@@ -5408,7 +5408,7 @@ export const FACULTY_RULES: Rule[] = [
     // --- CSE ---
     {
         keywords: ['cse faculty', 'cse department faculty', 'computer science faculty'],
-        response: "📚 **Computer Science & Engineering (CSE) Faculty Members**:\n\n" +
+        response: "ðŸ“š **Computer Science & Engineering (CSE) Faculty Members**:\n\n" +
             "1. [Dr. L. Kanya Kumari](send:Dr. L. Kanya Kumari)\n" +
             "2. [Dr. K. Sireesha](send:Dr. K. Sireesha)\n" +
             "3. [Mr. M. Samuel Sandeep](send:Mr. M. Samuel Sandeep)\n" +
@@ -5437,39 +5437,39 @@ export const FACULTY_RULES: Rule[] = [
             "26. [Dr Y Prakasa Rao](send:Dr Y Prakasa Rao)\n" +
             "27. [Mrs N Rohini Krishna Sai](send:Mrs N Rohini Krishna Sai)\n" +
             "28. [Dr M Sumender Roy](send:Dr M Sumender Roy)\n\n" +
-            "Click on any name to view their full profile! ✨"
+            "Click on any name to view their full profile! âœ¨"
     },
-    { keywords: ['kanya kumari', 'cse hod', 'hod of cse'], response: "🎓 **Dr. L. Kanya Kumari** is the Associate Professor & HOD of Computer Science & Engineering. Qualification: Ph.D.\n\n![Dr. L. Kanya Kumari](https://aliet.ac.in/storage/blocks/01K8D7KSJP7WKG90BWDEF4Q9EW.jpg)" },
-    { keywords: ['sireesha', 'cse faculty'], response: "👤 **Dr. K. Sireesha** is an Associate Professor in the CSE department. Qualification: Ph.D." },
-    { keywords: ['samuel sandeep', 'cse faculty'], response: "👤 **Mr. M. Samuel Sandeep** is an Associate Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['venkateswara rao', 'cse faculty'], response: "👤 **Dr. K. Venkateswara Rao** is an Assistant Professor in the CSE department. Qualification: Ph.D." },
-    { keywords: ['manoj', 'cse faculty'], response: "👤 **Mr. V V R Manoj** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['karuna manjusha', 'cse faculty'], response: "👤 **Mrs. Y Karuna Manjusha** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['pavani', 'cse faculty'], response: "👤 **Mrs. Ch Pavani** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['neeharika', 'cse faculty'], response: "👤 **Mrs K Neeharika** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['nancy anurag', 'cse faculty'], response: "👤 **Mrs P Nancy Anurag** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['satish', 'cse faculty'], response: "👤 **Mr K Satish** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['rajeswari', 'cse faculty'], response: "👤 **Mrs K Rajeswari** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['kishore kumar', 'cse faculty'], response: "👤 **Mr K Kishore Kumar** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['sravanthi', 'cse faculty'], response: "👤 **Mrs K Sravanthi** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['mary lavanya', 'cse faculty'], response: "👤 **Mrs A Mary Lavanya** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['manaswini', 'cse faculty'], response: "👤 **Mrs N V L Manaswini** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['alekhya', 'cse faculty'], response: "👤 **Mrs B Alekhya** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['naga usha', 'cse faculty'], response: "👤 **Mrs M Naga Usha** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['pushpavalli', 'cse faculty'], response: "👤 **Mrs K Pushpavalli** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['iswarya gold', 'cse faculty'], response: "👤 **Ms A Iswarya Gold** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['rama lakshmi', 'cse faculty'], response: "👤 **Mrs V Rama Lakshmi** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['meher babu', 'cse faculty'], response: "👤 **Dr Ch Meher Babu** is an Assistant Professor in the CSE department. Qualification: Ph.D." },
-    { keywords: ['pramodini', 'cse faculty'], response: "👤 **Mrs Y B Pramodini** is an Assistant Professor in the CSE department. Qualification: M.S" },
-    { keywords: ['basaveswara rao', 'cse faculty'], response: "👤 **Mr B N V Basaveswara Rao** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['havila', 'cse faculty'], response: "👤 **Mrs M Havila** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['vijaya varma', 'cse faculty'], response: "👤 **Mr N Naga Vijaya Varma** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['prakasa rao', 'cse faculty'], response: "👤 **Dr Y Prakasa Rao** is an Assistant Professor in the CSE department. Qualification: Ph.D." },
-    { keywords: ['rohini krishna sai', 'cse faculty'], response: "👤 **Mrs N Rohini Krishna Sai** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
-    { keywords: ['sumender roy', 'cse faculty'], response: "👤 **Dr M Sumender Roy** is an Associate Professor in the CSE department. Qualification: Ph.D." },
+    { keywords: ['kanya kumari', 'cse hod', 'hod of cse'], response: "ðŸŽ“ **Dr. L. Kanya Kumari** is the Associate Professor & HOD of Computer Science & Engineering. Qualification: Ph.D.\n\n![Dr. L. Kanya Kumari](https://aliet.ac.in/storage/blocks/01K8D7KSJP7WKG90BWDEF4Q9EW.jpg)" },
+    { keywords: ['sireesha', 'cse faculty'], response: "ðŸ‘¤ **Dr. K. Sireesha** is an Associate Professor in the CSE department. Qualification: Ph.D." },
+    { keywords: ['samuel sandeep', 'cse faculty'], response: "ðŸ‘¤ **Mr. M. Samuel Sandeep** is an Associate Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['venkateswara rao', 'cse faculty'], response: "ðŸ‘¤ **Dr. K. Venkateswara Rao** is an Assistant Professor in the CSE department. Qualification: Ph.D." },
+    { keywords: ['manoj', 'cse faculty'], response: "ðŸ‘¤ **Mr. V V R Manoj** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['karuna manjusha', 'cse faculty'], response: "ðŸ‘¤ **Mrs. Y Karuna Manjusha** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['pavani', 'cse faculty'], response: "ðŸ‘¤ **Mrs. Ch Pavani** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['neeharika', 'cse faculty'], response: "ðŸ‘¤ **Mrs K Neeharika** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['nancy anurag', 'cse faculty'], response: "ðŸ‘¤ **Mrs P Nancy Anurag** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['satish', 'cse faculty'], response: "ðŸ‘¤ **Mr K Satish** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['rajeswari', 'cse faculty'], response: "ðŸ‘¤ **Mrs K Rajeswari** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['kishore kumar', 'cse faculty'], response: "ðŸ‘¤ **Mr K Kishore Kumar** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['sravanthi', 'cse faculty'], response: "ðŸ‘¤ **Mrs K Sravanthi** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['mary lavanya', 'cse faculty'], response: "ðŸ‘¤ **Mrs A Mary Lavanya** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['manaswini', 'cse faculty'], response: "ðŸ‘¤ **Mrs N V L Manaswini** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['alekhya', 'cse faculty'], response: "ðŸ‘¤ **Mrs B Alekhya** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['naga usha', 'cse faculty'], response: "ðŸ‘¤ **Mrs M Naga Usha** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['pushpavalli', 'cse faculty'], response: "ðŸ‘¤ **Mrs K Pushpavalli** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['iswarya gold', 'cse faculty'], response: "ðŸ‘¤ **Ms A Iswarya Gold** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['rama lakshmi', 'cse faculty'], response: "ðŸ‘¤ **Mrs V Rama Lakshmi** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['meher babu', 'cse faculty'], response: "ðŸ‘¤ **Dr Ch Meher Babu** is an Assistant Professor in the CSE department. Qualification: Ph.D." },
+    { keywords: ['pramodini', 'cse faculty'], response: "ðŸ‘¤ **Mrs Y B Pramodini** is an Assistant Professor in the CSE department. Qualification: M.S" },
+    { keywords: ['basaveswara rao', 'cse faculty'], response: "ðŸ‘¤ **Mr B N V Basaveswara Rao** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['havila', 'cse faculty'], response: "ðŸ‘¤ **Mrs M Havila** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['vijaya varma', 'cse faculty'], response: "ðŸ‘¤ **Mr N Naga Vijaya Varma** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['prakasa rao', 'cse faculty'], response: "ðŸ‘¤ **Dr Y Prakasa Rao** is an Assistant Professor in the CSE department. Qualification: Ph.D." },
+    { keywords: ['rohini krishna sai', 'cse faculty'], response: "ðŸ‘¤ **Mrs N Rohini Krishna Sai** is an Assistant Professor in the CSE department. Qualification: M.Tech" },
+    { keywords: ['sumender roy', 'cse faculty'], response: "ðŸ‘¤ **Dr M Sumender Roy** is an Associate Professor in the CSE department. Qualification: Ph.D." },
     {
         keywords: ['it faculty', 'it department faculty', 'information technology faculty'],
-        response: "📚 **Information Technology (IT) Faculty Members**:\n\n" +
+        response: "ðŸ“š **Information Technology (IT) Faculty Members**:\n\n" +
             "1. [Mr. V. Vidya Sagar](send:Mr. V. Vidya Sagar)\n" +
             "2. [Mrs. M. Kaladevi](send:Mrs. M. Kaladevi)\n" +
             "3. [Mr. T. Kiran](send:Mr. T. Kiran)\n" +
@@ -5480,23 +5480,23 @@ export const FACULTY_RULES: Rule[] = [
             "8. [Dr. M. Chinna Rao](send:Dr. M. Chinna Rao)\n" +
             "9. [Dr. P. Sudheer](send:Dr. P. Sudheer)\n" +
             "10. [Mrs. K. Sravanthi](send:Mrs. K. Sravanthi)\n\n" +
-            "Click on any name to view their full profile! ✨"
+            "Click on any name to view their full profile! âœ¨"
     },
-    { keywords: ['vidya sagar', 'it hod', 'hod of it'], response: "🎓 **Mr. V. Vidya Sagar** is the Associate Professor & HOD of Information Technology. Qualification: M.Tech\n\n![Mr. V. Vidya Sagar](https://aliet.ac.in/storage/2/01K8J0WTGMM67DG79R015TEXF7.jpg)" },
-    { keywords: ['kaladevi', 'it faculty'], response: "👤 **Mrs. M. Kaladevi** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Mrs. M. Kaladevi](https://aliet.ac.in/storage/336/01K99FWTWW1BEZVH0QEYD5Z77S.jpg)" },
-    { keywords: ['t. kiran', 'it faculty'], response: "👤 **Mr. T. Kiran** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Mr. T. Kiran](https://aliet.ac.in/storage/323/01K94TP2WAPNW7N7BG9DCD71BK.jpg)" },
-    { keywords: ['suneela', 'it faculty'], response: "👤 **Mrs. M. Suneela** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Mrs. M. Suneela](https://aliet.ac.in/storage/337/01K99FYVKKSBPCBW3CPQCVJYHZ.jpg)" },
-    { keywords: ['kanthi rekha', 'it faculty'], response: "👤 **Mrs. M. Kanthi Rekha** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Mrs. M. Kanthi Rekha](https://aliet.ac.in/storage/338/01K99FZFZW2T55VXMD9GBJBP7G.jpg)" },
-    { keywords: ['sudha rani', 'it faculty'], response: "👤 **Ms. G. Sudha Rani** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Ms. G. Sudha Rani](https://aliet.ac.in/storage/324/01K94TVYM74NMAGWKHFXHJ43D6.jpg)" },
-    { keywords: ['yaswanth', 'it faculty'], response: "👤 **Mr. K. Yaswanth** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Mr. K. Yaswanth](https://aliet.ac.in/storage/325/01K94V06BG4G7F0RARR5GWG4V0.jpg)" },
-    { keywords: ['chinna rao', 'it faculty'], response: "👤 **Dr. M. Chinna Rao** is an Associate Professor in the IT department. Qualification: Ph.D." },
-    { keywords: ['sudheer', 'it faculty'], response: "👤 **Dr. P. Sudheer** is an Assistant Professor in the IT department. Qualification: Ph.D.\n\n![Dr. P. Sudheer](https://aliet.ac.in/storage/326/01K94V42X9T1463G2P0JCEN0F0.jpg)" },
-    { keywords: ['sravanthi', 'it faculty'], response: "👤 **Mrs. K. Sravanthi** is an Assistant Professor in the IT department. Qualification: M.Tech" },
+    { keywords: ['vidya sagar', 'it hod', 'hod of it'], response: "ðŸŽ“ **Mr. V. Vidya Sagar** is the Associate Professor & HOD of Information Technology. Qualification: M.Tech\n\n![Mr. V. Vidya Sagar](https://aliet.ac.in/storage/2/01K8J0WTGMM67DG79R015TEXF7.jpg)" },
+    { keywords: ['kaladevi', 'it faculty'], response: "ðŸ‘¤ **Mrs. M. Kaladevi** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Mrs. M. Kaladevi](https://aliet.ac.in/storage/336/01K99FWTWW1BEZVH0QEYD5Z77S.jpg)" },
+    { keywords: ['t. kiran', 'it faculty'], response: "ðŸ‘¤ **Mr. T. Kiran** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Mr. T. Kiran](https://aliet.ac.in/storage/323/01K94TP2WAPNW7N7BG9DCD71BK.jpg)" },
+    { keywords: ['suneela', 'it faculty'], response: "ðŸ‘¤ **Mrs. M. Suneela** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Mrs. M. Suneela](https://aliet.ac.in/storage/337/01K99FYVKKSBPCBW3CPQCVJYHZ.jpg)" },
+    { keywords: ['kanthi rekha', 'it faculty'], response: "ðŸ‘¤ **Mrs. M. Kanthi Rekha** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Mrs. M. Kanthi Rekha](https://aliet.ac.in/storage/338/01K99FZFZW2T55VXMD9GBJBP7G.jpg)" },
+    { keywords: ['sudha rani', 'it faculty'], response: "ðŸ‘¤ **Ms. G. Sudha Rani** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Ms. G. Sudha Rani](https://aliet.ac.in/storage/324/01K94TVYM74NMAGWKHFXHJ43D6.jpg)" },
+    { keywords: ['yaswanth', 'it faculty'], response: "ðŸ‘¤ **Mr. K. Yaswanth** is an Assistant Professor in the IT department. Qualification: M.Tech\n\n![Mr. K. Yaswanth](https://aliet.ac.in/storage/325/01K94V06BG4G7F0RARR5GWG4V0.jpg)" },
+    { keywords: ['chinna rao', 'it faculty'], response: "ðŸ‘¤ **Dr. M. Chinna Rao** is an Associate Professor in the IT department. Qualification: Ph.D." },
+    { keywords: ['sudheer', 'it faculty'], response: "ðŸ‘¤ **Dr. P. Sudheer** is an Assistant Professor in the IT department. Qualification: Ph.D.\n\n![Dr. P. Sudheer](https://aliet.ac.in/storage/326/01K94V42X9T1463G2P0JCEN0F0.jpg)" },
+    { keywords: ['sravanthi', 'it faculty'], response: "ðŸ‘¤ **Mrs. K. Sravanthi** is an Assistant Professor in the IT department. Qualification: M.Tech" },
 
     // --- ECE ---
     {
         keywords: ['ece faculty', 'ece department faculty', 'electronics faculty'],
-        response: "📚 **Electronics & Communication Engineering (ECE) Faculty Members**:\n\n" +
+        response: "ðŸ“š **Electronics & Communication Engineering (ECE) Faculty Members**:\n\n" +
             "1. [Dr. K. Prasanthi Jasmine](send:Dr. K. Prasanthi Jasmine)\n" +
             "2. [Mr. Mullapudi Rama Krishna](send:Mr. Mullapudi Rama Krishna)\n" +
             "3. [Dr. Lakshmi Narayana Thalluri](send:Dr. Lakshmi Narayana Thalluri)\n" +
@@ -5516,32 +5516,32 @@ export const FACULTY_RULES: Rule[] = [
             "17. [Mr. M. Ravi Kumar](send:Mr. M. Ravi Kumar)\n" +
             "18. [Mrs. T. Manogna](send:Mrs. T. Manogna)\n" +
             "19. [Mr. N. Bujji Babu](send:Mr. N. Bujji Babu)\n\n" +
-            "Click on any name to view their full profile! ✨"
+            "Click on any name to view their full profile! âœ¨"
     },
-    { keywords: ['jasmine', 'ece faculty'], response: "👤 **Dr. K. Prasanthi Jasmine** is a Professor in the ECE department. Qualification: Ph.D.\n\n![Dr. K. Prasanthi Jasmine](https://aliet.ac.in/storage/471/01KADH1XVR4QESD8MJZWAWHWTF.png)" },
-    { keywords: ['mullapudi rama krishna', 'ece faculty'], response: "👤 **Mr. Mullapudi Rama Krishna** is an Associate Professor in the ECE department. Qualification: M.Tech\n\n![Mr. Mullapudi Rama Krishna](https://aliet.ac.in/storage/529/01KATRGRM8KKCGK40K896WMAB7.jpg)" },
-    { keywords: ['thalluri', 'ece hod', 'hod of ece'], response: "🎓 **Dr. Lakshmi Narayana Thalluri** is the Associate Professor & HOD of ECE. Qualification: Ph.D.\n\n![Dr. Lakshmi Narayana Thalluri](https://aliet.ac.in/storage/732/01KC497DZQDDRF80BS88QJKP7X.jpg)" },
-    { keywords: ['mallikharjuna rao', 'ece faculty'], response: "👤 **Dr. S. Mallikharjuna Rao** is an Associate Professor in the ECE department. Qualification: Ph.D.\n\n![Dr. S. Mallikharjuna Rao](https://aliet.ac.in/storage/523/01KANJ9PWJM98A2ATN9QJKHV6E.jpg)" },
-    { keywords: ['mariya priyadarshini', 'ece faculty'], response: "👤 **Dr. K. Mariya Priyadarshani** is an Assistant Professor in the ECE department. Qualification: Ph.D.\n\n![Dr. K. Mariya Priyadarshini](https://aliet.ac.in/storage/517/01KANF1WFX15064KJVKBJAH0EJ.png)" },
-    { keywords: ['santhi kiran', 'ece faculty'], response: "👤 **Mrs. B. Santhi Kiran** is an Associate Professor in the ECE department. Qualification: M.Tech\n\n![Mrs. B. Santhi Kiran](https://aliet.ac.in/storage/518/01KANFARNXD8RT8CGDGYMJCVJQ.jpg)" },
-    { keywords: ['bose babu', 'ece faculty'], response: "👤 **Mr. P. Bose Babu** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. P. Bose Babu](https://aliet.ac.in/storage/527/01KAT832V3DW7Y641ET87WBAJQ.jpg)" },
-    { keywords: ['roopa krishna chandra', 'ece faculty'], response: "👤 **Mr. G. Roopa Krishna Chandra** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. G. Roopa Krishna Chandra](https://aliet.ac.in/storage/526/01KAT7W4HY4RTMC6A22MCATZ0W.jpg)" },
-    { keywords: ['ravi', 'gorapudi ravi', 'ece faculty'], response: "👤 **Mr. Gorapudi Ravi** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. Gorapudi Ravi](https://aliet.ac.in/storage/524/01KANJGQKDWACSSX002JCJV6Y3.jpg)" },
-    { keywords: ['pavan kumar', 'ece faculty'], response: "👤 **Mr. Y. Pavan Kumar** is an Assistant Professor in the ECE department. Qualification: M.Tech" },
-    { keywords: ['appala raju', 'ece faculty'], response: "👤 **Mr. Kanakala Appala Raju** is an Assistant Professor in the ECE department. Qualification: M.Tech" },
-    { keywords: ['vijay kumar', 'gayala vijay kumar', 'ece faculty'], response: "👤 **Mr. Gayala Vijay Kumar** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. Gayala Vijay Kumar](https://aliet.ac.in/storage/521/01KANHSDW3STYXSZPJJME8XDWK.jpg)" },
-    { keywords: ['merugamalli rama krishna', 'ece faculty'], response: "👤 **Mr. Merugamalli Rama Krishna** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. Merugamalli Rama Krishna](https://aliet.ac.in/storage/519/01KANFP0NTKQSJFJCDJ17JTDCT.jpg)" },
-    { keywords: ['kosuru srinivasa rao', 'ece faculty'], response: "👤 **Mr. Kosuru Srinivasa Rao** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. Kosuru Srinivasa Rao](https://aliet.ac.in/storage/520/01KANFVC3BFMF43NB2KAK48PM0.jpg)" },
-    { keywords: ['abdul azeem', 'ece faculty'], response: "👤 **Mr. Abdul Azeem** is an Assistant Professor in the ECE department. Qualification: M.Tech" },
-    { keywords: ['baig mohammad', 'ece faculty'], response: "👤 **Mr. MD. Baig Mohammad** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. MD. Baig Mohammad](https://aliet.ac.in/storage/528/01KATR9EDNSHPH7Q2Y21FKHQAP.jpg)" },
-    { keywords: ['ravi kumar', 'ece faculty'], response: "👤 **Mr. M. Ravi Kumar** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. M. Ravi Kumar](https://aliet.ac.in/storage/525/01KANJVFRH8WBFKEPKJ9XM5SYD.jpg)" },
-    { keywords: ['manogna', 'ece faculty'], response: "👤 **Mrs. T. Manogna** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mrs. T. Manogna](https://aliet.ac.in/storage/516/01KANEKAR96MF9ATETK428PE7S.jpg)" },
-    { keywords: ['bujji babu', 'ece faculty'], response: "👤 **Mr. N. Bujji Babu** is an Assistant Professor in the ECE department. Qualification: M.Tech" },
+    { keywords: ['jasmine', 'ece faculty'], response: "ðŸ‘¤ **Dr. K. Prasanthi Jasmine** is a Professor in the ECE department. Qualification: Ph.D.\n\n![Dr. K. Prasanthi Jasmine](https://aliet.ac.in/storage/471/01KADH1XVR4QESD8MJZWAWHWTF.png)" },
+    { keywords: ['mullapudi rama krishna', 'ece faculty'], response: "ðŸ‘¤ **Mr. Mullapudi Rama Krishna** is an Associate Professor in the ECE department. Qualification: M.Tech\n\n![Mr. Mullapudi Rama Krishna](https://aliet.ac.in/storage/529/01KATRGRM8KKCGK40K896WMAB7.jpg)" },
+    { keywords: ['thalluri', 'ece hod', 'hod of ece'], response: "ðŸŽ“ **Dr. Lakshmi Narayana Thalluri** is the Associate Professor & HOD of ECE. Qualification: Ph.D.\n\n![Dr. Lakshmi Narayana Thalluri](https://aliet.ac.in/storage/732/01KC497DZQDDRF80BS88QJKP7X.jpg)" },
+    { keywords: ['mallikharjuna rao', 'ece faculty'], response: "ðŸ‘¤ **Dr. S. Mallikharjuna Rao** is an Associate Professor in the ECE department. Qualification: Ph.D.\n\n![Dr. S. Mallikharjuna Rao](https://aliet.ac.in/storage/523/01KANJ9PWJM98A2ATN9QJKHV6E.jpg)" },
+    { keywords: ['mariya priyadarshini', 'ece faculty'], response: "ðŸ‘¤ **Dr. K. Mariya Priyadarshani** is an Assistant Professor in the ECE department. Qualification: Ph.D.\n\n![Dr. K. Mariya Priyadarshini](https://aliet.ac.in/storage/517/01KANF1WFX15064KJVKBJAH0EJ.png)" },
+    { keywords: ['santhi kiran', 'ece faculty'], response: "ðŸ‘¤ **Mrs. B. Santhi Kiran** is an Associate Professor in the ECE department. Qualification: M.Tech\n\n![Mrs. B. Santhi Kiran](https://aliet.ac.in/storage/518/01KANFARNXD8RT8CGDGYMJCVJQ.jpg)" },
+    { keywords: ['bose babu', 'ece faculty'], response: "ðŸ‘¤ **Mr. P. Bose Babu** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. P. Bose Babu](https://aliet.ac.in/storage/527/01KAT832V3DW7Y641ET87WBAJQ.jpg)" },
+    { keywords: ['roopa krishna chandra', 'ece faculty'], response: "ðŸ‘¤ **Mr. G. Roopa Krishna Chandra** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. G. Roopa Krishna Chandra](https://aliet.ac.in/storage/526/01KAT7W4HY4RTMC6A22MCATZ0W.jpg)" },
+    { keywords: ['ravi', 'gorapudi ravi', 'ece faculty'], response: "ðŸ‘¤ **Mr. Gorapudi Ravi** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. Gorapudi Ravi](https://aliet.ac.in/storage/524/01KANJGQKDWACSSX002JCJV6Y3.jpg)" },
+    { keywords: ['pavan kumar', 'ece faculty'], response: "ðŸ‘¤ **Mr. Y. Pavan Kumar** is an Assistant Professor in the ECE department. Qualification: M.Tech" },
+    { keywords: ['appala raju', 'ece faculty'], response: "ðŸ‘¤ **Mr. Kanakala Appala Raju** is an Assistant Professor in the ECE department. Qualification: M.Tech" },
+    { keywords: ['vijay kumar', 'gayala vijay kumar', 'ece faculty'], response: "ðŸ‘¤ **Mr. Gayala Vijay Kumar** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. Gayala Vijay Kumar](https://aliet.ac.in/storage/521/01KANHSDW3STYXSZPJJME8XDWK.jpg)" },
+    { keywords: ['merugamalli rama krishna', 'ece faculty'], response: "ðŸ‘¤ **Mr. Merugamalli Rama Krishna** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. Merugamalli Rama Krishna](https://aliet.ac.in/storage/519/01KANFP0NTKQSJFJCDJ17JTDCT.jpg)" },
+    { keywords: ['kosuru srinivasa rao', 'ece faculty'], response: "ðŸ‘¤ **Mr. Kosuru Srinivasa Rao** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. Kosuru Srinivasa Rao](https://aliet.ac.in/storage/520/01KANFVC3BFMF43NB2KAK48PM0.jpg)" },
+    { keywords: ['abdul azeem', 'ece faculty'], response: "ðŸ‘¤ **Mr. Abdul Azeem** is an Assistant Professor in the ECE department. Qualification: M.Tech" },
+    { keywords: ['baig mohammad', 'ece faculty'], response: "ðŸ‘¤ **Mr. MD. Baig Mohammad** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. MD. Baig Mohammad](https://aliet.ac.in/storage/528/01KATR9EDNSHPH7Q2Y21FKHQAP.jpg)" },
+    { keywords: ['ravi kumar', 'ece faculty'], response: "ðŸ‘¤ **Mr. M. Ravi Kumar** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mr. M. Ravi Kumar](https://aliet.ac.in/storage/525/01KANJVFRH8WBFKEPKJ9XM5SYD.jpg)" },
+    { keywords: ['manogna', 'ece faculty'], response: "ðŸ‘¤ **Mrs. T. Manogna** is an Assistant Professor in the ECE department. Qualification: M.Tech\n\n![Mrs. T. Manogna](https://aliet.ac.in/storage/516/01KANEKAR96MF9ATETK428PE7S.jpg)" },
+    { keywords: ['bujji babu', 'ece faculty'], response: "ðŸ‘¤ **Mr. N. Bujji Babu** is an Assistant Professor in the ECE department. Qualification: M.Tech" },
 
     // --- CSE AI & ML ---
     {
         keywords: ['ai ml faculty', 'cse ai ml faculty', 'artificial intelligence faculty'],
-        response: "📚 **CSE (AI & ML) Faculty Members**:\n\n" +
+        response: "ðŸ“š **CSE (AI & ML) Faculty Members**:\n\n" +
             "1. [Dr. K. Siva Rama Krishna](send:Dr. K. Siva Rama Krishna)\n" +
             "2. [Mr. Y. C. Ashok Kumar](send:Mr. Y. C. Ashok Kumar)\n" +
             "3. [Mrs. P. Nikhitha](send:Mrs. P. Nikhitha)\n" +
@@ -5559,30 +5559,30 @@ export const FACULTY_RULES: Rule[] = [
             "15. [Mrs. D. Archana](send:Mrs. D. Archana)\n" +
             "16. [Mr. S. Gopal](send:Mr. S. Gopal)\n" +
             "17. [Mr. M. Winson](send:Mr. M. Winson)\n\n" +
-            "Click on any name to view their full profile! ✨"
+            "Click on any name to view their full profile! âœ¨"
     },
-    { keywords: ['siva rama krishna', 'ai ml faculty'], response: "👤 **Dr. K. Siva Rama Krishna** is an Associate Professor in CSE (AI & ML). Qualification: Ph.D.\n\n![Dr. K. Siva Rama Krishna](https://aliet.ac.in/storage/120/01K8WVMA7V90D4T9SA49ZF2EQE.png)" },
-    { keywords: ['ashok kumar', 'ai ml faculty'], response: "👤 **Mr. Y. C. Ashok Kumar** is an Associate Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. Y. C. Ashok Kumar](https://aliet.ac.in/storage/126/01K8WVQGNQ9PNCKCNF4128TSF3.png)" },
-    { keywords: ['nikhitha', 'ai ml faculty'], response: "👤 **Mrs. P. Nikhitha** is an Assistant Professor in CSE (AI & ML). Qualification: MS\n\n![Mrs. P. Nikhitha](https://aliet.ac.in/storage/131/01K8WVR5CQ45TFQMQD0BJWK8MT.png)" },
-    { keywords: ['rajashekar reddy', 'ai ml faculty'], response: "👤 **Mr. B Rajashekar Reddy** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. B Rajashekar Reddy](https://aliet.ac.in/storage/132/01K8WVSXYA1GW3PCYNZPXNGVQA.png)" },
-    { keywords: ['reena', 'ai ml faculty'], response: "👤 **Ms. K. Reena** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Ms. K. Reena](https://aliet.ac.in/storage/133/01K8WVTGGQPVCCTSNV8Z9FARZ1.png)" },
-    { keywords: ['mounika aradhana', 'ai ml faculty'], response: "👤 **Ms. M. Mounika Aradhana** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Ms. M. Mounika Aradhana](https://aliet.ac.in/storage/134/01K8WVVA075HPXWSQMF8SK16XW.png)" },
-    { keywords: ['munni', 'ai ml faculty'], response: "👤 **Mrs. V. Munni** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mrs. V. Munni](https://aliet.ac.in/storage/109/01K8WVGW6Y0A9HTJYKTZAWMWK9.jpg)" },
-    { keywords: ['baig mohammad', 'ai ml faculty'], response: "👤 **Mr. MD. BAIG MOHAMMAD** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech" },
-    { keywords: ['chinna rao', 'ai ml faculty'], response: "👤 **Dr. M. CHINNA RAO** is an Associate Professor in CSE (AI & ML). Qualification: Ph.D.\n\n![Dr. M. CHINNA RAO](https://aliet.ac.in/storage/135/01K8WVW3BMMN382E1DN6118YMV.png)" },
-    { keywords: ['beulah rani', 'ai ml faculty'], response: "👤 **Ms. M. BEULAH RANI** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Ms. M. BEULAH RANI](https://aliet.ac.in/storage/163/01K8WWZTEPRQ27CEK04B076H2C.jpg)" },
-    { keywords: ['swathi', 'ai ml faculty'], response: "👤 **Mrs. B. Swathi** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mrs. B. Swathi](https://aliet.ac.in/storage/136/01K8WVWZVYD23V3JNJKBGD5KCK.png)" },
-    { keywords: ['jagadish', 'ai ml faculty'], response: "👤 **Mr. P. Jagadish** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. P. Jagadish](https://aliet.ac.in/storage/137/01K8WVXMW66QD5CDB90C6YJRJ7.png)" },
-    { keywords: ['naga srinivasa rao', 'ai ml faculty'], response: "👤 **Mr. A. Naga Srinivasa Rao** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. A. Naga Srinivasa Rao](https://aliet.ac.in/storage/138/01K8WVYMKJHZ48WTQ4Y3D6X7R5.png)" },
-    { keywords: ['prabhavathi', 'ai ml faculty'], response: "👤 **Ms. S. Prabhavathi** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Ms. S. Prabhavathi](https://aliet.ac.in/storage/143/01K8WVZ65T0ZJ7QVNYYAP3ENW4.png)" },
-    { keywords: ['archana', 'ai ml faculty'], response: "👤 **Mrs. D. Archana** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mrs. D. Archana](https://aliet.ac.in/storage/144/01K8WVZQY14FH14VVG8QGT23TX.png)" },
-    { keywords: ['gopal', 'ai ml faculty'], response: "👤 **Mr. S. Gopal** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. S. Gopal](https://aliet.ac.in/storage/145/01K8WW08XZ7PRCPSZ0HQ5VQF0R.png)" },
-    { keywords: ['winson', 'ai ml faculty'], response: "👤 **Mr. M. Winson** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. M. Winson](https://aliet.ac.in/storage/146/01K8WW0Y594E60JHDXA05PEN2J.png)" },
+    { keywords: ['siva rama krishna', 'ai ml faculty'], response: "ðŸ‘¤ **Dr. K. Siva Rama Krishna** is an Associate Professor in CSE (AI & ML). Qualification: Ph.D.\n\n![Dr. K. Siva Rama Krishna](https://aliet.ac.in/storage/120/01K8WVMA7V90D4T9SA49ZF2EQE.png)" },
+    { keywords: ['ashok kumar', 'ai ml faculty'], response: "ðŸ‘¤ **Mr. Y. C. Ashok Kumar** is an Associate Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. Y. C. Ashok Kumar](https://aliet.ac.in/storage/126/01K8WVQGNQ9PNCKCNF4128TSF3.png)" },
+    { keywords: ['nikhitha', 'ai ml faculty'], response: "ðŸ‘¤ **Mrs. P. Nikhitha** is an Assistant Professor in CSE (AI & ML). Qualification: MS\n\n![Mrs. P. Nikhitha](https://aliet.ac.in/storage/131/01K8WVR5CQ45TFQMQD0BJWK8MT.png)" },
+    { keywords: ['rajashekar reddy', 'ai ml faculty'], response: "ðŸ‘¤ **Mr. B Rajashekar Reddy** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. B Rajashekar Reddy](https://aliet.ac.in/storage/132/01K8WVSXYA1GW3PCYNZPXNGVQA.png)" },
+    { keywords: ['reena', 'ai ml faculty'], response: "ðŸ‘¤ **Ms. K. Reena** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Ms. K. Reena](https://aliet.ac.in/storage/133/01K8WVTGGQPVCCTSNV8Z9FARZ1.png)" },
+    { keywords: ['mounika aradhana', 'ai ml faculty'], response: "ðŸ‘¤ **Ms. M. Mounika Aradhana** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Ms. M. Mounika Aradhana](https://aliet.ac.in/storage/134/01K8WVVA075HPXWSQMF8SK16XW.png)" },
+    { keywords: ['munni', 'ai ml faculty'], response: "ðŸ‘¤ **Mrs. V. Munni** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mrs. V. Munni](https://aliet.ac.in/storage/109/01K8WVGW6Y0A9HTJYKTZAWMWK9.jpg)" },
+    { keywords: ['baig mohammad', 'ai ml faculty'], response: "ðŸ‘¤ **Mr. MD. BAIG MOHAMMAD** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech" },
+    { keywords: ['chinna rao', 'ai ml faculty'], response: "ðŸ‘¤ **Dr. M. CHINNA RAO** is an Associate Professor in CSE (AI & ML). Qualification: Ph.D.\n\n![Dr. M. CHINNA RAO](https://aliet.ac.in/storage/135/01K8WVW3BMMN382E1DN6118YMV.png)" },
+    { keywords: ['beulah rani', 'ai ml faculty'], response: "ðŸ‘¤ **Ms. M. BEULAH RANI** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Ms. M. BEULAH RANI](https://aliet.ac.in/storage/163/01K8WWZTEPRQ27CEK04B076H2C.jpg)" },
+    { keywords: ['swathi', 'ai ml faculty'], response: "ðŸ‘¤ **Mrs. B. Swathi** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mrs. B. Swathi](https://aliet.ac.in/storage/136/01K8WVWZVYD23V3JNJKBGD5KCK.png)" },
+    { keywords: ['jagadish', 'ai ml faculty'], response: "ðŸ‘¤ **Mr. P. Jagadish** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. P. Jagadish](https://aliet.ac.in/storage/137/01K8WVXMW66QD5CDB90C6YJRJ7.png)" },
+    { keywords: ['naga srinivasa rao', 'ai ml faculty'], response: "ðŸ‘¤ **Mr. A. Naga Srinivasa Rao** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. A. Naga Srinivasa Rao](https://aliet.ac.in/storage/138/01K8WVYMKJHZ48WTQ4Y3D6X7R5.png)" },
+    { keywords: ['prabhavathi', 'ai ml faculty'], response: "ðŸ‘¤ **Ms. S. Prabhavathi** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Ms. S. Prabhavathi](https://aliet.ac.in/storage/143/01K8WVZ65T0ZJ7QVNYYAP3ENW4.png)" },
+    { keywords: ['archana', 'ai ml faculty'], response: "ðŸ‘¤ **Mrs. D. Archana** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mrs. D. Archana](https://aliet.ac.in/storage/144/01K8WVZQY14FH14VVG8QGT23TX.png)" },
+    { keywords: ['gopal', 'ai ml faculty'], response: "ðŸ‘¤ **Mr. S. Gopal** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. S. Gopal](https://aliet.ac.in/storage/145/01K8WW08XZ7PRCPSZ0HQ5VQF0R.png)" },
+    { keywords: ['winson', 'ai ml faculty'], response: "ðŸ‘¤ **Mr. M. Winson** is an Assistant Professor in CSE (AI & ML). Qualification: M.Tech\n\n![Mr. M. Winson](https://aliet.ac.in/storage/146/01K8WW0Y594E60JHDXA05PEN2J.png)" },
 
     // --- Mechanical ---
     {
         keywords: ['mechanical faculty', 'mechanical department faculty'],
-        response: "📚 **Mechanical Engineering Faculty Members**:\n\n" +
+        response: "ðŸ“š **Mechanical Engineering Faculty Members**:\n\n" +
             "1. [Dr. O. Mahesh](send:Dr. O. Mahesh)\n" +
             "2. [Dr. M. Geeta Rani](send:Dr. M. Geeta Rani)\n" +
             "3. [Dr. B. Sudheer Kumar](send:Dr. B. Sudheer Kumar)\n" +
@@ -5595,25 +5595,25 @@ export const FACULTY_RULES: Rule[] = [
             "10. [Mr. E. Durgesh](send:Mr. E. Durgesh)\n" +
             "11. [Dr. T. Subba Reddy](send:Dr. T. Subba Reddy)\n" +
             "12. [Mr. K. Uday Kiran](send:Mr. K. Uday Kiran)\n\n" +
-            "Click on any name to view their full profile! ✨"
+            "Click on any name to view their full profile! âœ¨"
     },
-    { keywords: ['mahesh', 'mechanical faculty', 'principal'], response: "🎓 **Dr. O. Mahesh** is a Professor in Mechanical Engineering and also the **Principal** of ALIET. Qualification: Ph.D." },
-    { keywords: ['geeta rani', 'mechanical faculty', 'hod of mechanical'], response: "🎓 **Dr. M. Geeta Rani** is an Associate Professor and HOD in Mechanical Engineering. Qualification: Ph.D.\n\n![Dr. M. Geeta Rani](https://aliet.ac.in/storage/blocks/01K8ZF53KJKDJFN9HA6V63SDAS.PNG)" },
-    { keywords: ['sudheer kumar', 'mechanical faculty'], response: "👤 **Dr. B. Sudheer Kumar** is an Associate Professor in Mechanical Engineering. Qualification: Ph.D." },
-    { keywords: ['m. sudhakar', 'mechanical faculty'], response: "👤 **Mr. M. Sudhakar** is an Associate Professor in the Mechanical department. Qualification: M.Tech" },
-    { keywords: ['ranga rao', 'mechanical faculty'], response: "👤 **Mr. Ch. Ranga Rao** is an Associate Professor in the Mechanical department. Qualification: M.Tech" },
-    { keywords: ['susmitha', 'mechanical faculty'], response: "👤 **Mrs. B. Susmitha** is an Assistant Professor in the Mechanical department. Qualification: M.Tech" },
-    { keywords: ['srinivasa reddy', 'mechanical faculty'], response: "👤 **Mr. M. Srinivasa Reddy** is an Assistant Professor in the Mechanical department. Qualification: M.Tech" },
-    { keywords: ['teja swarup', 'mechanical faculty'], response: "👤 **Mr. M. Teja Swarup** is an Assistant Professor in the Mechanical department. Qualification: M.Tech" },
-    { keywords: ['srinivasu', 'mechanical faculty'], response: "👤 **Dr. G. G. Srinivasu** is an Assistant Professor in the Mechanical department. Qualification: Ph.D." },
-    { keywords: ['durgesh', 'mechanical faculty'], response: "👤 **Mr. E. Durgesh** is an Assistant Professor in the Mechanical department. Qualification: M.Tech" },
-    { keywords: ['subba reddy', 'mechanical faculty'], response: "👤 **Dr. T. Subba Reddy** is an Assistant Professor in the Mechanical department. Qualification: Ph.D.\n\n![Dr. T. Subba Reddy](https://aliet.ac.in/storage/8/01K8W79709NQTGPYBFYNE1CZ5W.jpg)" },
-    { keywords: ['uday kiran', 'mechanical faculty'], response: "👤 **Mr. K. Uday Kiran** is a Faculty Member in the Mechanical department. Qualification: M.Tech" },
+    { keywords: ['mahesh', 'mechanical faculty', 'principal'], response: "ðŸŽ“ **Dr. O. Mahesh** is a Professor in Mechanical Engineering and also the **Principal** of ALIET. Qualification: Ph.D." },
+    { keywords: ['geeta rani', 'mechanical faculty', 'hod of mechanical'], response: "ðŸŽ“ **Dr. M. Geeta Rani** is an Associate Professor and HOD in Mechanical Engineering. Qualification: Ph.D.\n\n![Dr. M. Geeta Rani](https://aliet.ac.in/storage/blocks/01K8ZF53KJKDJFN9HA6V63SDAS.PNG)" },
+    { keywords: ['sudheer kumar', 'mechanical faculty'], response: "ðŸ‘¤ **Dr. B. Sudheer Kumar** is an Associate Professor in Mechanical Engineering. Qualification: Ph.D." },
+    { keywords: ['m. sudhakar', 'mechanical faculty'], response: "ðŸ‘¤ **Mr. M. Sudhakar** is an Associate Professor in the Mechanical department. Qualification: M.Tech" },
+    { keywords: ['ranga rao', 'mechanical faculty'], response: "ðŸ‘¤ **Mr. Ch. Ranga Rao** is an Associate Professor in the Mechanical department. Qualification: M.Tech" },
+    { keywords: ['susmitha', 'mechanical faculty'], response: "ðŸ‘¤ **Mrs. B. Susmitha** is an Assistant Professor in the Mechanical department. Qualification: M.Tech" },
+    { keywords: ['srinivasa reddy', 'mechanical faculty'], response: "ðŸ‘¤ **Mr. M. Srinivasa Reddy** is an Assistant Professor in the Mechanical department. Qualification: M.Tech" },
+    { keywords: ['teja swarup', 'mechanical faculty'], response: "ðŸ‘¤ **Mr. M. Teja Swarup** is an Assistant Professor in the Mechanical department. Qualification: M.Tech" },
+    { keywords: ['srinivasu', 'mechanical faculty'], response: "ðŸ‘¤ **Dr. G. G. Srinivasu** is an Assistant Professor in the Mechanical department. Qualification: Ph.D." },
+    { keywords: ['durgesh', 'mechanical faculty'], response: "ðŸ‘¤ **Mr. E. Durgesh** is an Assistant Professor in the Mechanical department. Qualification: M.Tech" },
+    { keywords: ['subba reddy', 'mechanical faculty'], response: "ðŸ‘¤ **Dr. T. Subba Reddy** is an Assistant Professor in the Mechanical department. Qualification: Ph.D.\n\n![Dr. T. Subba Reddy](https://aliet.ac.in/storage/8/01K8W79709NQTGPYBFYNE1CZ5W.jpg)" },
+    { keywords: ['uday kiran', 'mechanical faculty'], response: "ðŸ‘¤ **Mr. K. Uday Kiran** is a Faculty Member in the Mechanical department. Qualification: M.Tech" },
 
     // --- Civil ---
     {
         keywords: ['civil faculty', 'civil department faculty'],
-        response: "📚 **Civil Engineering Faculty Members**:\n\n" +
+        response: "ðŸ“š **Civil Engineering Faculty Members**:\n\n" +
             "1. [Mrs. A. Tejaswi](send:Mrs. A. Tejaswi)\n" +
             "2. [Mr. Nagaraju Chanumolu](send:Mr. Nagaraju Chanumolu)\n" +
             "3. [Mr. N. Abhilash](send:Mr. N. Abhilash)\n" +
@@ -5622,21 +5622,21 @@ export const FACULTY_RULES: Rule[] = [
             "6. [Mr. K. Kiran Kumar](send:Mr. K. Kiran Kumar)\n" +
             "7. [Mr. K. Mallikarjuna Rao](send:Mr. K. Mallikarjuna Rao)\n" +
             "8. [Ms. G. Mahitha](send:Ms. G. Mahitha)\n\n" +
-            "Click on any name to view their full profile! ✨"
+            "Click on any name to view their full profile! âœ¨"
     },
-    { keywords: ['tejaswi', 'civil faculty'], response: "👤 **Mrs. A. Tejaswi** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
-    { keywords: ['nagaraju', 'civil hod', 'hod of civil'], response: "🎓 **Mr. Nagaraju Chanumolu** is the Associate Professor & HOD of Civil Engineering. Qualification: M.Tech\n\n![Mr. Nagaraju Chanumolu](https://aliet.ac.in/storage/blocks/01K99GGNWGA944CTW4WE18YFW9.jpg)" },
-    { keywords: ['abhilash', 'civil faculty'], response: "👤 **Mr. N. Abhilash** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
-    { keywords: ['swathi padmaja', 'civil faculty'], response: "👤 **Mrs. V. Swathi Padmaja** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
-    { keywords: ['suryateja', 'civil faculty'], response: "👤 **Mr. V. Suryateja** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
-    { keywords: ['kiran kumar', 'civil faculty'], response: "👤 **Mr. K. Kiran Kumar** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
-    { keywords: ['mallikarjuna rao', 'civil faculty'], response: "👤 **Mr. K. Mallikarjuna Rao** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
-    { keywords: ['mahitha', 'civil faculty'], response: "👤 **Ms. G. Mahitha** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
+    { keywords: ['tejaswi', 'civil faculty'], response: "ðŸ‘¤ **Mrs. A. Tejaswi** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
+    { keywords: ['nagaraju', 'civil hod', 'hod of civil'], response: "ðŸŽ“ **Mr. Nagaraju Chanumolu** is the Associate Professor & HOD of Civil Engineering. Qualification: M.Tech\n\n![Mr. Nagaraju Chanumolu](https://aliet.ac.in/storage/blocks/01K99GGNWGA944CTW4WE18YFW9.jpg)" },
+    { keywords: ['abhilash', 'civil faculty'], response: "ðŸ‘¤ **Mr. N. Abhilash** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
+    { keywords: ['swathi padmaja', 'civil faculty'], response: "ðŸ‘¤ **Mrs. V. Swathi Padmaja** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
+    { keywords: ['suryateja', 'civil faculty'], response: "ðŸ‘¤ **Mr. V. Suryateja** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
+    { keywords: ['kiran kumar', 'civil faculty'], response: "ðŸ‘¤ **Mr. K. Kiran Kumar** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
+    { keywords: ['mallikarjuna rao', 'civil faculty'], response: "ðŸ‘¤ **Mr. K. Mallikarjuna Rao** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
+    { keywords: ['mahitha', 'civil faculty'], response: "ðŸ‘¤ **Ms. G. Mahitha** is an Assistant Professor in Civil Engineering. Qualification: M.Tech" },
 
     // --- EEE ---
     {
         keywords: ['eee faculty', 'eee department faculty', 'electrical faculty'],
-        response: "📚 **Electrical & Electronics Engineering (EEE) Faculty Members**:\n\n" +
+        response: "ðŸ“š **Electrical & Electronics Engineering (EEE) Faculty Members**:\n\n" +
             "1. [Dr. G. Naveen Kumar](send:Dr. G. Naveen Kumar)\n" +
             "2. [Dr. M. Ajay Kumar](send:Dr. M. Ajay Kumar)\n" +
             "3. [Dr. V. Anantha Lakshmi](send:Dr. V. Anantha Lakshmi)\n" +
@@ -5647,42 +5647,42 @@ export const FACULTY_RULES: Rule[] = [
             "8. [Mr. V. Brahmeswara Rao](send:Mr. V. Brahmeswara Rao)\n" +
             "9. [Ms. B. Sruthi](send:Ms. B. Sruthi)\n" +
             "10. [Ms. A. Chandhni Srilakshmi](send:Ms. A. Chandhni Srilakshmi)\n\n" +
-            "Click on any name to view their full profile! ✨"
+            "Click on any name to view their full profile! âœ¨"
     },
-    { keywords: ['naveen kumar', 'eee hod', 'hod of eee'], response: "🎓 **Dr. G. Naveen Kumar** is the Professor & HOD of Electrical & Electronics Engineering. Qualification: Ph.D.\n\n![Dr. G. Naveen Kumar](https://aliet.ac.in/storage/177/01K8Z0B5EYQQPY7Q89P3KG4X90.jpg)" },
-    { keywords: ['ajay kumar', 'eee faculty'], response: "👤 **Dr. M. Ajay Kumar** is an Associate Professor in EEE. Qualification: Ph.D.\n\n![Dr. M. Ajay Kumar](https://aliet.ac.in/storage/178/01K8Z30ZXATGDKZSEWNQ06X3WB.jpg)" },
-    { keywords: ['anantha lakshmi', 'eee faculty'], response: "👤 **Dr. V. Anantha Lakshmi** is an Assistant Professor in EEE. Qualification: Ph.D.\n\n![Dr. V. Anantha Lakshmi](https://aliet.ac.in/storage/360/01K9CB95GXHER537GW0P0HWDVQ.jpg)" },
-    { keywords: ['gantaiah swamy', 'eee faculty'], response: "👤 **Dr. G. Gantaiah Swamy** is an Assistant Professor in EEE. Qualification: Ph.D.\n\n![Dr. G. Gantaiah Swamy](https://aliet.ac.in/storage/359/01K9CB74RHG2JCZXBM0PZBZKXC.jpg)" },
-    { keywords: ['karunakar', 'eee faculty'], response: "👤 **Mr. L. Karunakar** is an Assistant Professor in EEE. Qualification: M.Tech\n\n![Mr. L. Karunakar](https://aliet.ac.in/storage/356/01K9C7JCZVAM83FM5DVWT4FWJY.jpg)" },
-    { keywords: ['krishna mohan', 'eee faculty'], response: "👤 **Mr. T. Krishna Mohan** is an Assistant Professor in EEE. Qualification: M.Tech\n\n![Mr. T. Krishna Mohan](https://aliet.ac.in/storage/358/01K9C7KQWMVP5E8DSH6WX67DBH.jpg)" },
-    { keywords: ['rama krishna', 'eee faculty'], response: "👤 **Mr. M. Rama Krishna** is an Assistant Professor in EEE. Qualification: M.Tech\n\n![Mr. M. Rama Krishna](https://aliet.ac.in/storage/352/01K9C52JQA1SKR9WKMYF23Z7HR.jpg)" },
-    { keywords: ['brahmeswara rao', 'eee faculty'], response: "👤 **Mr. V. Brahmeswara Rao** is an Assistant Professor in EEE. Qualification: M.Tech" },
-    { keywords: ['sruthi', 'eee faculty'], response: "👤 **Ms. B. Sruthi** is an Assistant Professor in EEE. Qualification: M.Tech\n\n![Ms. B. Sruthi](https://aliet.ac.in/storage/357/01K9C7K3S0Z822BXE4ZVPST4N3.jpg)" },
-    { keywords: ['chandhni srilakshmi', 'eee faculty'], response: "👤 **Ms. A. Chandhni Srilakshmi** is an Assistant Professor in EEE. Qualification: M.Tech\n\n![Ms. A. Chandhni Srilakshmi](https://aliet.ac.in/storage/353/01K9C53SRW9HFGFV10X1QZ6BX4.jpg)" },
+    { keywords: ['naveen kumar', 'eee hod', 'hod of eee'], response: "ðŸŽ“ **Dr. G. Naveen Kumar** is the Professor & HOD of Electrical & Electronics Engineering. Qualification: Ph.D.\n\n![Dr. G. Naveen Kumar](https://aliet.ac.in/storage/177/01K8Z0B5EYQQPY7Q89P3KG4X90.jpg)" },
+    { keywords: ['ajay kumar', 'eee faculty'], response: "ðŸ‘¤ **Dr. M. Ajay Kumar** is an Associate Professor in EEE. Qualification: Ph.D.\n\n![Dr. M. Ajay Kumar](https://aliet.ac.in/storage/178/01K8Z30ZXATGDKZSEWNQ06X3WB.jpg)" },
+    { keywords: ['anantha lakshmi', 'eee faculty'], response: "ðŸ‘¤ **Dr. V. Anantha Lakshmi** is an Assistant Professor in EEE. Qualification: Ph.D.\n\n![Dr. V. Anantha Lakshmi](https://aliet.ac.in/storage/360/01K9CB95GXHER537GW0P0HWDVQ.jpg)" },
+    { keywords: ['gantaiah swamy', 'eee faculty'], response: "ðŸ‘¤ **Dr. G. Gantaiah Swamy** is an Assistant Professor in EEE. Qualification: Ph.D.\n\n![Dr. G. Gantaiah Swamy](https://aliet.ac.in/storage/359/01K9CB74RHG2JCZXBM0PZBZKXC.jpg)" },
+    { keywords: ['karunakar', 'eee faculty'], response: "ðŸ‘¤ **Mr. L. Karunakar** is an Assistant Professor in EEE. Qualification: M.Tech\n\n![Mr. L. Karunakar](https://aliet.ac.in/storage/356/01K9C7JCZVAM83FM5DVWT4FWJY.jpg)" },
+    { keywords: ['krishna mohan', 'eee faculty'], response: "ðŸ‘¤ **Mr. T. Krishna Mohan** is an Assistant Professor in EEE. Qualification: M.Tech\n\n![Mr. T. Krishna Mohan](https://aliet.ac.in/storage/358/01K9C7KQWMVP5E8DSH6WX67DBH.jpg)" },
+    { keywords: ['rama krishna', 'eee faculty'], response: "ðŸ‘¤ **Mr. M. Rama Krishna** is an Assistant Professor in EEE. Qualification: M.Tech\n\n![Mr. M. Rama Krishna](https://aliet.ac.in/storage/352/01K9C52JQA1SKR9WKMYF23Z7HR.jpg)" },
+    { keywords: ['brahmeswara rao', 'eee faculty'], response: "ðŸ‘¤ **Mr. V. Brahmeswara Rao** is an Assistant Professor in EEE. Qualification: M.Tech" },
+    { keywords: ['sruthi', 'eee faculty'], response: "ðŸ‘¤ **Ms. B. Sruthi** is an Assistant Professor in EEE. Qualification: M.Tech\n\n![Ms. B. Sruthi](https://aliet.ac.in/storage/357/01K9C7K3S0Z822BXE4ZVPST4N3.jpg)" },
+    { keywords: ['chandhni srilakshmi', 'eee faculty'], response: "ðŸ‘¤ **Ms. A. Chandhni Srilakshmi** is an Assistant Professor in EEE. Qualification: M.Tech\n\n![Ms. A. Chandhni Srilakshmi](https://aliet.ac.in/storage/353/01K9C53SRW9HFGFV10X1QZ6BX4.jpg)" },
 
     // --- MBA ---
     {
         keywords: ['mba faculty', 'mba department faculty'],
-        response: "📚 **Master of Business Administration (MBA) Faculty Members**:\n\n" +
+        response: "ðŸ“š **Master of Business Administration (MBA) Faculty Members**:\n\n" +
             "1. [Dr. M. Vijay Kumar](send:Dr. M. Vijay Kumar)\n" +
             "2. [Sk. Razia Begum](send:Sk. Razia Begum)\n" +
             "3. [Dr. G. Lalitha Madhavi](send:Dr. G. Lalitha Madhavi)\n" +
             "4. [Dr. K. Sattibabu](send:Dr. K. Sattibabu)\n" +
             "5. [Dr. B. Shanti](send:Dr. B. Shanti)\n" +
             "6. [Dr. M. Indira](send:Dr. M. Indira)\n\n" +
-            "Click on any name to view their full profile! ✨"
+            "Click on any name to view their full profile! âœ¨"
     },
-    { keywords: ['vijay kumar', 'mba hod', 'hod of mba'], response: "🎓 **Dr. M. Vijay Kumar** is the Professor & HOD of MBA. Qualification: Ph.D.\n\n![Dr. M. Vijay Kumar](https://aliet.ac.in/storage/345/01K99PZB38NSA9EXHHRNNH4FGH.jpg)" },
-    { keywords: ['razia begum', 'mba faculty'], response: "👤 **Sk. Razia Begum** is an Assistant Professor in MBA. Qualification: MBA, M.Com\n\n![Sk. Razia Begum](https://aliet.ac.in/storage/343/01K99PY7BSR2Y9C0ZCN0SAZF95.jpg)" },
-    { keywords: ['lalitha madhavi', 'mba faculty'], response: "👤 **Dr. G. Lalitha Madhavi** is an Assistant Professor in MBA. Qualification: Ph.D.\n\n![Dr. G. Lalitha Madhavi](https://aliet.ac.in/storage/344/01K99PYMYDRRKN1JMVZT66BGNE.jpg)" },
-    { keywords: ['sattibabu', 'mba faculty'], response: "👤 **Dr. K. Sattibabu** is an Associate Professor in MBA. Qualification: Ph.D.\n\n![Dr. K. Sattibabu](https://aliet.ac.in/storage/533/01KAX8YYXKN6EJE3EDQ46TH6ND.jpg)" },
-    { keywords: ['shanti', 'mba faculty'], response: "👤 **Dr. B. Shanti** is an Assistant Professor in MBA. Qualification: Ph.D.\n\n![Dr. B. Shanti](https://aliet.ac.in/storage/361/01K9CE9E4RF96WGT573SHZSH3N.jpg)" },
-    { keywords: ['indira', 'mba faculty'], response: "👤 **Dr. M. Indira** is an Assistant Professor in MBA. Qualification: Ph.D.\n\n![Dr. M. Indira](https://aliet.ac.in/storage/347/01K99QVP5EM564WS1ES5ASJXGP.jpg)" },
+    { keywords: ['vijay kumar', 'mba hod', 'hod of mba'], response: "ðŸŽ“ **Dr. M. Vijay Kumar** is the Professor & HOD of MBA. Qualification: Ph.D.\n\n![Dr. M. Vijay Kumar](https://aliet.ac.in/storage/345/01K99PZB38NSA9EXHHRNNH4FGH.jpg)" },
+    { keywords: ['razia begum', 'mba faculty'], response: "ðŸ‘¤ **Sk. Razia Begum** is an Assistant Professor in MBA. Qualification: MBA, M.Com\n\n![Sk. Razia Begum](https://aliet.ac.in/storage/343/01K99PY7BSR2Y9C0ZCN0SAZF95.jpg)" },
+    { keywords: ['lalitha madhavi', 'mba faculty'], response: "ðŸ‘¤ **Dr. G. Lalitha Madhavi** is an Assistant Professor in MBA. Qualification: Ph.D.\n\n![Dr. G. Lalitha Madhavi](https://aliet.ac.in/storage/344/01K99PYMYDRRKN1JMVZT66BGNE.jpg)" },
+    { keywords: ['sattibabu', 'mba faculty'], response: "ðŸ‘¤ **Dr. K. Sattibabu** is an Associate Professor in MBA. Qualification: Ph.D.\n\n![Dr. K. Sattibabu](https://aliet.ac.in/storage/533/01KAX8YYXKN6EJE3EDQ46TH6ND.jpg)" },
+    { keywords: ['shanti', 'mba faculty'], response: "ðŸ‘¤ **Dr. B. Shanti** is an Assistant Professor in MBA. Qualification: Ph.D.\n\n![Dr. B. Shanti](https://aliet.ac.in/storage/361/01K9CE9E4RF96WGT573SHZSH3N.jpg)" },
+    { keywords: ['indira', 'mba faculty'], response: "ðŸ‘¤ **Dr. M. Indira** is an Assistant Professor in MBA. Qualification: Ph.D.\n\n![Dr. M. Indira](https://aliet.ac.in/storage/347/01K99QVP5EM564WS1ES5ASJXGP.jpg)" },
 
     // --- S&H ---
     {
         keywords: ['s&h faculty', 's&h department faculty', 'science and humanities faculty'],
-        response: "📚 **Science & Humanities (S&H) Faculty Members**:\n\n" +
+        response: "ðŸ“š **Science & Humanities (S&H) Faculty Members**:\n\n" +
             "1. [Dr. Y. Sudhakar](send:Dr. Y. Sudhakar)\n" +
             "2. [Ms. S. P. V. N. D. Sumalatha](send:Ms. S. P. V. N. D. Sumalatha)\n" +
             "3. [Dr. V. V. Prabhakar Rao](send:Dr. V. V. Prabhakar Rao)\n" +
@@ -5708,37 +5708,37 @@ export const FACULTY_RULES: Rule[] = [
             "23. [Ms. B. Tripura Sri Satvika](send:Ms. B. Tripura Sri Satvika)\n" +
             "24. [Ms. Parimala Jyothi](send:Ms. Parimala Jyothi)\n" +
             "25. [Mrs. M. Vijaya Lakshmi](send:Mrs. M. Vijaya Lakshmi)\n\n" +
-            "Click on any name to view their full profile! ✨"
+            "Click on any name to view their full profile! âœ¨"
     },
-    { keywords: ['sudhakar', 's&h hod', 'hod of s&h'], response: "🎓 **Dr. Y. Sudhakar** is the Assistant Professor & HOD of Science & Humanities. Qualification: Ph.D.\n\n![Dr. Y. Sudhakar](https://aliet.ac.in/storage/429/01K9VKA818X3JHJR84B2P10TBV.jpg)" },
-    { keywords: ['sumalatha', 's&h faculty'], response: "👤 **Ms. S. P. V. N. D. Sumalatha** is an Assistant Professor in S&H. Qualification: M.Sc" },
-    { keywords: ['prabhakar rao', 's&h faculty'], response: "👤 **Dr. V. V. Prabhakar Rao** is an Assistant Professor in S&H. Qualification: Ph.D.\n\n![Dr. V. V. Prabhakar Rao](https://aliet.ac.in/storage/368/01K9S3F12XFDMBXWHES8CAJK1S.jpg)" },
-    { keywords: ['sudha rani', 's&h faculty'], response: "👤 **Dr. P. Sudha Rani** is an Assistant Professor in S&H. Qualification: Ph.D.\n\n![Dr. P. Sudha Rani](https://aliet.ac.in/storage/339/01K99J536EP7QSWQAB14173FAR.jpg)" },
-    { keywords: ['dyvakrupa', 's&h faculty'], response: "👤 **Dr. N. DyvaKrupa** is an Assistant Professor in S&H. Qualification: Ph.D.\n\n![Dr. N. DyvaKrupa](https://aliet.ac.in/storage/370/01K9S3TBAR0Y37H61GTGS747TJ.jpg)" },
-    { keywords: ['rajesh', 'physical director'], response: "👤 **Mr. Y. Rajesh** is the Physical Director in S&H. Qualification: M.P.Ed" },
-    { keywords: ['ravi shankar', 's&h faculty'], response: "👤 **Mr. B. Ravi Shankar** is an Assistant Professor in S&H. Qualification: M.Sc" },
-    { keywords: ['sugandha kumar', 's&h faculty'], response: "👤 **Mr. P. Sugandha Kumar** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mr. P. Sugandha Kumar](https://aliet.ac.in/storage/367/01K9S3CSETCHNSSB7PBTGVT170.jpg)" },
-    { keywords: ['sarath kumari', 's&h faculty'], response: "👤 **Ms. B. Sarath Kumari** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. B. Sarath Kumari](https://aliet.ac.in/storage/428/01K9VJX0T8V1DECZCE18V6S9G9.jpg)" },
-    { keywords: ['swathi kiran', 's&h faculty'], response: "👤 **Mrs. K. Swathi Kiran** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mrs. K. Swathi Kiran](https://aliet.ac.in/storage/427/01K9VJW8MTTD4X6K35PGR02BZP.jpg)" },
-    { keywords: ['candy dcunha', 's&h faculty'], response: "👤 **Dr. Sr. Candy D'Cunha** is an Associate Professor in S&H. Qualification: M.A, M.Phil, Ph.D(DLitt)\n\n![Dr. Sr. Candy D'Cunha](https://aliet.ac.in/storage/369/01K9S3K5KC379SEJ647SHZHZ6T.jpg)" },
-    { keywords: ['vijaya lakshmi', 's&h faculty'], response: "👤 **Dr. Ch. Vijaya Lakshmi** is an Assistant Professor in S&H. Qualification: Ph.D.\n\n![Dr. Ch. Vijaya Lakshmi](https://aliet.ac.in/storage/340/01K99JYHHY9M3J2CVX5A142BT1.jpg)" },
-    { keywords: ['kalavathi', 's&h faculty'], response: "👤 **Mrs. E. Kalavathi** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mrs. E. Kalavathi](https://aliet.ac.in/storage/366/01K9S3B4ZCR6Y4AP8DRVX0FBMC.jpg)" },
-    { keywords: ['archana', 's&h faculty'], response: "👤 **Mrs. M. Archana** is an Assistant Professor in S&H. Qualification: M.Sc" },
-    { keywords: ['rajya lakshmi', 's&h faculty'], response: "👤 **Ms. K. Rajya Lakshmi** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. K. Rajya Lakshmi](https://aliet.ac.in/storage/371/01K9S3WMHD1GE1XHCHZT9KW42A.jpg)" },
-    { keywords: ['kalpana', 's&h faculty'], response: "👤 **Dr. T. Kalpana** is an Assistant Professor in S&H. Qualification: Ph.D.\n\n![Dr. T. Kalpana](https://aliet.ac.in/storage/437/01K9VM8S5ZGWJV48YTMMYM4BE6.jpg)" },
-    { keywords: ['saritha', 's&h faculty'], response: "👤 **Mrs. S. Saritha** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mrs. S. Saritha](https://aliet.ac.in/storage/372/01K9S436KKFKHBE8HVJ9BZ53XR.jpg)" },
-    { keywords: ['sailaja', 's&h faculty'], response: "👤 **Mrs. B. Sailaja** is an Assistant Professor in S&H. Qualification: M.Sc" },
-    { keywords: ['kalyan kumar', 's&h faculty'], response: "👤 **Mr. A. Kalyan Kumar** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mr. A. Kalyan Kumar](https://aliet.ac.in/storage/430/01K9VKBT4F6BTA8VWF6FYNXB16.jpg)" },
-    { keywords: ['sujith', 's&h faculty'], response: "👤 **Mr. T. Sujith** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mr. T. Sujith](https://aliet.ac.in/storage/373/01K9S460AT78JPR33YHFFEEP2Z.jpg)" },
-    { keywords: ['leela prasanna', 's&h faculty'], response: "👤 **Ms. K. Leela Prasanna** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. K. Leela Prasanna](https://aliet.ac.in/storage/341/01K99KVQ7R0W0C5R8M8GSZ86JP.jpg)" },
-    { keywords: ['vasantha lakshmi', 's&h faculty'], response: "👤 **Ms. K. Vasantha Lakshmi** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. K. Vasantha Lakshmi](https://aliet.ac.in/storage/342/01K99M5THK6WQC5Y2DM75JC1WT.jpg)" },
-    { keywords: ['tripura sri satvika', 's&h faculty'], response: "👤 **Ms. B. Tripura Sri Satvika** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. B. Tripura Sri Satvika](https://aliet.ac.in/storage/376/01K9S4JYC25WVP74WV3KMHXZC3.jpg)" },
-    { keywords: ['parimala jyothi', 's&h faculty'], response: "👤 **Ms. Parimala Jyothi** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. Parimala Jyothi](https://aliet.ac.in/storage/374/01K9S47GV6JPVVBY69T2B02MRX.jpg)" },
-    { keywords: ['vijaya lakshmi m', 's&h faculty'], response: "👤 **Mrs. M. Vijaya Lakshmi** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mrs. M. Vijaya Lakshmi](https://aliet.ac.in/storage/375/01K9S4AX5T6MAQSBKJFES66KQE.jpg)" },
+    { keywords: ['sudhakar', 's&h hod', 'hod of s&h'], response: "ðŸŽ“ **Dr. Y. Sudhakar** is the Assistant Professor & HOD of Science & Humanities. Qualification: Ph.D.\n\n![Dr. Y. Sudhakar](https://aliet.ac.in/storage/429/01K9VKA818X3JHJR84B2P10TBV.jpg)" },
+    { keywords: ['sumalatha', 's&h faculty'], response: "ðŸ‘¤ **Ms. S. P. V. N. D. Sumalatha** is an Assistant Professor in S&H. Qualification: M.Sc" },
+    { keywords: ['prabhakar rao', 's&h faculty'], response: "ðŸ‘¤ **Dr. V. V. Prabhakar Rao** is an Assistant Professor in S&H. Qualification: Ph.D.\n\n![Dr. V. V. Prabhakar Rao](https://aliet.ac.in/storage/368/01K9S3F12XFDMBXWHES8CAJK1S.jpg)" },
+    { keywords: ['sudha rani', 's&h faculty'], response: "ðŸ‘¤ **Dr. P. Sudha Rani** is an Assistant Professor in S&H. Qualification: Ph.D.\n\n![Dr. P. Sudha Rani](https://aliet.ac.in/storage/339/01K99J536EP7QSWQAB14173FAR.jpg)" },
+    { keywords: ['dyvakrupa', 's&h faculty'], response: "ðŸ‘¤ **Dr. N. DyvaKrupa** is an Assistant Professor in S&H. Qualification: Ph.D.\n\n![Dr. N. DyvaKrupa](https://aliet.ac.in/storage/370/01K9S3TBAR0Y37H61GTGS747TJ.jpg)" },
+    { keywords: ['rajesh', 'physical director'], response: "ðŸ‘¤ **Mr. Y. Rajesh** is the Physical Director in S&H. Qualification: M.P.Ed" },
+    { keywords: ['ravi shankar', 's&h faculty'], response: "ðŸ‘¤ **Mr. B. Ravi Shankar** is an Assistant Professor in S&H. Qualification: M.Sc" },
+    { keywords: ['sugandha kumar', 's&h faculty'], response: "ðŸ‘¤ **Mr. P. Sugandha Kumar** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mr. P. Sugandha Kumar](https://aliet.ac.in/storage/367/01K9S3CSETCHNSSB7PBTGVT170.jpg)" },
+    { keywords: ['sarath kumari', 's&h faculty'], response: "ðŸ‘¤ **Ms. B. Sarath Kumari** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. B. Sarath Kumari](https://aliet.ac.in/storage/428/01K9VJX0T8V1DECZCE18V6S9G9.jpg)" },
+    { keywords: ['swathi kiran', 's&h faculty'], response: "ðŸ‘¤ **Mrs. K. Swathi Kiran** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mrs. K. Swathi Kiran](https://aliet.ac.in/storage/427/01K9VJW8MTTD4X6K35PGR02BZP.jpg)" },
+    { keywords: ['candy dcunha', 's&h faculty'], response: "ðŸ‘¤ **Dr. Sr. Candy D'Cunha** is an Associate Professor in S&H. Qualification: M.A, M.Phil, Ph.D(DLitt)\n\n![Dr. Sr. Candy D'Cunha](https://aliet.ac.in/storage/369/01K9S3K5KC379SEJ647SHZHZ6T.jpg)" },
+    { keywords: ['vijaya lakshmi', 's&h faculty'], response: "ðŸ‘¤ **Dr. Ch. Vijaya Lakshmi** is an Assistant Professor in S&H. Qualification: Ph.D.\n\n![Dr. Ch. Vijaya Lakshmi](https://aliet.ac.in/storage/340/01K99JYHHY9M3J2CVX5A142BT1.jpg)" },
+    { keywords: ['kalavathi', 's&h faculty'], response: "ðŸ‘¤ **Mrs. E. Kalavathi** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mrs. E. Kalavathi](https://aliet.ac.in/storage/366/01K9S3B4ZCR6Y4AP8DRVX0FBMC.jpg)" },
+    { keywords: ['archana', 's&h faculty'], response: "ðŸ‘¤ **Mrs. M. Archana** is an Assistant Professor in S&H. Qualification: M.Sc" },
+    { keywords: ['rajya lakshmi', 's&h faculty'], response: "ðŸ‘¤ **Ms. K. Rajya Lakshmi** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. K. Rajya Lakshmi](https://aliet.ac.in/storage/371/01K9S3WMHD1GE1XHCHZT9KW42A.jpg)" },
+    { keywords: ['kalpana', 's&h faculty'], response: "ðŸ‘¤ **Dr. T. Kalpana** is an Assistant Professor in S&H. Qualification: Ph.D.\n\n![Dr. T. Kalpana](https://aliet.ac.in/storage/437/01K9VM8S5ZGWJV48YTMMYM4BE6.jpg)" },
+    { keywords: ['saritha', 's&h faculty'], response: "ðŸ‘¤ **Mrs. S. Saritha** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mrs. S. Saritha](https://aliet.ac.in/storage/372/01K9S436KKFKHBE8HVJ9BZ53XR.jpg)" },
+    { keywords: ['sailaja', 's&h faculty'], response: "ðŸ‘¤ **Mrs. B. Sailaja** is an Assistant Professor in S&H. Qualification: M.Sc" },
+    { keywords: ['kalyan kumar', 's&h faculty'], response: "ðŸ‘¤ **Mr. A. Kalyan Kumar** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mr. A. Kalyan Kumar](https://aliet.ac.in/storage/430/01K9VKBT4F6BTA8VWF6FYNXB16.jpg)" },
+    { keywords: ['sujith', 's&h faculty'], response: "ðŸ‘¤ **Mr. T. Sujith** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mr. T. Sujith](https://aliet.ac.in/storage/373/01K9S460AT78JPR33YHFFEEP2Z.jpg)" },
+    { keywords: ['leela prasanna', 's&h faculty'], response: "ðŸ‘¤ **Ms. K. Leela Prasanna** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. K. Leela Prasanna](https://aliet.ac.in/storage/341/01K99KVQ7R0W0C5R8M8GSZ86JP.jpg)" },
+    { keywords: ['vasantha lakshmi', 's&h faculty'], response: "ðŸ‘¤ **Ms. K. Vasantha Lakshmi** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. K. Vasantha Lakshmi](https://aliet.ac.in/storage/342/01K99M5THK6WQC5Y2DM75JC1WT.jpg)" },
+    { keywords: ['tripura sri satvika', 's&h faculty'], response: "ðŸ‘¤ **Ms. B. Tripura Sri Satvika** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. B. Tripura Sri Satvika](https://aliet.ac.in/storage/376/01K9S4JYC25WVP74WV3KMHXZC3.jpg)" },
+    { keywords: ['parimala jyothi', 's&h faculty'], response: "ðŸ‘¤ **Ms. Parimala Jyothi** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Ms. Parimala Jyothi](https://aliet.ac.in/storage/374/01K9S47GV6JPVVBY69T2B02MRX.jpg)" },
+    { keywords: ['vijaya lakshmi m', 's&h faculty'], response: "ðŸ‘¤ **Mrs. M. Vijaya Lakshmi** is an Assistant Professor in S&H. Qualification: M.Sc\n\n![Mrs. M. Vijaya Lakshmi](https://aliet.ac.in/storage/375/01K9S4AX5T6MAQSBKJFES66KQE.jpg)" },
     // --- CSE Data Science ---
     {
         keywords: ['CSD faculty', 'cse ds faculty', 'cse data science faculty'],
-        response: "📚 **CSE (Data Science) Faculty Members**:\n\n" +
+        response: "ðŸ“š **CSE (Data Science) Faculty Members**:\n\n" +
             "1. [Dr. K. Siva Rama Krishna](send:Dr. K. Siva Rama Krishna)\n" +
             "2. [Mr. Y. C. Ashok Kumar](send:Mr. Y. C. Ashok Kumar)\n" +
             "3. [Mrs. P. Nikhitha](send:Mrs. P. Nikhitha)\n" +
@@ -5756,43 +5756,43 @@ export const FACULTY_RULES: Rule[] = [
             "15. [Mrs. D. Archana](send:Mrs. D. Archana)\n" +
             "16. [Mr. S. Gopal](send:Mr. S. Gopal)\n" +
             "17. [Mr. M. Winson](send:Mr. M. Winson)\n\n" +
-            "Click on any name to view their full profile! ✨"
+            "Click on any name to view their full profile! âœ¨"
     },
-    { keywords: ['siva rama krishna', 'cse ds faculty'], response: "👤 **Dr. K. Siva Rama Krishna** is an Associate Professor in CSE (Data Science). Qualification: B.Tech, M.Tech, Ph.D. (PDF)\n\n![Dr. K. Siva Rama Krishna](https://aliet.ac.in/storage/147/01K8WW3RXYJZXFASJPPSCTV4HS.png)" },
-    { keywords: ['ashok kumar', 'cse ds faculty'], response: "👤 **Mr. Y. C. Ashok Kumar** is an Associate Professor in CSE (Data Science). Qualification: M.Tech, (Ph.D)\n\n![Mr. Y. C. Ashok Kumar](https://aliet.ac.in/storage/148/01K8WW48Y2CME0DJMHXSDH0E24.png)" },
-    { keywords: ['nikhitha', 'cse ds faculty'], response: "👤 **Mrs. P. Nikhitha** is an Assistant Professor in CSE (Data Science). Qualification: MS\n\n![Mrs. P. Nikhitha](https://aliet.ac.in/storage/149/01K8WW4PHZBZZN6FJ001R2N6N5.png)" },
-    { keywords: ['rajashekar reddy', 'cse ds faculty'], response: "👤 **Mr. B. Rajashekar Reddy** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. B. Rajashekar Reddy](https://aliet.ac.in/storage/150/01K8WW540Q74V8FQ5P5FZMB6Z3.png)" },
-    { keywords: ['reena', 'cse ds faculty'], response: "👤 **Ms. K. Reena** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Ms. K. Reena](https://aliet.ac.in/storage/151/01K8WW5M3QCW0103ZZ6YVASNZ1.png)" },
-    { keywords: ['mounika aradhana', 'cse ds faculty'], response: "👤 **Ms. M. Mounika Aradhana** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Ms. M. Mounika Aradhana](https://aliet.ac.in/storage/152/01K8WW617H1HB6E50H9H6581M0.png)" },
-    { keywords: ['munni', 'cse ds faculty'], response: "👤 **Mrs. V. Munni** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mrs. V. Munni](https://aliet.ac.in/storage/153/01K8WW74WFEP2SM0P3DW4MF467.jpg)" },
-    { keywords: ['baig mohammad', 'cse ds faculty'], response: "👤 **Mr. MD. Baig Mohammad** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech" },
-    { keywords: ['chinna rao', 'cse ds faculty'], response: "👤 **Dr. M. Chinna Rao** is an Associate Professor in CSE (Data Science). Qualification: Ph.D.\n\n![Dr. M. Chinna Rao](https://aliet.ac.in/storage/154/01K8WW7YAQ3GMC39SPF0MJ95RT.png)" },
-    { keywords: ['beulah rani', 'cse ds faculty'], response: "👤 **Ms. M. Beulah Rani** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Ms. M. Beulah Rani](https://aliet.ac.in/storage/164/01K8WX1RDZASAHK2NAK4BDT1WP.jpg)" },
-    { keywords: ['swathi', 'cse ds faculty'], response: "👤 **Mrs. B. Swathi** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mrs. B. Swathi](https://aliet.ac.in/storage/155/01K8WW8NQPCP4GVG7MV5V5K3Y9.png)" },
-    { keywords: ['jagadish', 'cse ds faculty'], response: "👤 **Mr. P. Jagadish** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. P. Jagadish](https://aliet.ac.in/storage/156/01K8WW98H9YTRQ2VD9HWNF7GRQ.png)" },
-    { keywords: ['naga srinivasa rao', 'cse ds faculty'], response: "👤 **Mr. A. Naga Srinivasa Rao** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. A. Naga Srinivasa Rao](https://aliet.ac.in/storage/158/01K8WW9NBG6Y84QY6QH2X8RCTT.png)" },
-    { keywords: ['prabhavathi', 'cse ds faculty'], response: "👤 **Ms. S. Prabhavathi** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Ms. S. Prabhavathi](https://aliet.ac.in/storage/159/01K8WWA4WXN7R1MTWWZ7YDFNKP.png)" },
-    { keywords: ['archana', 'cse ds faculty'], response: "👤 **Mrs. D. Archana** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mrs. D. Archana](https://aliet.ac.in/storage/160/01K8WWAN1PTQBYJAVX17GZP2WD.png)" },
-    { keywords: ['gopal', 'cse ds faculty'], response: "👤 **Mr. S. Gopal** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. S. Gopal](https://aliet.ac.in/storage/161/01K8WWB538M97H2GNXEXGFE4YT.png)" },
-    { keywords: ['winson', 'cse ds faculty'], response: "👤 **Mr. M. Winson** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. M. Winson](https://aliet.ac.in/storage/162/01K8WWBN9DS8T0MJ3D80MSK2GX.png)" },
+    { keywords: ['siva rama krishna', 'cse ds faculty'], response: "ðŸ‘¤ **Dr. K. Siva Rama Krishna** is an Associate Professor in CSE (Data Science). Qualification: B.Tech, M.Tech, Ph.D. (PDF)\n\n![Dr. K. Siva Rama Krishna](https://aliet.ac.in/storage/147/01K8WW3RXYJZXFASJPPSCTV4HS.png)" },
+    { keywords: ['ashok kumar', 'cse ds faculty'], response: "ðŸ‘¤ **Mr. Y. C. Ashok Kumar** is an Associate Professor in CSE (Data Science). Qualification: M.Tech, (Ph.D)\n\n![Mr. Y. C. Ashok Kumar](https://aliet.ac.in/storage/148/01K8WW48Y2CME0DJMHXSDH0E24.png)" },
+    { keywords: ['nikhitha', 'cse ds faculty'], response: "ðŸ‘¤ **Mrs. P. Nikhitha** is an Assistant Professor in CSE (Data Science). Qualification: MS\n\n![Mrs. P. Nikhitha](https://aliet.ac.in/storage/149/01K8WW4PHZBZZN6FJ001R2N6N5.png)" },
+    { keywords: ['rajashekar reddy', 'cse ds faculty'], response: "ðŸ‘¤ **Mr. B. Rajashekar Reddy** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. B. Rajashekar Reddy](https://aliet.ac.in/storage/150/01K8WW540Q74V8FQ5P5FZMB6Z3.png)" },
+    { keywords: ['reena', 'cse ds faculty'], response: "ðŸ‘¤ **Ms. K. Reena** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Ms. K. Reena](https://aliet.ac.in/storage/151/01K8WW5M3QCW0103ZZ6YVASNZ1.png)" },
+    { keywords: ['mounika aradhana', 'cse ds faculty'], response: "ðŸ‘¤ **Ms. M. Mounika Aradhana** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Ms. M. Mounika Aradhana](https://aliet.ac.in/storage/152/01K8WW617H1HB6E50H9H6581M0.png)" },
+    { keywords: ['munni', 'cse ds faculty'], response: "ðŸ‘¤ **Mrs. V. Munni** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mrs. V. Munni](https://aliet.ac.in/storage/153/01K8WW74WFEP2SM0P3DW4MF467.jpg)" },
+    { keywords: ['baig mohammad', 'cse ds faculty'], response: "ðŸ‘¤ **Mr. MD. Baig Mohammad** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech" },
+    { keywords: ['chinna rao', 'cse ds faculty'], response: "ðŸ‘¤ **Dr. M. Chinna Rao** is an Associate Professor in CSE (Data Science). Qualification: Ph.D.\n\n![Dr. M. Chinna Rao](https://aliet.ac.in/storage/154/01K8WW7YAQ3GMC39SPF0MJ95RT.png)" },
+    { keywords: ['beulah rani', 'cse ds faculty'], response: "ðŸ‘¤ **Ms. M. Beulah Rani** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Ms. M. Beulah Rani](https://aliet.ac.in/storage/164/01K8WX1RDZASAHK2NAK4BDT1WP.jpg)" },
+    { keywords: ['swathi', 'cse ds faculty'], response: "ðŸ‘¤ **Mrs. B. Swathi** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mrs. B. Swathi](https://aliet.ac.in/storage/155/01K8WW8NQPCP4GVG7MV5V5K3Y9.png)" },
+    { keywords: ['jagadish', 'cse ds faculty'], response: "ðŸ‘¤ **Mr. P. Jagadish** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. P. Jagadish](https://aliet.ac.in/storage/156/01K8WW98H9YTRQ2VD9HWNF7GRQ.png)" },
+    { keywords: ['naga srinivasa rao', 'cse ds faculty'], response: "ðŸ‘¤ **Mr. A. Naga Srinivasa Rao** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. A. Naga Srinivasa Rao](https://aliet.ac.in/storage/158/01K8WW9NBG6Y84QY6QH2X8RCTT.png)" },
+    { keywords: ['prabhavathi', 'cse ds faculty'], response: "ðŸ‘¤ **Ms. S. Prabhavathi** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Ms. S. Prabhavathi](https://aliet.ac.in/storage/159/01K8WWA4WXN7R1MTWWZ7YDFNKP.png)" },
+    { keywords: ['archana', 'cse ds faculty'], response: "ðŸ‘¤ **Mrs. D. Archana** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mrs. D. Archana](https://aliet.ac.in/storage/160/01K8WWAN1PTQBYJAVX17GZP2WD.png)" },
+    { keywords: ['gopal', 'cse ds faculty'], response: "ðŸ‘¤ **Mr. S. Gopal** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. S. Gopal](https://aliet.ac.in/storage/161/01K8WWB538M97H2GNXEXGFE4YT.png)" },
+    { keywords: ['winson', 'cse ds faculty'], response: "ðŸ‘¤ **Mr. M. Winson** is an Assistant Professor in CSE (Data Science). Qualification: M.Tech\n\n![Mr. M. Winson](https://aliet.ac.in/storage/162/01K8WWBN9DS8T0MJ3D80MSK2GX.png)" },
 
     // --- Administration ---
-    { keywords: ['director', 'secretary', 'joji reddy'], response: "🎓 **Rev. Fr. Dr. B. Joji Reddy S.J** is the Secretary & Director of ALIET. Qualification: Ph.D.\n\n![Rev. Fr. Dr. B. Joji Reddy S.J](https://aliet.ac.in/storage/blocks/01K8D7DZ0AZSD7TWV75WK07MM0.jpg)" },
-    { keywords: ['principal', 'controller of examinations', 'mahesh'], response: "🎓 **Dr. O. Mahesh** is the Principal of ALIET and the Controller of Examinations. Qualification: Ph.D.\n\n![Dr. O. Mahesh](https://aliet.ac.in/storage/blocks/items/01K9C5SX3NDX2A2KERMB1SX07Z.jpg)" },
+    { keywords: ['director', 'secretary', 'joji reddy'], response: "ðŸŽ“ **Rev. Fr. Dr. B. Joji Reddy S.J** is the Secretary & Director of ALIET. Qualification: Ph.D.\n\n![Rev. Fr. Dr. B. Joji Reddy S.J](https://aliet.ac.in/storage/blocks/01K8D7DZ0AZSD7TWV75WK07MM0.jpg)" },
+    { keywords: ['principal', 'controller of examinations', 'mahesh'], response: "ðŸŽ“ **Dr. O. Mahesh** is the Principal of ALIET and the Controller of Examinations. Qualification: Ph.D.\n\n![Dr. O. Mahesh](https://aliet.ac.in/storage/blocks/items/01K9C5SX3NDX2A2KERMB1SX07Z.jpg)" },
 
     // --- Exam Cell ---
     {
         keywords: ['exam cell', 'examination branch', 'exam cell members'],
-        response: "📚 **ALIET Examination Cell Members**:\n\n" +
+        response: "ðŸ“š **ALIET Examination Cell Members**:\n\n" +
             "1. [Dr. O. Mahesh](send:Dr. O. Mahesh)\n" +
             "2. [Rev. Fr. Dr. S. Emmanuel SJ](send:Rev. Fr. Dr. S. Emmanuel SJ)\n" +
             "3. [Mr. Y. C. Ashok Kumar](send:Mr. Y. C. Ashok Kumar)\n" +
             "4. [Mr. ABDUL AZEEM](send:Mr. ABDUL AZEEM)\n\n" +
-            "Click on any name to view their role and profile! ✨"
+            "Click on any name to view their role and profile! âœ¨"
     },
-    { keywords: ['emmanuel', 'director of examinations'], response: "👤 **Rev. Fr. Dr. S. Emmanuel SJ** is the Director of Examinations at ALIET. Qualification: Ph.D.\n\n![Rev. Fr. Dr. S. Emmanuel SJ](https://aliet.ac.in/storage/blocks/items/01K9C53DYWPZA8MP46JN4PEF5C.jpg)" },
-    { keywords: ['ashok kumar', 'exam cell'], response: "👤 **Mr. Y. C. Ashok Kumar** is the JNTUK Examination In-charge and Associate Professor in CSE AI&ML. Qualification: M.Tech, (Ph.D)\n\n![Mr. Y. C. Ashok Kumar](https://aliet.ac.in/storage/blocks/items/01K9C599XDES2V40SRR97KD0D3.jpg)" },
-    { keywords: ['abdul azeem', 'exam cell'], response: "👤 **Mr. ABDUL AZEEM** is the Autonomous Examination In-charge and Assistant Professor in ECE. Qualification: M.Tech\n\n![Mr. ABDUL AZEEM](https://aliet.ac.in/storage/blocks/items/01K9C5NTDCD78XKVSMKN7R2C8V.jpg)" },
+    { keywords: ['emmanuel', 'director of examinations'], response: "ðŸ‘¤ **Rev. Fr. Dr. S. Emmanuel SJ** is the Director of Examinations at ALIET. Qualification: Ph.D.\n\n![Rev. Fr. Dr. S. Emmanuel SJ](https://aliet.ac.in/storage/blocks/items/01K9C53DYWPZA8MP46JN4PEF5C.jpg)" },
+    { keywords: ['ashok kumar', 'exam cell'], response: "ðŸ‘¤ **Mr. Y. C. Ashok Kumar** is the JNTUK Examination In-charge and Associate Professor in CSE AI&ML. Qualification: M.Tech, (Ph.D)\n\n![Mr. Y. C. Ashok Kumar](https://aliet.ac.in/storage/blocks/items/01K9C599XDES2V40SRR97KD0D3.jpg)" },
+    { keywords: ['abdul azeem', 'exam cell'], response: "ðŸ‘¤ **Mr. ABDUL AZEEM** is the Autonomous Examination In-charge and Assistant Professor in ECE. Qualification: M.Tech\n\n![Mr. ABDUL AZEEM](https://aliet.ac.in/storage/blocks/items/01K9C5NTDCD78XKVSMKN7R2C8V.jpg)" },
 ];
 ``
 
@@ -5963,43 +5963,43 @@ export interface Rule {
 export const RULES: Rule[] = [
     {
         keywords: ['hi', 'hii', 'hello', 'hey', 'greetings', 'yo', 'hi there'],
-        response: "Hello! I'm NextGen AI. How can I assist you today? 🚀"
+        response: "Hello! I'm NextGen AI. How can I assist you today? ðŸš€"
     },
     {
         keywords: ['who are you', 'your name', 'what are you', 'tell me about yourself'],
-        response: "I am NextGen AI, a powerful chatbot designed to assist you with reasoning, coding, search, and image generation. 🤖"
+        response: "I am NextGen AI, a powerful chatbot designed to assist you with reasoning, coding, search, and image generation. ðŸ¤–"
     },
     {
         keywords: ['how are you', 'how s it going', 'how are things'],
-        response: "I'm doing great and ready to help! What's on your mind? ✨"
+        response: "I'm doing great and ready to help! What's on your mind? âœ¨"
     },
     {
         keywords: ['bye', 'goodbye', 'see ya', 'take care'],
-        response: "Goodbye! Have a productive day! 👋"
+        response: "Goodbye! Have a productive day! ðŸ‘‹"
     },
     {
         keywords: ['help', 'commands', 'what can you do', 'menu'],
-        response: "I can help you with:\n- 🧠 **Complex Reasoning**: Using Pro models.\n- 💻 **Coding**: Writing and debugging scripts.\n- 🔍 **Web Search**: Real-time information access.\n- 🎨 **Image Generation**: Just use the `/image` command!\n- 📁 **File Analysis**: Upload PDFs or text files.\n- 🎓 **College Info**: I've indexed the ALIET website for you! Just ask about the college, faculty, or admissions."
+        response: "I can help you with:\n- ðŸ§  **Complex Reasoning**: Using Pro models.\n- ðŸ’» **Coding**: Writing and debugging scripts.\n- ðŸ” **Web Search**: Real-time information access.\n- ðŸŽ¨ **Image Generation**: Just use the `/image` command!\n- ðŸ“ **File Analysis**: Upload PDFs or text files.\n- ðŸŽ“ **College Info**: I've indexed the ALIET website for you! Just ask about the college, faculty, or admissions."
     },
     {
         keywords: ['contact', 'address', 'phone', 'email', 'location', 'where is the college'],
-        response: "📍 **Address**: ITI Road, ALC Campus, Polytechnic Post Office, Vijayawada - 520 008, Andhra Pradesh, India.\n\n📞 **Phone**: 0866-2498978 (Office), 0866-2476161 (Director)\n\n📧 **Email**: alietbza@gmail.com, info@aliet.ac.in"
+        response: "ðŸ“ **Address**: ITI Road, ALC Campus, Polytechnic Post Office, Vijayawada - 520 008, Andhra Pradesh, India.\n\nðŸ“ž **Phone**: 0866-2498978 (Office), 0866-2476161 (Director)\n\nðŸ“§ **Email**: alietbza@gmail.com, info@aliet.ac.in"
     },
     {
         keywords: ['vision', 'mission', 'goal', 'objective'],
-        response: "🌟 **Vision**: Integral formation based on academic excellence, spiritual growth, and value-based leadership.\n\n🎯 **Mission**: Providing rigorous academic foundation, equipping students with global skills, and moulding them as compassionate global citizens."
+        response: "ðŸŒŸ **Vision**: Integral formation based on academic excellence, spiritual growth, and value-based leadership.\n\nðŸŽ¯ **Mission**: Providing rigorous academic foundation, equipping students with global skills, and moulding them as compassionate global citizens."
     },
     {
         keywords: ['principal', 'who is the principal', 'mahesh'],
-        response: "🎓 **Principal**: Dr. O. Mahesh\n\nHe lead ALIET with a focus on 'Academic Excellence with Integral Formation'. Under his leadership, the college achieved NAAC A+ (3.33 CGPA) and NBA accreditation. 🏆\n\n![Dr. O. Mahesh](https://aliet.ac.in/storage/blocks/01KA7ZR9JFP4NTFJJ9WY63HNQ0.jpg)"
+        response: "ðŸŽ“ **Principal**: Dr. O. Mahesh\n\nHe lead ALIET with a focus on 'Academic Excellence with Integral Formation'. Under his leadership, the college achieved NAAC A+ (3.33 CGPA) and NBA accreditation. ðŸ†\n\n![Dr. O. Mahesh](https://aliet.ac.in/storage/blocks/01KA7ZR9JFP4NTFJJ9WY63HNQ0.jpg)"
     },
     {
         keywords: ['departments', 'courses', 'branches', 'list of depts'],
-        response: "📚 **Departments at ALIET**:\n1. Civil Engineering\n2. Computer Science & Engineering\n3. CSE (AI & ML)\n4. CSE (Data Science)\n5. Electrical & Electronics Engineering\n6. Electronics & Communication Engineering\n7. Information Technology\n8. Mechanical Engineering\n9. MBA\n10. Science & Humanities"
+        response: "ðŸ“š **Departments at ALIET**:\n1. Civil Engineering\n2. Computer Science & Engineering\n3. CSE (AI & ML)\n4. CSE (Data Science)\n5. Electrical & Electronics Engineering\n6. Electronics & Communication Engineering\n7. Information Technology\n8. Mechanical Engineering\n9. MBA\n10. Science & Humanities"
     },
     {
         keywords: ['admission', 'apply', 'join', 'seat'],
-        response: "📝 For **Admissions**, you can contact the College Office at **0866-2498978**. The process is overseen by the Director and Principal to ensure academic merit and quality intake. 🤝"
+        response: "ðŸ“ For **Admissions**, you can contact the College Office at **0866-2498978**. The process is overseen by the Director and Principal to ensure academic merit and quality intake. ðŸ¤"
     },
     ...FACULTY_RULES
 ];
@@ -6059,7 +6059,7 @@ export async function checkRules(message: string): Promise<string | null> {
             if (res.ok) {
                 const weatherText = await res.text();
                 if (weatherText && !weatherText.includes('404')) {
-                    return `🌤️ **Current Weather**:\n${weatherText.trim()}\n\n_Fetched instantly via Rules Engine_`;
+                    return `ðŸŒ¤ï¸ **Current Weather**:\n${weatherText.trim()}\n\n_Fetched instantly via Rules Engine_`;
                 }
             }
         } catch (error) {
@@ -6071,17 +6071,17 @@ export async function checkRules(message: string): Promise<string | null> {
     // 2. Dynamic Date/Time Rules (Priority)
     if (cleanMessage.includes('today') || cleanMessage.includes('current')) {
         if (words.has('date') || words.has('day')) {
-            return `Today's date is **${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}**. 📅`;
+            return `Today's date is **${now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}**. ðŸ“…`;
         }
         if (words.has('time')) {
-            return `The current time is **${now.toLocaleTimeString()}**. 🕒`;
+            return `The current time is **${now.toLocaleTimeString()}**. ðŸ•’`;
         }
     }
 
     if (cleanMessage === 'date' || cleanMessage === 'time') {
         return cleanMessage === 'date'
-            ? `Today's date is **${now.toLocaleDateString()}**. 📅`
-            : `The current time is **${now.toLocaleTimeString()}**. 🕒`;
+            ? `Today's date is **${now.toLocaleDateString()}**. ðŸ“…`
+            : `The current time is **${now.toLocaleTimeString()}**. ðŸ•’`;
     }
 
     // 3. Fuzzy Keyword Rules
@@ -7824,4 +7824,111 @@ create index if not exists faculty_is_hod_idx on public.faculty(is_hod);
 ``
 
 ---
+
+
+---
+
+
+---
+
+# Project Report Snippets
+
+# ðŸ“„ Internship Report: Core Code Snippets
+
+This file contains the final, high-quality code implementation for your **NextGen AI Chatbot** internship project, organized for inclusion in your report.
+
+---
+
+## 1. ðŸ“¦ Import Statements
+These represent the essential tech stack: **React (Frontend)**, **Next.js (Framework)**, and **AI SDKs (Brain)**.
+
+```typescript
+// Core Framework & Animations
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Space_Grotesk } from 'next/font/google';
+
+// AI & Database Services
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { createClient } from '@supabase/supabase-js';
+import { WebsiteCrawler } from '@/lib/website-crawler';
+import { searchDocuments, embedText } from '@/lib/vector-store';
+
+// Accessibility & UI Components
+import { MessageSquare, Terminal, Globe, Download, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+```
+
+---
+
+## 2. ðŸ§  Retrieval-Augmented Generation (RAG) Architecture
+The NextGen AI Chatbot uses a modern **RAG** pipeline. This allows the AI to "read" your custom data (like college rules or websites) and answer questions based on that specific knowledge.
+
+### Core RAG Pipeline (End-to-End)
+```typescript
+/**
+ * RAG Implementation: Vector Search & Knowledge Retrieval
+ * Path: lib/agent/registry.ts & lib/vector-store.ts
+ */
+
+// 1. THE SEARCH TOOL (Used by the AI Agent)
+registerTool({
+    name: 'search_knowledge',
+    description: 'Search the internal knowledge base for specific information.',
+    parameters: z.object({
+        query: z.string().describe('The search query'),
+    }),
+    execute: async ({ query }, context) => {
+        // Step A: Perform Semantic Search using Vector Embeddings
+        const documents = await vectorStore.searchDocuments(query, 5, 0.3);
+        
+        if (documents.length === 0) {
+            return { result: "No relevant documents found." };
+        }
+
+        // Step B: Format retrieved context for the LLM
+        return { 
+            result: documents.map(doc => `[SOURCE: ${doc.metadata?.url}]\n${doc.content}`).join('\n\n') 
+        };
+    },
+});
+
+// 2. THE VECTOR ENGINE (Embedding Generation)
+export async function embedText(text: string): Promise<number[]> {
+    // Uses BAAI/bge-base-en-v1.5 (Hugging Face) for state-of-the-art retrieval
+    const response = await fetch("https://router.huggingface.co/hf-inference/models/BAAI/bge-base-en-v1.5", {
+        headers: { "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}` },
+        method: "POST",
+        body: JSON.stringify({ inputs: text }),
+    });
+    return await response.json();
+}
+```
+
+---
+
+## 3. ðŸ—£ï¸ Natural Language Processing (NLP)
+This handles the **Generation** phase of the RAG pipeline.
+
+```typescript
+/**
+ * Generation Strategy: Context-Aware Chat
+ */
+export const handleAIChat = async (userPrompt: string, knowledgeContext: string) => {
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    
+    // The "Augmented" part of RAG: We inject retrieved knowledge into the prompt
+    const prompt = `
+        You are a helpful assistant. Use the following context to answer the user.
+        CONTEXT: ${knowledgeContext}
+        USER QUESTION: ${userPrompt}
+    `;
+    
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+};
+```
+
+---
+*Created for: SmartInternz Internship Report (2025-2026)*
 

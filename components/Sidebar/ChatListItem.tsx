@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { History, Pin, MoreVertical, Edit2, Share, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Conversation } from '@/lib/chat-store';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 
 interface ChatListItemProps {
     item: Conversation;
@@ -81,12 +82,24 @@ export default function ChatListItem({
 
                     {/* Icon */}
                     {item.is_pinned ? (
-                        <Pin size={14} className="shrink-0 text-accent-secondary fill-accent-secondary" />
+                        <AttractiveIcon 
+                            icon={Pin} 
+                            size={16} 
+                            gradient={['#db2777', '#f472b6']} 
+                            glow 
+                            strokeWidth={1.5}
+                        />
                     ) : (
-                        <History size={16} className={cn(
-                            "shrink-0 transition-colors",
-                            activeId === item.id ? "text-accent-primary" : "opacity-40 group-hover/item:opacity-100 group-hover/item:text-accent-primary"
-                        )} />
+                        <AttractiveIcon 
+                            icon={History} 
+                            size={18} 
+                            gradient={activeId === item.id ? ['#7c3aed', '#a855f7'] : undefined}
+                            className={cn(
+                                "shrink-0 transition-opacity",
+                                activeId === item.id ? "opacity-100" : "opacity-40 group-hover/item:opacity-100"
+                            )}
+                            strokeWidth={1.5}
+                        />
                     )}
 
                     {/* Title */}

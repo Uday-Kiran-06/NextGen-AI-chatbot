@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Bot, Copy, Check } from 'lucide-react';
 import { cn, vibrate } from '@/lib/utils';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 import { toast } from 'sonner';
 import MermaidDiagram from './MermaidDiagram';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -41,7 +42,7 @@ export default function CodeBlock({ inline, className, children, onOpenArtifact,
                                 onClick={() => onOpenArtifact?.(codeString, language)}
                                 className="flex items-center gap-1.5 text-[10px] font-bold text-accent-primary hover:text-accent-secondary transition-colors px-2 py-0.5 rounded bg-accent-primary/5 border border-accent-primary/20"
                             >
-                                <Bot size={12} /> Open Preview
+                                <AttractiveIcon icon={Bot} size={12} gradient={['#7c3aed', '#db2777']} /> Open Preview
                             </button>
                         )}
                     </div>
@@ -57,7 +58,7 @@ export default function CodeBlock({ inline, className, children, onOpenArtifact,
                         title="Copy code"
                         aria-label="Copy code block"
                     >
-                        {isCopied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                        {isCopied ? <AttractiveIcon icon={Check} size={14} gradient={['#22c55e', '#16a34a']} /> : <AttractiveIcon icon={Copy} size={14} />}
                     </button>
                 </div>
                 <div className={cn("bg-[#1e1e1e] transition-[max-height,opacity] duration-500 ease-in-out", !isExpanded && isLongCode ? "max-h-[350px] overflow-hidden" : "max-h-[5000px] overflow-visible")}>

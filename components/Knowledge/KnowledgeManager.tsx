@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Globe, Loader2, CheckCircle2, AlertCircle, Plus, BookOpen, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 import { crawlWebsite } from '@/app/actions/crawl';
 import { syncInternalData } from '@/app/actions/sync-internal';
 import { toast } from 'sonner';
@@ -79,12 +80,21 @@ export default function KnowledgeManager() {
                 className="w-full flex items-center justify-between px-3 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group"
             >
                 <div className="flex items-center gap-2">
-                    <BookOpen size={16} className="text-accent-primary" />
+                    <AttractiveIcon 
+                        icon={BookOpen} 
+                        size={16} 
+                        gradient={['#7c3aed', '#db2777']} 
+                        strokeWidth={2}
+                    />
                     <span className="text-xs font-bold uppercase tracking-wider text-foreground/70 group-hover:text-foreground">
                         Knowledge Base
                     </span>
                 </div>
-                <Plus size={14} className={cn("text-foreground/40 transition-transform", isOpen ? "rotate-45" : "")} />
+                <AttractiveIcon 
+                    icon={Plus} 
+                    size={14} 
+                    className={cn("text-foreground/40 transition-transform", isOpen ? "rotate-45" : "")} 
+                />
             </button>
 
             <AnimatePresence>
@@ -104,7 +114,7 @@ export default function KnowledgeManager() {
                                     placeholder="Enter website URL..."
                                     className="w-full bg-black/20 border border-white/5 rounded-lg pl-8 pr-3 py-2 text-[11px] focus:outline-none focus:border-accent-primary/50 transition-colors"
                                 />
-                                <Globe size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30" />
+                                <AttractiveIcon icon={Globe} size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30" />
                             </div>
                             
                             <button
@@ -114,12 +124,12 @@ export default function KnowledgeManager() {
                             >
                                 {isCrawling ? (
                                     <>
-                                        <Loader2 size={12} className="animate-spin" />
+                                        <AttractiveIcon icon={Loader2} size={12} className="animate-spin" />
                                         INDEXING SITE...
                                     </>
                                 ) : (
                                     <>
-                                        <Globe size={12} />
+                                        <AttractiveIcon icon={Globe} size={12} />
                                         SYNC WEBSITE
                                     </>
                                 )}
@@ -132,12 +142,12 @@ export default function KnowledgeManager() {
                             >
                                 {isSyncing ? (
                                     <>
-                                        <Loader2 size={12} className="animate-spin" />
+                                        <AttractiveIcon icon={Loader2} size={12} className="animate-spin" />
                                         SYNCING CORE...
                                     </>
                                 ) : (
                                     <>
-                                        <Zap size={12} className="text-yellow-500" />
+                                        <AttractiveIcon icon={Zap} size={12} gradient={['#fbbf24', '#f59e0b']} glow />
                                         SYNC CORE DATA (RULES)
                                     </>
                                 )}

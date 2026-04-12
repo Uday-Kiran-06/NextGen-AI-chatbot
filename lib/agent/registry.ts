@@ -9,7 +9,7 @@ export interface Tool {
     name: string;
     description: string;
     parameters: z.ZodObject<any>;
-    execute: (args: any, context?: { userId?: string }) => Promise<any>;
+    execute: (args: any, context?: { userId?: string; conversationId?: string }) => Promise<any>;
 }
 
 export const toolRegistry: Record<string, Tool> = {};
@@ -375,7 +375,8 @@ registerTool({
             
             // using top-level import
             // Lower threshold (0.3) for more flexible matching
-            const documents = await vectorStore.searchDocuments(expandedQuery, 5, 0.3, undefined, context?.userId);
+            // Prioritize documents from the current conversation
+            const documents = await vectorStore.searchDocuments(expandedQuery, 5, 0.3, context?.conversationId, context?.userId);
             if (documents.length === 0) {
                 return { result: "No relevant documents found in the knowledge base." };
             }

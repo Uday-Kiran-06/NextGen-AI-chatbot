@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Zap, Image as ImageIcon, PenTool, Mic, ChevronDown, Check } from 'lucide-react';
 import { cn, vibrate } from '@/lib/utils';
+import { AttractiveIcon } from '../Shared/AttractiveIcon';
 
 export const PERSONAS = [
     { id: 'Standard AI', label: 'Standard', icon: Sparkles, desc: 'Balanced and helpful' },
@@ -51,7 +52,13 @@ export default function PersonaSelector({ persona, onPersonaChange, isOpen, setI
                     onClick={() => setIsOpen(!isOpen)}
                     className="px-2 sm:px-3 py-1.5 md:py-2 flex items-center gap-1 sm:gap-2 bg-transparent text-[11px] sm:text-xs font-bold text-gray-500 hover:text-accent-primary hover:bg-white/5 rounded-xl transition-all h-full"
                 >
-                    {isCustomActive ? <PenTool size={16} className="sm:w-3.5 sm:h-3.5" /> : <activePersona.icon size={16} className="sm:w-3.5 sm:h-3.5" />}
+                    <AttractiveIcon 
+                        icon={isCustomActive ? PenTool : activePersona.icon} 
+                        size={16} 
+                        gradient={['#7c3aed', '#db2777']}
+                        strokeWidth={2}
+                        animate={false}
+                    />
                     <span className="hidden xs:block">{isCustomActive ? 'Custom' : activePersona.label}</span>
                     <ChevronDown size={14} className={cn("transition-transform duration-300 sm:w-3 sm:h-3", isOpen && "rotate-180")} />
                 </button>

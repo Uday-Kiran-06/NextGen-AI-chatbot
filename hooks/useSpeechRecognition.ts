@@ -9,118 +9,117 @@ interface UseSpeechRecognitionProps {
 
 export function useSpeechRecognition({ onResult, onSilence }: UseSpeechRecognitionProps) {
     const [isRecording, setIsRecording] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
     const [interimTranscript, setInterimTranscript] = useState('');
+    
+    // Media Recording Refs
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
     const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                if (audioBlob.size > 1000) { // Only send if at least 1KB
+                    await transcribeAudio(audioBlob);
+                }
+                
+                // Cleanup stream
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            mediaRecorder.start();
+            setIsRecording(true);
+            vibrate(20);
+            
+            // Initial silence detection start if provided
+            resetSilenceTimer();
+            setInterimTranscript("Recording...");
+
+        } catch (err) {
+            console.error("Microphone access failed:", err);
+            toast.error("Could not access microphone.");
+        }
+    };
+
+    const transcribeAudio = async (blob: Blob) => {
+        setIsProcessing(true);
+        setInterimTranscript("Transcribing...");
+        try {
+            const formData = new FormData();
+            formData.append('file', blob);
+
+            const response = await fetch('/api/whisper', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error("Transcription failed");
+            
+            const data = await response.json();
+            if (data.text && data.text.length > 1) {
+                onResult(data.text);
+            }
+        } catch (err) {
+            console.error("Whisper Error:", err);
+            toast.error("Voice transcription failed.");
+        } finally {
+            setIsProcessing(false);
+            setInterimTranscript("");
+        }
+    };
+
+    const resetSilenceTimer = () => {
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+        if (onSilence && isRecording) {
+            silenceTimerRef.current = setTimeout(() => {
+                stopRecording();
+                onSilence();
+            }, 3000); // 3 seconds of silence to auto-send
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+            mediaRecorderRef.current.stop();
+        }
+        setIsRecording(false);
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    };
+
+    const toggleRecording = () => {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    };
+
+    // Cleanup
     useEffect(() => {
         return () => {
-            if (typeof window !== 'undefined' && (window as any).recognitionInstance) {
-                (window as any).recognitionInstance.stop();
-            }
             if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+                mediaRecorderRef.current.stop();
+            }
         };
     }, []);
 
-    const stopRecording = () => {
-        setIsRecording(false);
-        setInterimTranscript('');
-        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-        if (typeof window !== 'undefined' && (window as any).recognitionInstance) {
-            (window as any).recognitionInstance.stop();
-        }
-    };
-
-    const toggleRecording = async () => {
-        if (isRecording) {
-            stopRecording();
-            return;
-        }
-
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            toast.error("Speech recognition not supported in this browser.");
-            return;
-        }
-
-        try {
-            // Request permission once clearly before starting recognition
-            // This satisfies the user-gesture requirement on many mobile browsers
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            // Immediately stop the stream as we only needed it for permission
-            // The SpeechRecognition API will manage its own audio stream
-            stream.getTracks().forEach(track => track.stop());
-        } catch (err) {
-            console.error("Microphone permission denied:", err);
-            toast.error("Please allow microphone access to use this feature.");
-            return;
-        }
-
-        const recognition = new SpeechRecognition();
-        (window as any).recognitionInstance = recognition;
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-
-        recognition.onstart = () => {
-            setIsRecording(true);
-            setInterimTranscript('');
-            vibrate(20);
-        };
-
-        recognition.onend = () => {
-            setIsRecording(false);
-            setInterimTranscript('');
-        };
-
-        recognition.onresult = (event: any) => {
-            let finalTranscript = '';
-            let interim = '';
-
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
-                } else {
-                    interim += event.results[i][0].transcript;
-                }
-            }
-
-            if (finalTranscript) {
-                onResult(finalTranscript);
-            }
-            setInterimTranscript(interim);
-
-            // Continuous Mode Silence Detection
-            if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-            if (onSilence) {
-                silenceTimerRef.current = setTimeout(() => {
-                    onSilence();
-                }, 2500); // Trigger send after 2.5s of silence
-            }
-        };
-
-        recognition.onerror = (event: any) => {
-            console.error("Speech recognition error", event.error);
-            // On mobile, 'aborted' or 'not-allowed' are common
-            if (event.error === 'not-allowed') {
-                toast.error("Microphone access blocked.");
-            } else if (event.error === 'no-speech') {
-                // Ignore no-speech errors to prevent UI flickering on mobile
-            } else {
-                toast.error(`Error: ${event.error}`);
-            }
-            setIsRecording(false);
-            if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-        };
-
-        try {
-            recognition.start();
-        } catch (e) {
-            console.error("Failed to start recognition:", e);
-        }
-    };
-
     return {
         isRecording,
+        isProcessing,
         interimTranscript,
         toggleRecording,
         stopRecording
