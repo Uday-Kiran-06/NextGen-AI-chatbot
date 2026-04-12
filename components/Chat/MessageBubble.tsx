@@ -168,7 +168,7 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
             )}
         >
             <div className={cn(
-                "flex max-w-[85%] md:max-w-[85%] gap-4 group w-full",
+                "flex max-w-[92%] md:max-w-[85%] gap-2 md:gap-4 group w-full",
                 isUser ? "flex-row-reverse" : "flex-row"
             )}>
                 <div className={cn(
@@ -254,12 +254,12 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
                     >
                         {!isUser && (
                             <>
-                                <button onClick={handleReadAloud} className={cn("p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg hover:scale-110 active:scale-95 transition-all duration-200", isPlaying ? "text-accent-primary opacity-100" : "text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100")} title="Read Aloud" aria-label="Read message aloud">
-                                    <AttractiveIcon icon={Volume2} size={16} gradient={isPlaying ? ['#9333ea', '#db2777'] : undefined} className="md:w-3.5 md:h-3.5" />
+                                <button onClick={handleReadAloud} className={cn("p-2.5 md:p-1.5 hover:bg-glass-shimmer rounded-lg hover:scale-110 active:scale-95 transition-all duration-200", isPlaying ? "text-accent-primary opacity-100" : "text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100")} title="Read Aloud" aria-label="Read message aloud">
+                                    <AttractiveIcon icon={Volume2} size={18} gradient={isPlaying ? ['#9333ea', '#db2777'] : undefined} className="md:w-3.5 md:h-3.5" />
                                 </button>
                                 {isLast && onRegenerate && (
-                                    <button onClick={onRegenerate} className="p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200" title="Regenerate" aria-label="Regenerate message">
-                                        <AttractiveIcon icon={RefreshCw} size={16} gradient={['#9333ea', '#db2777']} className="md:w-3.5 md:h-3.5" />
+                                    <button onClick={onRegenerate} className="p-2.5 md:p-1.5 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200" title="Regenerate" aria-label="Regenerate message">
+                                        <AttractiveIcon icon={RefreshCw} size={18} gradient={['#9333ea', '#db2777']} className="md:w-3.5 md:h-3.5" />
                                     </button>
                                 )}
                                 <button className="p-2 mb-1 md:p-1.5 md:mb-0 hover:bg-glass-shimmer rounded-lg text-gray-500 dark:text-gray-300 hover:text-accent-primary hover:opacity-100 hover:scale-110 active:scale-95 transition-all duration-200" title="Helpful" aria-label="Rate message as helpful">

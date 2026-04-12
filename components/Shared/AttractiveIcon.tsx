@@ -48,7 +48,7 @@ export const AttractiveIcon = ({
             )}
             style={{ width: size, height: size }}
         >
-            <svg width="0" height="0" className="absolute">
+            <svg width="1" height="1" className="sr-only absolute" aria-hidden="true">
                 <defs>
                     {gradient ? (
                         <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -67,6 +67,7 @@ export const AttractiveIcon = ({
             <Icon
                 size={size}
                 strokeWidth={strokeWidth}
+                stroke={gradient ? gradient[0] : "currentColor"} // Fallback stroke
                 style={{ stroke: `url(#${gradientId})` }}
                 className="relative z-10 overflow-visible"
             />

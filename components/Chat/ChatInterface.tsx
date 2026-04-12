@@ -147,14 +147,36 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     opacity: showHeader ? 1 : 0
                 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="md:hidden absolute top-[calc(env(safe-area-inset-top,0px)+8px)] left-3 right-3 z-50 flex items-center justify-between px-4 py-2.5 bg-sidebar-bg/80 backdrop-blur-xl border border-glass-border rounded-2xl shadow-lg ring-1 ring-white/10"
+                className="md:hidden absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 right-4 z-50 flex items-center justify-between px-4 py-2 bg-sidebar-bg/60 backdrop-blur-2xl border-[1.5px] border-white/10 rounded-2xl shadow-2xl ring-1 ring-white/5"
             >
                 <button
                     onClick={onOpenSidebar}
-                    className="p-2 -ml-2 text-foreground opacity-70 hover:opacity-100 hover:scale-110 active:scale-95 transition-all rounded-xl hover:bg-white/5 relative z-10"
+                    className="p-2 -ml-2 rounded-xl transition-all active:scale-95 flex items-center justify-center relative z-10"
                     aria-label="Open Sidebar"
                 >
-                    <AttractiveIcon icon={Menu} size={20} />
+                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg active:bg-white/10">
+                        <svg 
+                            width="24" 
+                            height="24" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path 
+                                d="M4 6H20M4 12H20M4 18H20" 
+                                stroke="url(#mobile-menu-gradient)" 
+                                strokeWidth="2.5" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round"
+                            />
+                            <defs>
+                                <linearGradient id="mobile-menu-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#db2777" />
+                                    <stop offset="100%" stopColor="#9333ea" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
                 </button>
                 <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
                     <div className="font-bold text-[13px] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-accent-primary to-accent-secondary">

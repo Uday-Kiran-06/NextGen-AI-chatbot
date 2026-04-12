@@ -157,8 +157,8 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
     };
 
     return (
-        <div className="p-1 md:p-2 pb-0 relative w-full z-10">
-            <div className="absolute inset-0 top-[-20px] bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none -z-10" />
+        <div className="p-2 md:p-3 pb-[env(safe-area-inset-bottom,12px)] relative w-full z-10">
+            <div className="absolute inset-0 top-[-30px] bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none -z-10" />
             {/* Voice Status Indicator */}
             <AnimatePresence>
                 {isRecording && (
@@ -223,8 +223,8 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
                 className={cn(
-                    "glass-panel rounded-[20px] md:rounded-2xl p-1 md:p-2 flex items-end gap-1 md:gap-2 relative transition-all duration-500",
-                    isDragging ? "ring-2 ring-accent-primary bg-accent-primary/5 scale-[1.01]" : "focus-within:ring-2 focus-within:ring-accent-primary/60 focus-within:shadow-[0_8px_32px_rgba(0,0,0,0.12)] focus-within:shadow-accent-primary/20 focus-within:-translate-y-0.5"
+                    "glass-panel rounded-[24px] md:rounded-2xl p-1 md:p-1.5 flex items-end gap-1 md:gap-2 relative transition-all duration-500 shadow-xl",
+                    isDragging ? "ring-2 ring-accent-primary bg-accent-primary/5 scale-[1.01]" : "focus-within:ring-2 focus-within:ring-accent-primary/60 focus-within:shadow-[0_8px_48px_rgba(var(--accent-primary-rgb),0.15)] focus-within:-translate-y-0.5"
                 )}
             >
                 {/* Attach Button */}
