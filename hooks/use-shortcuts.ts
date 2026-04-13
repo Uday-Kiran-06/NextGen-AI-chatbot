@@ -8,18 +8,19 @@ interface ShortcutOptions {
     onFocusInput?: () => void;
     onToggleTheme?: () => void;
     onStopGeneration?: () => void;
+    onOpenCommandPalette?: () => void;
 }
 
-export function useShortcuts({ onNewChat, onToggleSidebar, onFocusInput, onToggleTheme, onStopGeneration }: ShortcutOptions) {
+export function useShortcuts({ onNewChat, onToggleSidebar, onFocusInput, onToggleTheme, onStopGeneration, onOpenCommandPalette }: ShortcutOptions) {
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             const isCmd = event.metaKey || event.ctrlKey;
             const isShift = event.shiftKey;
 
-            // Ctrl/Cmd + K: New Chat
+            // Ctrl/Cmd + K: Command Palette
             if (isCmd && event.key.toLowerCase() === 'k') {
                 event.preventDefault();
-                onNewChat?.();
+                onOpenCommandPalette?.();
             }
 
             // Ctrl/Cmd + \: Toggle Sidebar (Common shortcut for sidebars)

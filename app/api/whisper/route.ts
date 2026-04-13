@@ -18,9 +18,10 @@ export async function POST(req: NextRequest) {
 
         const groqFormData = new FormData();
         groqFormData.append('file', file, 'audio.webm');
-        groqFormData.append('model', 'whisper-large-v3-en');
+        groqFormData.append('model', 'whisper-large-v3');
         groqFormData.append('response_format', 'json');
-        groqFormData.append('language', 'en');
+        // Removed hardcoded 'en' to allow for automatic language detection (S-Tier multilingual support)
+        // groqFormData.append('language', 'en');
 
         const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
             method: 'POST',

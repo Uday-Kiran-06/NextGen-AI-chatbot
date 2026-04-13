@@ -297,5 +297,28 @@ export const chatStore = {
             console.error('Error searching messages:', error);
             return [];
         }
+    },
+
+    async clearAll() {
+        let user = null;
+        try {
+            const { data } = await supabase.auth.getUser();
+            user = data?.user;
+        } catch (e) {}
+
+        if (!user) {
+            guestConversations = [];
+            Object.keys(guestMessages).forEach(key => delete guestMessages[key]);
+            return true;
+        }
+
+        try {
+            const { error } = await supabase.from('conversations').delete().eq('user_id', user.id);
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('Error clearing all chats:', error);
+            return false;
+        }
     }
 };

@@ -17,9 +17,10 @@ interface SidebarProps {
     onSelectChat: (id: string) => void;
     onNewChat: () => void;
     refreshKey: number;
+    isZenMode?: boolean;
 }
 
-export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey, isOpen, onClose }: SidebarProps & { isOpen?: boolean, onClose?: () => void }) {
+export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey, isOpen, onClose, isZenMode }: SidebarProps & { isOpen?: boolean, onClose?: () => void }) {
     const supabase = createClient();
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -197,7 +198,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
     const conversationGroups = groupConversations(filteredHistory);
 
     const SidebarContent = (
-        <div className="flex flex-col h-full w-full">
+        <div className={cn("flex flex-col h-full w-full", isZenMode && "hidden")}>
             {/* Header */}
             <div className={cn("flex items-center p-3 shrink-0", isCollapsed ? "flex-col justify-start gap-2 mt-2 mb-2" : "h-14 justify-between")}>
                 <div className="flex items-center gap-2">
@@ -208,10 +209,7 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
                         suppressHydrationWarning
                     >
                         {isCollapsed ? (
-                            <>
-                                <AttractiveIcon icon={Sparkles} size={20} gradient={['#7c3aed', '#db2777']} glow className="absolute transition-opacity duration-300 group-hover:opacity-0" />
-                                <AttractiveIcon icon={ChevronRight} size={20} className="absolute opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                            </>
+                            <AttractiveIcon icon={Sparkles} size={20} gradient={['#7c3aed', '#db2777']} glow />
                         ) : (
                             <AttractiveIcon icon={ChevronLeft} size={20} />
                         )}
@@ -344,8 +342,12 @@ export default function Sidebar({ activeId, onSelectChat, onNewChat, refreshKey,
             {/* Desktop Sidebar */}
             <motion.aside
                 initial={{ width: 260 }}
-                animate={{ width: isCollapsed ? 60 : 260 }}
-                transition={{ type: 'spring', damping: 20, stiffness: 100 }}
+                animate={{ 
+                    width: isZenMode ? 0 : (isCollapsed ? 60 : 260),
+                    opacity: isZenMode ? 0 : 1,
+                    marginRight: isZenMode ? -1 : 0
+                }}
+                transition={{ type: 'spring', damping: 25, stiffness: 120 }}
                 className={cn(
                     "hidden md:flex border-r border-glass-border flex-col z-20 overflow-hidden h-full shrink-0 relative group/sidebar transition-colors duration-300",
                     isCollapsed ? "bg-background" : "bg-sidebar-bg"

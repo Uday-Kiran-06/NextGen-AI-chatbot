@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon, ChevronDown, Sparkles, Check, Zap, PenTool, Square, Globe } from 'lucide-react';
+import { Send, Mic, Paperclip, Loader2, X, Image as ImageIcon, ChevronDown, Sparkles, Check, Zap, PenTool, Square, Globe, Bookmark } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, vibrate } from '@/lib/utils';
 import { AttractiveIcon } from '../Shared/AttractiveIcon';
@@ -8,6 +8,7 @@ import ModelSelector from './ModelSelector';
 import PersonaSelector from './PersonaSelector';
 import { FileAttachment } from './types';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import SnippetLibrary from './SnippetLibrary';
 
 interface InputAreaProps {
     onSendMessage: (text: string, files: FileAttachment[], useWebSearch?: boolean) => void;
@@ -15,9 +16,12 @@ interface InputAreaProps {
     modelId: string;
     onModelChange: (modelId: string) => void;
     onStop?: () => void;
+    externalFiles?: File[];
+    onClearExternalFiles?: () => void;
+    onVoiceStateChange?: (isRecording: boolean, transcript: string) => void;
 }
 
-export default function InputArea({ onSendMessage, isGenerating, modelId, onModelChange, onStop }: InputAreaProps) {
+export default function InputArea({ onSendMessage, isGenerating, modelId, onModelChange, onStop, externalFiles, onClearExternalFiles, onVoiceStateChange }: InputAreaProps) {
     const [input, setInput] = useState('');
     const [files, setFiles] = useState<FileAttachment[]>([]);
     const [persona, setPersona] = useState('Standard AI');
@@ -29,6 +33,7 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
     const personaDropdownRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [autoSendTrigger, setAutoSendTrigger] = useState(0);
+    const [isSnippetLibraryOpen, setIsSnippetLibraryOpen] = useState(false);
 
     const { isRecording, interimTranscript, toggleRecording, stopRecording } = useSpeechRecognition({
         onResult: (transcript) => {
@@ -38,6 +43,10 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
             setAutoSendTrigger(prev => prev + 1);
         }
     });
+
+    useEffect(() => {
+        onVoiceStateChange?.(isRecording, interimTranscript);
+    }, [isRecording, interimTranscript, onVoiceStateChange]);
 
     // Auto-Send effect
     useEffect(() => {
@@ -73,11 +82,38 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
         };
     }, [isModelDropdownOpen, isPersonaDropdownOpen]);
 
-    // Cleanup on unmount
     useEffect(() => {
         const savedPersona = localStorage.getItem('nextgen_persona');
         if (savedPersona) setPersona(savedPersona);
+        
+        const savedWebSearch = localStorage.getItem('nextgen_web_search');
+        if (savedWebSearch === 'true') setUseWebSearch(true);
     }, []);
+
+    // Handle External Files from Global Dropzone
+    useEffect(() => {
+        if (externalFiles && externalFiles.length > 0) {
+            const processExternalFiles = async () => {
+                const processed = await Promise.all(externalFiles.map(file => new Promise<any>((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const result = reader.result as string;
+                        const base64Data = result.split(',')[1];
+                        resolve({
+                            name: file.name,
+                            mimeType: file.type,
+                            data: base64Data,
+                            preview: result
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                })));
+                setFiles(prev => [...prev, ...processed]);
+                onClearExternalFiles?.();
+            };
+            processExternalFiles();
+        }
+    }, [externalFiles, onClearExternalFiles]);
 
     const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -105,6 +141,13 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
     };
 
     const [useWebSearch, setUseWebSearch] = useState(false);
+
+    const toggleWebSearch = () => {
+        const newValue = !useWebSearch;
+        setUseWebSearch(newValue);
+        localStorage.setItem('nextgen_web_search', String(newValue));
+        vibrate(2);
+    };
 
     const handleSend = () => {
         if ((!input.trim() && files.length === 0) || isGenerating) return;
@@ -156,29 +199,15 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
         }
     };
 
+    const handleInsertSnippet = (content: string) => {
+        setInput(prev => prev + (prev ? ' ' : '') + content);
+        setTimeout(() => textareaRef.current?.focus(), 50);
+    };
+
     return (
         <div className="p-2 md:p-3 pb-[env(safe-area-inset-bottom,12px)] relative w-full z-10">
             <div className="absolute inset-0 top-[-30px] bg-gradient-to-t from-background via-background/90 to-transparent pointer-events-none -z-10" />
-            {/* Voice Status Indicator */}
-            <AnimatePresence>
-                {isRecording && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-2 z-50 pointer-events-none"
-                    >
-                        <div className="bg-black/80 backdrop-blur-md text-white text-sm px-4 py-2 rounded-full flex items-center gap-2 border border-white/10 shadow-xl">
-                            <div className="flex gap-1 items-center h-4">
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} className="w-1 bg-red-500 rounded-full animate-music-bar" style={{ animationDelay: `${i * 0.15}s` }} />
-                                ))}
-                            </div>
-                            <span>{interimTranscript || "Listening..."}</span>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Voice Status Indicator moved to ChatInterface for better centering */}
 
             {/* File Previews */}
             <AnimatePresence>
@@ -271,7 +300,7 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                 {/* Right Actions */}
                 <div className="flex items-center gap-1 pb-1 shrink-0">
                     <button
-                        onClick={() => setUseWebSearch(!useWebSearch)}
+                        onClick={toggleWebSearch}
                         className={cn(
                             "p-2 rounded-full transition-all duration-300",
                             useWebSearch ? "bg-accent-primary/20 text-accent-primary" : "text-gray-400 hover:bg-white/5 hover:text-white"
@@ -282,8 +311,16 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                             icon={Globe} 
                             size={18} 
                             gradient={useWebSearch ? ['#7c3aed', '#db2777'] : undefined}
-                            className={cn(useWebSearch && "animate-pulse")} 
+                            className={cn(useWebSearch && "animate-spin-slow")} 
                         />
+                    </button>
+
+                    <button
+                        onClick={() => setIsSnippetLibraryOpen(true)}
+                        className="p-2 rounded-full text-gray-400 hover:bg-white/5 hover:text-accent-primary transition-all duration-300"
+                        title="Snippet Library"
+                    >
+                        <AttractiveIcon icon={Bookmark} size={18} />
                     </button>
 
                     <ModelSelector
@@ -354,6 +391,12 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
 
                 </div>
             </div>
+
+            <SnippetLibrary 
+                isOpen={isSnippetLibraryOpen} 
+                onClose={() => setIsSnippetLibraryOpen(false)} 
+                onInsert={handleInsertSnippet} 
+            />
         </div>
     );
 }

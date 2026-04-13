@@ -8,6 +8,19 @@ export default function Home() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [sidebarRefreshKey, setSidebarRefreshKey] = useState(0);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isZenMode, setIsZenMode] = useState(false);
+
+  // Global Zen Mode Shortcut
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === '.') {
+        e.preventDefault();
+        setIsZenMode(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleConversationCreated = (id: string) => {
     setActiveConversationId(id);
@@ -23,12 +36,15 @@ export default function Home() {
         refreshKey={sidebarRefreshKey}
         isOpen={isMobileSidebarOpen}
         onClose={() => setIsMobileSidebarOpen(false)}
+        isZenMode={isZenMode}
       />
       <ChatInterface
         conversationId={activeConversationId}
         onConversationCreated={handleConversationCreated}
         onOpenSidebar={() => setIsMobileSidebarOpen(true)}
         onNewChat={() => setActiveConversationId(null)}
+        isZenMode={isZenMode}
+        onToggleZen={() => setIsZenMode(prev => !prev)}
       />
     </div>
   );

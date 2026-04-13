@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import MessageBubble, { MessageSkeleton } from './MessageBubble';
 import InputArea from './InputArea';
 import WelcomeView from './WelcomeView';
-import { Share2, Sparkles, Zap, Image as ImageIcon, Code, PenTool, Menu, Download, ChevronDown, RefreshCw, MessageSquarePlus } from 'lucide-react';
+import { Share2, Sparkles, Zap, Image as ImageIcon, Code, PenTool, Menu, Download, ChevronDown, RefreshCw, MessageSquarePlus, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn, vibrate } from '@/lib/utils';
 import { chatStore, Message as StoreMessage, Conversation } from '@/lib/chat-store';
@@ -14,6 +14,9 @@ import dynamic from 'next/dynamic';
 import { FileAttachment } from './types';
 import { useChat } from '@/hooks/useChat';
 import { AttractiveIcon } from '../Shared/AttractiveIcon';
+import GlobalDropzone from '../Shared/GlobalDropzone';
+import CommandPalette from '../Shared/CommandPalette';
+import { toast } from 'sonner';
 
 const ArtifactViewer = dynamic(() => import('./ArtifactViewer'), {
     ssr: false,
@@ -42,15 +45,22 @@ interface ChatInterfaceProps {
     onConversationCreated: (id: string) => void;
     onOpenSidebar?: () => void;
     onNewChat?: () => void;
+    isZenMode?: boolean;
+    onToggleZen?: () => void;
 }
 
-export default function ChatInterface({ conversationId, onConversationCreated, onOpenSidebar, onNewChat }: ChatInterfaceProps) {
+export default function ChatInterface({ conversationId, onConversationCreated, onOpenSidebar, onNewChat, isZenMode, onToggleZen }: ChatInterfaceProps) {
     const [modelId, setModelId] = useState('llama-3.3-70b-versatile');
     const activeModel = MODELS.find(m => m.id === modelId) || MODELS[0];
     const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const { theme, setTheme } = useTheme();
+
+    const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+    const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
+    const [isVoiceRecording, setIsVoiceRecording] = useState(false);
+    const [voiceTranscript, setVoiceTranscript] = useState('');
 
     const {
         messages,
@@ -92,7 +102,8 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             textarea?.focus();
         },
         onToggleTheme: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
-        onStopGeneration: handleStopGeneration
+        onStopGeneration: handleStopGeneration,
+        onOpenCommandPalette: () => setIsCommandPaletteOpen(true)
     });
 
     // Load initial model from localStorage
@@ -136,15 +147,33 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
         setLastScrollY(currentScrollY);
     };
 
+    const handleSummarize = async () => {
+        if (messages.length < 2) {
+            toast.error("Not enough messages to summarize!");
+            return;
+        }
+        setIsCommandPaletteOpen(false);
+        handleSendMessage("Please summarize our conversation so far into 3-5 concise bullet points. Focus on the main takeaways.", [], false);
+    };
+
     return (
-        <div className="flex-1 flex flex-col h-full relative z-0 overflow-hidden">
+        <GlobalDropzone onFilesDropped={setDroppedFiles}>
+            <div className="flex-1 flex flex-col h-full relative z-0 overflow-hidden">
+                <CommandPalette 
+                    isOpen={isCommandPaletteOpen}
+                    onClose={() => setIsCommandPaletteOpen(false)}
+                    onSelectChat={(id) => onConversationCreated(id)}
+                    onNewChat={() => onNewChat?.()}
+                    onModelChange={handleModelChange}
+                    onSummarize={handleSummarize}
+                />
 
             {/* Mobile Header - Sticky, Capsule, Floating */}
             <motion.div
                 initial={false}
                 animate={{
-                    y: showHeader ? 0 : -100,
-                    opacity: showHeader ? 1 : 0
+                    y: (showHeader && !isZenMode) ? 0 : -100,
+                    opacity: (showHeader && !isZenMode) ? 1 : 0
                 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="md:hidden absolute top-[calc(env(safe-area-inset-top,0px)+12px)] left-4 right-4 z-50 flex items-center justify-between px-4 py-2 bg-sidebar-bg/60 backdrop-blur-2xl border-[1.5px] border-white/10 rounded-2xl shadow-2xl ring-1 ring-white/5"
@@ -193,7 +222,44 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                         {activeModel?.label || 'Gemini'}
                     </div>
                 </div>
+                <div className="flex items-center gap-1">
+                    <button
+                        onClick={() => {
+                            const text = messages.map(m => `### ${m.role === 'user' ? '👤 YOU' : '🤖 AI'}\n${m.content}`).join('\n\n---\n\n');
+                            const blob = new Blob([text], { type: 'text/markdown' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `chat-export-${new Date().toISOString().split('T')[0]}.md`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                        }}
+                        className="p-2 mr-[-8px] rounded-xl text-gray-400 hover:text-white transition-all"
+                        title="Export Markdown"
+                    >
+                        <AttractiveIcon icon={Download} size={18} />
+                    </button>
+                </div>
             </motion.div>
+
+            {/* Zen Mode Floating Button */}
+            <AnimatePresence>
+                {isZenMode && (
+                    <motion.button
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        onClick={onToggleZen}
+                        className="fixed top-6 left-6 z-[100] p-3 rounded-2xl glass-panel border border-white/10 shadow-2xl hover:bg-white/5 transition-all group"
+                        title="Exit Zen Mode (Ctrl + .)"
+                    >
+                        <AttractiveIcon icon={TrendingUp} size={20} className="rotate-[-90deg] text-accent-primary" />
+                        <span className="absolute left-full ml-3 px-3 py-1 bg-black/80 text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">EXT ZEN MODE</span>
+                    </motion.button>
+                )}
+            </AnimatePresence>
+
+            {/* Voice Status Indicator logic moved down to InputArea wrapper for perfect centering */}
 
             {/* ChatMessages Area */}
             <div
@@ -283,9 +349,47 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
             </div>
 
             {/* Input Area */}
-            <div className="p-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10">
-                <div className="max-w-4xl mx-auto">
-                    <InputArea onSendMessage={handleSendMessage} isGenerating={isGenerating} modelId={modelId} onModelChange={handleModelChange} onStop={handleStopGeneration} />
+            <div className="p-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10 relative">
+                {/* Voice Status Indicator - Corrected for Perfect Centering in Chat Area */}
+                <div className="absolute bottom-full left-0 right-0 flex justify-center pb-4 z-[100] pointer-events-none">
+                    <AnimatePresence>
+                        {isVoiceRecording && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                                className="bg-black/90 backdrop-blur-xl text-white px-5 py-3 rounded-[24px] flex flex-col items-center gap-2 border border-white/5 shadow-2xl min-w-[140px]"
+                            >
+                                <div className="flex gap-1.5 items-end h-5">
+                                    {[1, 2, 3, 4, 5].map(i => (
+                                        <motion.div 
+                                            key={i} 
+                                            animate={{ height: [4, 16, 4] }}
+                                            transition={{ repeat: Infinity, duration: 0.8, delay: i * 0.1 }}
+                                            className="w-1.5 bg-red-500 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.6)]" 
+                                        />
+                                    ))}
+                                </div>
+                                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400">Listening</span>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                <div className="max-w-4xl mx-auto relative px-4">
+                    <InputArea 
+                        onSendMessage={handleSendMessage} 
+                        isGenerating={isGenerating} 
+                        modelId={modelId} 
+                        onModelChange={handleModelChange} 
+                        onStop={handleStopGeneration} 
+                        externalFiles={droppedFiles}
+                        onClearExternalFiles={() => setDroppedFiles([])}
+                        onVoiceStateChange={(isRec, trans) => {
+                            setIsVoiceRecording(isRec);
+                            setVoiceTranscript(trans);
+                        }}
+                    />
 
                     {/* Artifact Viewer Side Panel */}
                     <ArtifactViewer
@@ -306,10 +410,11 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                                 onClick={() => {
                                     const text = messages.map(m => `${m.role === 'user' ? 'YOU' : 'AI'}: ${m.content}`).join('\n\n');
                                     navigator.clipboard.writeText(text);
+                                    toast.success('Conversation copied to clipboard');
                                 }}
                                 className="text-[10px] text-accent-secondary hover:text-accent-primary flex items-center gap-1.5 hover:scale-110 active:scale-95 transition-all"
                             >
-                                <AttractiveIcon icon={Share2} size={10} gradient={['#db2777', '#7c3aed']} /> Copy Chat
+                                <AttractiveIcon icon={Share2} size={10} gradient={['#db2777', '#7c3aed']} /> Copy Link
                             </button>
                             <button
                                 onClick={() => {
@@ -332,6 +437,7 @@ export default function ChatInterface({ conversationId, onConversationCreated, o
                     )}
                 </div>
             </div>
-        </div>
+            </div>
+        </GlobalDropzone>
     );
 }

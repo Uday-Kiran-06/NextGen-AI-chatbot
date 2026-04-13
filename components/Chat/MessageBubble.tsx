@@ -116,6 +116,17 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
         setTimeout(() => setIsCopied(false), 2000);
     };
 
+    const cleanTextForSpeech = (text: string) => {
+        return text
+            .replace(/```[\s\S]*?```/g, ' [Code Block] ') // Skip reading full code blocks
+            .replace(/`([^`]+)`/g, '$1') // Remove backticks from inline code
+            .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Keep only the label of markdown links
+            .replace(/[#*_~>]/g, '') // Remove markdown formatting characters
+            .replace(/\$\$[\s\S]*?\$\$/g, ' [Equation] ') // Skip LaTeX blocks
+            .replace(/\$([^\$]+)\$/g, '$1') // Inline LaTeX
+            .trim();
+    };
+
     const handleReadAloud = () => {
         if (!window.speechSynthesis) return;
 
@@ -125,8 +136,20 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
             return;
         }
 
-        const utterance = new SpeechSynthesisUtterance(message.content);
+        const cleanedContent = cleanTextForSpeech(message.content);
+        const utterance = new SpeechSynthesisUtterance(cleanedContent);
+        
+        // Auto-detect voice or use a slightly better one if available
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice = voices.find(v => v.name.includes('Google') || v.name.includes('Natural')) || voices[0];
+        if (preferredVoice) utterance.voice = preferredVoice;
+        
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+
         utterance.onend = () => setIsPlaying(false);
+        utterance.onerror = () => setIsPlaying(false);
+        
         setIsPlaying(true);
         window.speechSynthesis.speak(utterance);
     };
