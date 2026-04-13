@@ -4,6 +4,11 @@ import * as vectorStore from '../vector-store';
 import { createAdminClient } from '../supabase/admin';
 import { FACULTY_RULES } from '../faculty-rules';
 import Fuse from 'fuse.js';
+import PptxGenJS from 'pptxgenjs';
+import { Resend } from 'resend';
+import fs from 'fs';
+import path from 'path';
+import PDFDocument from 'pdfkit';
 
 export interface Tool {
     name: string;
@@ -28,15 +33,15 @@ registerTool({
         expression: z.string().describe('The mathematical expression to evaluate, e.g., "2 * 45 + 10"'),
     }),
     execute: async ({ expression }) => {
-        // Safety: In a real app, use a safer math parser like mathjs. 
-        // For this demo, we'll keep it simple but restricted.
         try {
-            // Basic sanitization
-            if (/[^0-9+\-*/(). ]/.test(expression)) {
-                return "Error: Invalid characters in expression.";
+            // Tighten security: Strict allowlist prevents external code execution
+            if (!/^[0-9+\-*/().\s]+$/.test(expression)) {
+                return { error: "Security Error: Invalid characters in expression. Only basic math operators are allowed." };
             }
 
-            const result = eval(expression);
+            // Using sandboxed function evaluation instead of generic eval
+            const calculateSafe = new Function('return ' + expression);
+            const result = calculateSafe();
             return { result };
         } catch (e) {
             return { error: 'Failed to evaluate expression' };
@@ -65,10 +70,10 @@ registerTool({
     },
 });
 
-// 3. Web Search (Wikipedia implementation)
+// 3. Wikipedia Search (Encyclopedia implementation)
 registerTool({
-    name: 'web_search',
-    description: 'Search Wikipedia for reliable information. Use this to find news, facts, and general info.',
+    name: 'wikipedia_search',
+    description: 'Search Wikipedia for reliable, encyclopedic information. Use this to find historical facts, summaries, and general knowledge. Do NOT use for real-time news.',
     parameters: z.object({
         query: z.string().describe('The search query'),
     }),
@@ -117,6 +122,23 @@ registerTool({
                 return { error: `Failed to fetch page: ${response.status} ${response.statusText}` };
             }
 
+            const contentType = response.headers.get('content-type') || '';
+
+            // Handle PDF Parsing
+            if (contentType.includes('application/pdf') || url.toLowerCase().endsWith('.pdf')) {
+                const arrayBuffer = await response.arrayBuffer();
+                const buffer = Buffer.from(arrayBuffer);
+                
+                // Dynamically import to bypass Turbopack's static esm resolution errors
+                const pdfModule = await import('pdf-parse');
+                const parsePdf = (pdfModule as any).default || pdfModule;
+                
+                const pdfData = await parsePdf(buffer);
+                const text = pdfData.text.replace(/\s+/g, ' ').trim().substring(0, 15000);
+                return { title: `PDF Document (${pdfData.numpages} pages)`, content: text, info: "PDF extracted successfully. Summarize or extract required info." };
+            }
+
+            // Handle Standard HTML
             const html = await response.text();
             const $ = cheerio.load(html);
 
@@ -130,7 +152,7 @@ registerTool({
             return { title, content, info: "Content extracted. Summary is recommended." };
         } catch (error: any) {
             console.error("Scraper error:", error);
-            return { error: "Failed to scrape the page. It might be blocked or require JS." };
+            return { error: "Failed to scrape the page. It might be blocked, require JS, or be an unsupported format." };
         }
     },
 });
@@ -304,8 +326,8 @@ registerTool({
 
 // 9. Web Search (DuckDuckGo implementation)
 registerTool({
-    name: 'duckduckgo_search',
-    description: 'Search the web using DuckDuckGo for general real-time information, news, and facts.',
+    name: 'web_search',
+    description: 'Search the web using DuckDuckGo for general real-time information, current events, news, and live facts.',
     parameters: z.object({
         query: z.string().describe('The search query'),
     }),
@@ -449,6 +471,258 @@ registerTool({
         } catch (error: any) {
             console.error("Learn knowledge error:", error);
             return { error: "Failed to add to knowledge base." };
+        }
+    },
+});
+
+// 10. Presentation Generator Tool
+registerTool({
+    name: 'generate_presentation',
+    description: 'Generates a professional PowerPoint (.pptx) presentation. REQUIRED ARGS FORMAT: { "title": "Overall Title", "slides": [ { "title": "Detailed Slide Title", "points": ["Fact 1: with detailed explanation", "Fact 2: with detailed explanation", "Fact 3: with detailed explanation"] } ] }. PRO TIP: Be verbose and provide at least 4-5 detailed points per slide to fill the space professionally.',
+    parameters: z.object({
+        title: z.string().describe('The overall title of the presentation'),
+        slides: z.array(z.object({
+            title: z.string().describe('Title of the slide'),
+            points: z.array(z.string()).describe('Bullet points for the slide'),
+        })).describe('Array of slides'),
+    }),
+    execute: async ({ title, slides }) => {
+        try {
+            let pptx = new PptxGenJS();
+            pptx.layout = 'LAYOUT_16x9';
+
+            // Title Slide
+            let titleSlide = pptx.addSlide();
+            titleSlide.background = { color: "1A1A1A" };
+            titleSlide.addText(title, { x: 0, y: "40%", w: "100%", h: 1, fontSize: 44, color: "FFFFFF", align: "center", bold: true });
+            titleSlide.addText("Generated by NextGen AI", { x: 0, y: "60%", w: "100%", h: 1, fontSize: 18, color: "A0A0A0", align: "center" });
+
+            // Content Slides
+            const safeSlides = Array.isArray(slides) ? slides : [];
+            for (let i = 0; i < safeSlides.length; i++) {
+                const slideData = safeSlides[i];
+                if (!slideData) continue;
+                
+                let slide = pptx.addSlide();
+                
+                // Professional Background (Clean White with subtle Lavender accent)
+                slide.background = { color: "F8F9FF" };
+                
+                // Slide Accent Bar (Premium Look)
+                slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: "100%", h: 0.1, fill: { color: "6366F1" } });
+
+                const slideTitle = slideData.title || "Section Details";
+                slide.addText(slideTitle, { 
+                    x: 0.5, y: 0.4, w: "90%", h: 0.8, 
+                    fontSize: 28, bold: true, color: "1E1B4B", 
+                    fontFace: "Arial", align: "left",
+                    underline: { style: "sng" }
+                });
+                
+                const points = Array.isArray(slideData.points) ? slideData.points : [];
+                if (points.length > 0) {
+                    // Dynamic Font Sizing based on content density
+                    let fontSize = 18;
+                    if (points.length <= 3) fontSize = 24;
+                    if (points.length > 6) fontSize = 15;
+
+                    const bulletOptions: any = { 
+                        x: 0.6, y: 1.4, w: "8.8", h: "75%", 
+                        fontSize: fontSize, color: "374151", 
+                        bullet: { type: "bullet", code: "2022" }, 
+                        margin: 5, lineSpacing: 28,
+                        valign: "top"
+                    };
+                    slide.addText(points.map((p: string) => ({ text: p || "" })), bulletOptions);
+                }
+
+                // Footer / Slide Number
+                slide.addText(`© NextGen AI | ${title} | Page ${i + 2}`, {
+                    x: 0.5, y: 7.1, w: "90%", h: 0.3,
+                    fontSize: 10, color: "94A3B8", align: "right"
+                });
+            }
+
+            const fileName = `generated/presentation_${Date.now()}.pptx`;
+            const fullPath = path.join(process.cwd(), 'public', fileName);
+
+            // Ensure directory exists
+            if (!fs.existsSync(path.join(process.cwd(), 'public', 'generated'))) {
+                fs.mkdirSync(path.join(process.cwd(), 'public', 'generated'), { recursive: true });
+            }
+
+            await pptx.writeFile({ fileName: fullPath });
+
+            return {
+                success: true,
+                downloadUrl: `/${fileName}`,
+                result: `Successfully created presentation "${title}". Return this link using markdown so the user can download it: [Download Presentation](/${fileName})`
+            };
+        } catch (error: any) {
+            console.error("Presentation generation error:", error);
+            return { error: "Failed to generate the presentation." };
+        }
+    },
+});
+
+// 11. Send Email Tool
+registerTool({
+    name: 'send_email',
+    description: 'Send an email to a requested email address. REQUIRED ARGS FORMAT: { "to_email": "...", "subject": "...", "content": "..." }',
+    parameters: z.object({
+        to_email: z.string().email().describe('The recipient email address'),
+        subject: z.string().describe('The subject of the email'),
+        content: z.string().describe('The HTML or standard text format body of the email'),
+    }),
+    execute: async ({ to_email, subject, content }) => {
+        try {
+            if (!process.env.RESEND_API_KEY) {
+                return { error: "Resend API key is not configured in environment variables." };
+            }
+
+            const resend = new Resend(process.env.RESEND_API_KEY);
+            // Defaulting to an allowed Resend domain address. Free tier requires sending to verified addresses or using 'onboarding@resend.dev'
+            const fromEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+
+            const { data, error } = await resend.emails.send({
+                from: `NextGen AI <${fromEmail}>`,
+                to: [to_email],
+                subject: subject,
+                html: `<div>${content.replace(/\\n/g, '<br/>')}</div>`,
+            });
+
+            if (error) {
+                throw error;
+            }
+
+            return { success: true, result: `Email sent successfully to ${to_email} (ID: ${data?.id})` };
+        } catch (error: any) {
+            console.error("Email send error:", error);
+            return { error: `Failed to send email: ${error.message || String(error)}` };
+        }
+    },
+});
+
+// --- MASSIVE PDF GENERATOR SUITE ---
+
+const PDF_DRAFTS_PATH = path.join(process.cwd(), 'public', 'generated', 'pdf_drafts.json');
+
+function getPdfDrafts() {
+    if (!fs.existsSync(PDF_DRAFTS_PATH)) return {};
+    try {
+        return JSON.parse(fs.readFileSync(PDF_DRAFTS_PATH, 'utf8'));
+    } catch (e) {
+        return {};
+    }
+}
+
+function savePdfDrafts(drafts: any) {
+    const dir = path.dirname(PDF_DRAFTS_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(PDF_DRAFTS_PATH, JSON.stringify(drafts, null, 2));
+}
+
+// 12. Start PDF Tool
+registerTool({
+    name: 'start_pdf',
+    description: 'Initialize a new multi-page PDF draft. Use this when starting a long report or book. REQUIRED ARGS: { "title": "...", "author": "..." }',
+    parameters: z.object({
+        title: z.string().describe('The title of the document'),
+        author: z.string().describe('The author of the document'),
+    }),
+    execute: async ({ title, author }, context) => {
+        const drafts = getPdfDrafts();
+        const id = context?.conversationId || 'default';
+        
+        drafts[id] = {
+            title,
+            author,
+            sections: [],
+            createdAt: new Date().toISOString()
+        };
+        
+        savePdfDrafts(drafts);
+        return { success: true, message: `Started PDF draft: "${title}". You can now use append_pdf_content to add chapters.` };
+    },
+});
+
+// 13. Append PDF Content Tool
+registerTool({
+    name: 'append_pdf_content',
+    description: 'Append a new section/chapter to the current PDF draft. Use this iteratively for long documents. REQUIRED ARGS: { "header": "...", "content": "..." }',
+    parameters: z.object({
+        header: z.string().describe('The header or chapter title for this section'),
+        content: z.string().describe('The long-form text content for this section (markdown supported for basic formatting)'),
+    }),
+    execute: async ({ header, content }, context) => {
+        const drafts = getPdfDrafts();
+        const id = context?.conversationId || 'default';
+        
+        if (!drafts[id]) {
+            return { error: "No active PDF draft found. Use start_pdf first." };
+        }
+        
+        drafts[id].sections.push({ header, content });
+        savePdfDrafts(drafts);
+        
+        return { success: true, message: `Added section "${header}" to the draft. Total sections: ${drafts[id].sections.length}.` };
+    },
+});
+
+// 14. Finish PDF Tool
+registerTool({
+    name: 'finish_pdf',
+    description: 'Compile and generate the final PDF file from all appended sections. Returns a download link. REQUIRED ARGS: {}',
+    parameters: z.object({}),
+    execute: async (_, context) => {
+        const drafts = getPdfDrafts();
+        const id = context?.conversationId || 'default';
+        
+        const draft = drafts[id];
+        if (!draft || draft.sections.length === 0) {
+            return { error: "No content to generate. Start a draft and append content first." };
+        }
+        
+        try {
+            const doc = new PDFDocument({ margin: 50 });
+            const fileName = `generated/book_${Date.now()}.pdf`;
+            const fullPath = path.join(process.cwd(), 'public', fileName);
+            
+            const stream = fs.createWriteStream(fullPath);
+            doc.pipe(stream);
+            
+            // Title Page
+            doc.fontSize(36).text(draft.title, { align: 'center' });
+            doc.moveDown();
+            doc.fontSize(18).text(`By ${draft.author}`, { align: 'center' });
+            doc.moveDown(4);
+            doc.fontSize(12).text(`Generated on ${new Date().toLocaleDateString()}`, { align: 'center' });
+            
+            // Content Sections
+            for (const section of draft.sections) {
+                doc.addPage();
+                doc.fontSize(24).text(section.header, { underline: true });
+                doc.moveDown();
+                doc.fontSize(12).text(section.content, { align: 'justify', lineGap: 5 });
+            }
+            
+            doc.end();
+            
+            // Wait for stream to finish
+            await new Promise<void>((resolve) => stream.on('finish', () => resolve()));
+            
+            // Cleanup draft
+            delete drafts[id];
+            savePdfDrafts(drafts);
+            
+            return {
+                success: true,
+                downloadUrl: `/${fileName}`,
+                result: `Successfully generated ${draft.title}. Download link: [Download PDF](/${fileName})`
+            };
+        } catch (error: any) {
+            console.error("PDF generation error:", error);
+            return { error: "Failed to compile PDF." };
         }
     },
 });

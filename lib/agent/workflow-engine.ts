@@ -153,7 +153,7 @@ ${Object.values(toolRegistry).map(t => `- ${t.name}: ${t.description}`).join('\n
 - Use emojis naturally to make your generated responses more attractive and readable!
 - If asked about faculty, HODs, staff members, OR administrative roles like "Director" or "Principal", YOU MUST use \`search_faculty\`. It handles both database and static record lookups automatically.
 
-${useWebSearch ? "\nCRITICAL: USER EXPLICITLY REQUESTED WEB SEARCH. You MUST use the `duckduckgo_search` or `web_search` or `read_page` tool to gather real-time data before providing your final answer.\n" : ""}
+${useWebSearch ? "\nCRITICAL: USER EXPLICITLY REQUESTED WEB SEARCH. You MUST use the `web_search` or `read_page` tool to gather real-time data before providing your final answer.\n" : ""}
 ${persona ? `\n--- PERSONA ---\n${persona}\n---------------` : ''}
 `;
 

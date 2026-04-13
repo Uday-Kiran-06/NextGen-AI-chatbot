@@ -64,10 +64,16 @@ export async function POST(req: NextRequest) {
                         // Stream the action to the user
                         let statusText = `Using tool: ${toolName}`;
                         if (toolName === 'web_search') statusText = `Searching the web for "${toolArgs.query}"...`;
+                        if (toolName === 'wikipedia_search') statusText = `Searching Wikipedia for "${toolArgs.query}"...`;
                         if (toolName === 'search_knowledge') statusText = `Searching internal documents for info...`;
                         if (toolName === 'generate_image') statusText = `Generating image for "${toolArgs.prompt}"...`;
                         if (toolName === 'calculate') statusText = `Calculating: ${toolArgs.expression}`;
-                        if (toolName === 'duckduckgo_search') statusText = `DuckDuckGo: searching "${toolArgs.query}"...`;
+                        if (toolName === 'generate_presentation') statusText = `Creating PowerPoint: "${toolArgs.title}"...`;
+                        if (toolName === 'send_email') statusText = `Sending email to ${toolArgs.to_email}...`;
+                        if (toolName === 'read_page') statusText = `Reading document from ${toolArgs.url}...`;
+                        if (toolName === 'start_pdf') statusText = `Initializing PDF: "${toolArgs.title}"...`;
+                        if (toolName === 'append_pdf_content') statusText = `Writing section: "${toolArgs.header}"...`;
+                        if (toolName === 'finish_pdf') statusText = `Compiling and finalizing PDF...`;
 
                         sendChunk(`__AGENT_ACTION__:${statusText}\n`);
 
