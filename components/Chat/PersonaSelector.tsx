@@ -67,10 +67,10 @@ export default function PersonaSelector({ persona, onPersonaChange, isOpen, setI
                     {isOpen && (
                         <motion.div
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                            animate={{ opacity: 1, y: -8, scale: 1 }}
+                            animate={{ opacity: 1, y: -4, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
                             className={cn(
-                                "fixed md:absolute z-[60] bg-white/95 dark:bg-black/95 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden transition-all",
+                                "fixed md:absolute z-[60] bg-white/95 dark:bg-black/95 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-xl overflow-hidden transition-all",
                                 "bottom-0 left-0 right-0 w-full rounded-t-3xl md:bottom-full md:left-0 md:mb-2 md:w-48 md:rounded-xl"
                             )}
                         >

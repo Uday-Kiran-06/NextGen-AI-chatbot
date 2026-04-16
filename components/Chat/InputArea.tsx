@@ -252,8 +252,8 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
                 className={cn(
-                    "glass-panel rounded-[24px] md:rounded-2xl p-1 md:p-1.5 flex items-end gap-1 md:gap-2 relative transition-all duration-500 shadow-xl",
-                    isDragging ? "ring-2 ring-accent-primary bg-accent-primary/5 scale-[1.01]" : "focus-within:ring-2 focus-within:ring-accent-primary/60 focus-within:shadow-[0_8px_48px_rgba(var(--accent-primary-rgb),0.15)] focus-within:-translate-y-0.5"
+                    "glass-panel rounded-[24px] md:rounded-2xl p-1 md:p-1.5 flex items-end gap-1 md:gap-2 relative transition-all duration-500 shadow-lg",
+                    isDragging ? "ring-2 ring-accent-primary bg-accent-primary/5 scale-[1.01]" : "focus-within:ring-2 focus-within:ring-accent-primary/60 focus-within:shadow-[0_4px_20px_rgba(var(--accent-primary-rgb),0.1)] focus-within:-translate-y-px"
                 )}
             >
                 {/* Attach Button */}
@@ -345,14 +345,14 @@ export default function InputArea({ onSendMessage, isGenerating, modelId, onMode
                                 className={cn(
                                     "p-3.5 md:p-3 rounded-full transition-all duration-300",
                                     isGenerating
-                                        ? "bg-red-500 text-white shadow-lg shadow-red-500/40 hover:bg-red-600 hover:shadow-xl hover:shadow-red-500/60"
+                                        ? "bg-white/10 dark:bg-white/5 border border-white/10 text-rose-500 shadow-lg hover:bg-white/20 hover:border-rose-500/30 transition-all duration-300"
                                         : "bg-accent-primary text-white shadow-lg shadow-accent-primary/40 hover:bg-accent-primary hover:shadow-xl hover:shadow-accent-primary/60"
                                 )}
                                 aria-label={isGenerating ? "Stop Generation" : "Send Message"}
                                 title={isGenerating ? "Stop Generation" : "Send"}
                             >
                                 {isGenerating ? (
-                                    <AttractiveIcon icon={Square} size={20} gradient={['#ef4444', '#b91c1c']} glow />
+                                    <AttractiveIcon icon={Square} size={18} gradient={['#f43f5e', '#be123c']} glow strokeWidth={3} />
                                 ) : (
                                     <AttractiveIcon icon={Send} size={20} gradient={['#ffffff', '#ffffff']} strokeWidth={2} />
                                 )}

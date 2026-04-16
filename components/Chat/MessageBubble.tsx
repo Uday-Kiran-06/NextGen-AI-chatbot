@@ -169,7 +169,7 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
     return (
         <motion.div
             layout="position"
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{
                 type: "spring",
@@ -195,7 +195,7 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
                 isUser ? "flex-row-reverse" : "flex-row"
             )}>
                 <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg mt-1",
+                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-md mt-1",
                     isUser ? "bg-accent-primary" : "bg-transparent"
                 )}>
                     {isUser ? (
@@ -218,7 +218,7 @@ const MessageBubble = React.memo(({ message, isLast, isGenerating, onEdit, onReg
                         <div className={cn(
                             "relative overflow-hidden w-full",
                             isUser
-                                ? "p-4 rounded-2xl shadow-md bg-accent-primary text-white rounded-tr-sm min-w-[60px]"
+                                ? "p-4 rounded-2xl shadow-sm border border-white/5 bg-accent-primary text-white rounded-tr-sm min-w-[60px]"
                                 : "py-2 text-foreground", // Removed bubble styling for AI
                             isEditing ? "w-full min-w-[300px]" : ""
                         )}>
