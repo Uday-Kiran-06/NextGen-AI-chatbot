@@ -338,14 +338,18 @@ registerTool({
             body.append('q', query);
 
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
             const response = await fetch(searchUrl, {
                 method: 'POST',
                 body: body,
                 headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Origin': 'https://html.duckduckgo.com',
+                    'Referer': 'https://html.duckduckgo.com/'
                 },
                 signal: controller.signal
             });
@@ -365,8 +369,17 @@ registerTool({
                 if (results.length >= 5) return;
 
                 const title = $(element).text().trim();
-                const url = $(element).attr('href');
+                let url = $(element).attr('href');
                 const snippet = $(element).closest('.result').find('.result__snippet').text().trim();
+
+                // Decode DuckDuckGo redirect URLs
+                if (url && url.includes('//duckduckgo.com/l/?uddg=')) {
+                    try {
+                        const urlParams = new URLSearchParams(url.split('?')[1]);
+                        const actualUrl = urlParams.get('uddg');
+                        if (actualUrl) url = decodeURIComponent(actualUrl);
+                    } catch (e) {}
+                }
 
                 if (title && url && snippet) {
                     results.push({ title, url, snippet });
